@@ -1,8 +1,4 @@
-'use client';
-
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider, createTheme } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
 import BottomNavigation from '@/components/BottomNavigation';
 import "./globals.css";
 
@@ -16,51 +12,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1e40af',
-    },
-    secondary: {
-      main: '#ef4444',
-    },
-    background: {
-      default: '#f8fafc',
-      paper: '#ffffff',
-    },
-    text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
-    },
-  },
-  typography: {
-    fontFamily: 'var(--font-geist-sans), system-ui, sans-serif',
-    h6: {
-      fontWeight: 600,
-    },
-  },
-  shape: {
-    borderRadius: 12,
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 8,
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)',
-        },
-      },
-    },
-  },
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -68,14 +19,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="theme-color" content="#3b82f6" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Auto Serve" />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background font-sans`}
       >
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          {children}
+        <div className="min-h-screen flex flex-col">
+          <main className="flex-1 pb-16">
+            {children}
+          </main>
           <BottomNavigation />
-        </ThemeProvider>
+        </div>
       </body>
     </html>
   );

@@ -1,26 +1,20 @@
 'use client';
 
 import React from 'react';
-import {
-  Box,
-  Typography,
-  Avatar,
-  Stack,
-  Divider,
-  Switch
-} from '@mui/material';
-import {
-  Person,
-  DirectionsCar,
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { 
+  User, 
+  Car,
   CreditCard,
-  Notifications,
-  Security,
-  Help,
+  Bell,
+  Shield,
+  HelpCircle,
   ChevronRight,
   Star,
   History,
   Receipt
-} from '@mui/icons-material';
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 interface MenuItem {
@@ -38,20 +32,20 @@ export default function Profile() {
 
   const accountItems: MenuItem[] = [
     {
-      icon: <Person sx={{ fontSize: '1.25rem' }} />,
+      icon: <User className="w-5 h-5" />,
       title: 'Personal Information',
       subtitle: 'Update your details',
       path: '/profile/personal'
     },
     {
-      icon: <DirectionsCar sx={{ fontSize: '1.25rem' }} />,
+      icon: <Car className="w-5 h-5" />,
       title: 'My Vehicles',
       subtitle: '3 vehicles',
       path: '/vehicles',
       badge: '3'
     },
     {
-      icon: <CreditCard sx={{ fontSize: '1.25rem' }} />,
+      icon: <CreditCard className="w-5 h-5" />,
       title: 'Payment Methods',
       subtitle: 'Manage cards & payments',
       path: '/profile/payments'
@@ -60,19 +54,19 @@ export default function Profile() {
 
   const activityItems: MenuItem[] = [
     {
-      icon: <History sx={{ fontSize: '1.25rem' }} />,
+      icon: <History className="w-5 h-5" />,
       title: 'Service History',
       subtitle: 'View past services',
       path: '/profile/history'
     },
     {
-      icon: <Star sx={{ fontSize: '1.25rem' }} />,
+      icon: <Star className="w-5 h-5" />,
       title: 'Reviews & Ratings',
       subtitle: 'Your feedback',
       path: '/profile/reviews'
     },
     {
-      icon: <Receipt sx={{ fontSize: '1.25rem' }} />,
+      icon: <Receipt className="w-5 h-5" />,
       title: 'Receipts & Invoices',
       subtitle: 'Download documents',
       path: '/profile/receipts'
@@ -81,20 +75,20 @@ export default function Profile() {
 
   const settingsItems: MenuItem[] = [
     {
-      icon: <Notifications sx={{ fontSize: '1.25rem' }} />,
+      icon: <Bell className="w-5 h-5" />,
       title: 'Push Notifications',
       subtitle: 'Service reminders & updates',
       hasSwitch: true,
       switchValue: true
     },
     {
-      icon: <Security sx={{ fontSize: '1.25rem' }} />,
+      icon: <Shield className="w-5 h-5" />,
       title: 'Privacy & Security',
       subtitle: 'Manage your data',
       path: '/profile/privacy'
     },
     {
-      icon: <Help sx={{ fontSize: '1.25rem' }} />,
+      icon: <HelpCircle className="w-5 h-5" />,
       title: 'Help & Support',
       subtitle: 'Get assistance',
       path: '/profile/help'
@@ -108,271 +102,140 @@ export default function Profile() {
   };
 
   const renderMenuSection = (title: string, items: MenuItem[]) => (
-    <Box sx={{ mb: 3 }}>
-      <Typography 
-        variant="h6" 
-        sx={{ 
-          fontWeight: 700, 
-          mb: 2, 
-          color: 'white',
-          fontSize: '1.125rem',
-          px: 1
-        }}
-      >
+    <div className="mb-6">
+      <h2 className="text-lg font-bold mb-3 text-white px-1">
         {title}
-      </Typography>
+      </h2>
       
-      <Box sx={{ 
-        backgroundColor: 'white', 
-        borderRadius: 3,
-        p: 2,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        border: '1px solid rgba(255,255,255,0.8)'
-      }}>
-        <Stack spacing={1}>
-          {items.map((item, index) => (
-            <Box key={index}>
-              <Box
-                onClick={() => handleItemClick(item)}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  p: 2.5,
-                  borderRadius: 2.5,
-                  cursor: item.path ? 'pointer' : 'default',
-                  transition: 'all 0.2s ease',
-                  backgroundColor: '#fafafa',
-                  border: '1px solid #f1f5f9',
-                  '&:active': item.path ? {
-                    backgroundColor: '#f3f4f6',
-                    transform: 'scale(0.98)'
-                  } : {}
-                }}
-              >
-                {/* Icon */}
-                <Box
-                  sx={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: 2.5,
-                    backgroundColor: '#1e40af15',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#1e40af',
-                    mr: 3
-                  }}
+      <Card>
+        <CardContent className="p-4">
+          <div className="space-y-3">
+            {items.map((item, index) => (
+              <div key={index}>
+                <Card 
+                  className={`cursor-pointer transition-transform ${
+                    item.path ? 'active:scale-95' : 'cursor-default'
+                  }`}
+                  onClick={() => handleItemClick(item)}
                 >
-                  {item.icon}
-                </Box>
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-4">
+                      {/* Icon */}
+                      <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600">
+                        {item.icon}
+                      </div>
 
-                {/* Content */}
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-                    <Typography
-                      variant="subtitle1"
-                      sx={{
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        fontSize: '1rem'
-                      }}
-                    >
-                      {item.title}
-                    </Typography>
-                    {item.badge && (
-                      <Box
-                        sx={{
-                          backgroundColor: '#1e40af',
-                          color: 'white',
-                          borderRadius: '50%',
-                          width: 20,
-                          height: 20,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '0.625rem',
-                          fontWeight: 600,
-                          ml: 1
-                        }}
-                      >
-                        {item.badge}
-                      </Box>
-                    )}
-                  </Box>
-                  {item.subtitle && (
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        fontSize: '0.875rem'
-                      }}
-                    >
-                      {item.subtitle}
-                    </Typography>
-                  )}
-                </Box>
+                      {/* Content */}
+                      <div className="flex-1">
+                        <div className="flex items-center mb-1">
+                          <h3 className="font-semibold text-gray-900">
+                            {item.title}
+                          </h3>
+                          {item.badge && (
+                            <Badge className="ml-2 bg-blue-600 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center p-0">
+                              {item.badge}
+                            </Badge>
+                          )}
+                        </div>
+                        {item.subtitle && (
+                          <p className="text-sm text-muted-foreground">
+                            {item.subtitle}
+                          </p>
+                        )}
+                      </div>
 
-                {/* Action */}
-                {item.hasSwitch ? (
-                  <Switch
-                    checked={item.switchValue}
-                    sx={{
-                      '& .MuiSwitch-switchBase.Mui-checked': {
-                        color: '#1e40af'
-                      },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        backgroundColor: '#1e40af'
-                      }
-                    }}
-                  />
-                ) : item.path ? (
-                  <ChevronRight sx={{ 
-                    color: '#1e40af', 
-                    fontSize: '1.25rem',
-                    opacity: 0.7
-                  }} />
-                ) : null}
-              </Box>
-              {index < items.length - 1 && (
-                <Divider sx={{ mx: 2, my: 1 }} />
-              )}
-            </Box>
-          ))}
-        </Stack>
-      </Box>
-    </Box>
+                      {/* Action */}
+                      {item.hasSwitch ? (
+                        <div className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={item.switchValue}
+                            className="w-10 h-6 bg-gray-200 rounded-full relative appearance-none cursor-pointer checked:bg-blue-600 transition-colors"
+                            readOnly
+                          />
+                        </div>
+                      ) : item.path ? (
+                        <ChevronRight className="w-5 h-5 text-blue-600 opacity-70" />
+                      ) : null}
+                    </div>
+                  </CardContent>
+                </Card>
+                {index < items.length - 1 && (
+                  <div className="h-px bg-gray-200 mx-4" />
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)',
-      maxWidth: '100vw',
-      overflow: 'hidden'
-    }}>
-      {/* Mobile Status Bar Safe Area */}
-      <Box sx={{ height: '44px', backgroundColor: 'transparent' }} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
+      {/* Status Bar Space */}
+      <div className="h-11" />
       
       {/* Header */}
-      <Box 
-        sx={{ 
-          px: 3,
-          py: 2.5,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}
-      >
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: 2,
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mr: 1.5
-            }}
-          >
-            <Person sx={{ color: 'white', fontSize: '1rem' }} />
-          </Box>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'white',
-              fontWeight: 700,
-              fontSize: '1.25rem'
-            }}
-          >
-            Profile
-          </Typography>
-        </Box>
-      </Box>
+      <div className="flex items-center justify-center px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+            <User className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold">Profile</h1>
+          </div>
+        </div>
+      </div>
 
       {/* Profile Header */}
-      <Box sx={{ px: 2, mb: 3 }}>
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 3,
-          p: 4,
-          textAlign: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          border: '1px solid rgba(255,255,255,0.8)'
-        }}>
-          <Avatar
-            sx={{
-              width: 80,
-              height: 80,
-              mx: 'auto',
-              mb: 2,
-              backgroundColor: '#1e40af',
-              color: 'white',
-              fontSize: '2rem',
-              fontWeight: 700
-            }}
-          >
-            JD
-          </Avatar>
-          <Typography
-            variant="h5"
-            sx={{
-              fontWeight: 700,
-              color: '#1e293b',
-              mb: 0.5,
-              fontSize: '1.375rem'
-            }}
-          >
-            John Doe
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ fontSize: '1rem', fontWeight: 500, mb: 2 }}
-          >
-            john.doe@email.com
-          </Typography>
-          
-          {/* Quick Stats */}
-          <Stack direction="row" spacing={3} justifyContent="center">
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#1e40af', fontSize: '1.25rem' }}>
-                3
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                Vehicles
-              </Typography>
-            </Box>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#22c55e', fontSize: '1.25rem' }}>
-                12
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                Services
-              </Typography>
-            </Box>
-            <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="h6" sx={{ fontWeight: 700, color: '#f59e0b', fontSize: '1.25rem' }}>
-                4.8
-              </Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                Rating
-              </Typography>
-            </Box>
-          </Stack>
-        </Box>
-      </Box>
+      <div className="px-4 mb-6">
+        <Card>
+          <CardContent className="p-6 text-center">
+            <div className="w-20 h-20 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white text-2xl font-bold">
+              JD
+            </div>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">
+              John Doe
+            </h2>
+            <p className="text-muted-foreground mb-4">
+              john.doe@email.com
+            </p>
+            
+            {/* Quick Stats */}
+            <div className="flex justify-center gap-8">
+              <div className="text-center">
+                <div className="text-xl font-bold text-blue-600">3</div>
+                <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">
+                  Vehicles
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-green-600">12</div>
+                <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">
+                  Services
+                </div>
+              </div>
+              <div className="text-center">
+                <div className="text-xl font-bold text-yellow-600">4.8</div>
+                <div className="text-xs text-muted-foreground font-semibold uppercase tracking-wide">
+                  Rating
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Content */}
-      <Box sx={{ px: 2, pb: 12 }}>
+      <div className="px-4 pb-24">
         {renderMenuSection('Account', accountItems)}
         {renderMenuSection('Activity', activityItems)}
         {renderMenuSection('Settings', settingsItems)}
-      </Box>
+      </div>
 
       {/* Bottom Safe Area */}
-      <Box sx={{ height: '34px', backgroundColor: 'transparent' }} />
-    </Box>
+      <div className="h-8" />
+    </div>
   );
 }

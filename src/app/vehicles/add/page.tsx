@@ -1,21 +1,11 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import {
-  Box,
-  Typography,
-  TextField,
-  IconButton,
-  Stack,
-  Slide,
-  Dialog
-} from '@mui/material';
-import {
-  ArrowBack,
-  DirectionsCar,
-  Check
-} from '@mui/icons-material';
-import { useRouter } from 'next/navigation';
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Car, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface NewVehicle {
   make: string;
@@ -26,43 +16,29 @@ interface NewVehicle {
   licensePlate: string;
 }
 
-interface TransitionProps {
-  children: React.ReactElement;
-  in?: boolean;
-  onEnter?: (node: HTMLElement, isAppearing: boolean) => void;
-  onExited?: (node: HTMLElement) => void;
-}
-
-const Transition = React.forwardRef<unknown, TransitionProps>(function Transition(
-  props,
-  ref,
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
 export default function AddVehicle() {
   const router = useRouter();
   const [vehicle, setVehicle] = useState<NewVehicle>({
-    make: '',
-    model: '',
-    year: '',
-    odometer: '',
-    color: '',
-    licensePlate: ''
+    make: "",
+    model: "",
+    year: "",
+    odometer: "",
+    color: "",
+    licensePlate: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
 
   const handleInputChange = (field: keyof NewVehicle, value: string) => {
-    setVehicle(prev => ({
+    setVehicle((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
-    
+
     if (errors[field]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
-        [field]: ''
+        [field]: "",
       }));
     }
   };
@@ -71,15 +47,15 @@ export default function AddVehicle() {
     const newErrors: Record<string, string> = {};
 
     if (!vehicle.make.trim()) {
-      newErrors.make = 'Make is required';
+      newErrors.make = "Make is required";
     }
 
     if (!vehicle.model.trim()) {
-      newErrors.model = 'Model is required';
+      newErrors.model = "Model is required";
     }
 
     if (!vehicle.year.trim()) {
-      newErrors.year = 'Year is required';
+      newErrors.year = "Year is required";
     } else {
       const yearNum = parseInt(vehicle.year);
       const currentYear = new Date().getFullYear();
@@ -89,11 +65,11 @@ export default function AddVehicle() {
     }
 
     if (!vehicle.odometer.trim()) {
-      newErrors.odometer = 'Odometer reading is required';
+      newErrors.odometer = "Odometer reading is required";
     } else {
       const odometerNum = parseInt(vehicle.odometer);
       if (odometerNum < 0) {
-        newErrors.odometer = 'Odometer reading must be positive';
+        newErrors.odometer = "Odometer reading must be positive";
       }
     }
 
@@ -102,430 +78,217 @@ export default function AddVehicle() {
   };
 
   const canSave = () => {
-    return vehicle.make.trim() && 
-           vehicle.model.trim() && 
-           vehicle.year.trim() && 
-           vehicle.odometer.trim();
+    return (
+      vehicle.make.trim() &&
+      vehicle.model.trim() &&
+      vehicle.year.trim() &&
+      vehicle.odometer.trim()
+    );
   };
 
   const handleSave = () => {
     if (validateForm()) {
-      console.log('Saving vehicle:', vehicle);
+      console.log("Saving vehicle:", vehicle);
       setShowSuccess(true);
-      
+
       setTimeout(() => {
-        router.push('/vehicles');
+        router.push("/vehicles");
       }, 2000);
     }
   };
 
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)',
-      maxWidth: '100vw',
-      overflow: 'hidden'
-    }}>
-      {/* Mobile Status Bar Safe Area */}
-      <Box sx={{ height: '44px', backgroundColor: 'transparent' }} />
-      
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+      {/* Status Bar Space */}
+      <div className="h-11" />
+
       {/* Header */}
-      <Box 
-        sx={{ 
-          px: 3,
-          py: 2.5,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}
-      >
-        <IconButton
+      <div className="flex items-center justify-between px-4 py-3">
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => router.back()}
-          sx={{ 
-            color: 'white',
-            p: 1,
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(10px)',
-            '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.2)'
-            }
-          }}
+          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
         >
-          <ArrowBack />
-        </IconButton>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: 2,
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mr: 1.5
-            }}
-          >
-            <DirectionsCar sx={{ color: 'white', fontSize: '1rem' }} />
-          </Box>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'white',
-              fontWeight: 700,
-              fontSize: '1.25rem'
-            }}
-          >
-            Add Vehicle
-          </Typography>
-        </Box>
-        
-        <IconButton
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+            <Car className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-xl font-bold text-white">Add Vehicle</h1>
+        </div>
+
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={handleSave}
           disabled={!canSave()}
-          sx={{ 
-            color: canSave() ? 'white' : 'rgba(255,255,255,0.3)',
-            p: 1,
-            backgroundColor: canSave() ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)',
-            backdropFilter: 'blur(10px)',
-            '&:hover': canSave() ? {
-              backgroundColor: 'rgba(255,255,255,0.2)'
-            } : {}
-          }}
+          className={`w-10 h-10 rounded-lg ${
+            canSave()
+              ? "bg-white/20 text-white hover:bg-white/30"
+              : "bg-white/10 text-white/50"
+          }`}
         >
-          <Check />
-        </IconButton>
-      </Box>
+          <Check className="w-5 h-5" />
+        </Button>
+      </div>
 
       {/* Content */}
-      <Box sx={{ px: 2, pb: 6 }}>
+      <div className="px-4 pb-6">
         {/* Hero Section */}
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 3,
-          p: 4,
-          textAlign: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          border: '1px solid rgba(255,255,255,0.8)',
-          mb: 2
-        }}>
-          <Box
-            sx={{
-              width: 80,
-              height: 80,
-              borderRadius: 3,
-              backgroundColor: '#1e40af',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              mx: 'auto',
-              mb: 3,
-              boxShadow: '0 4px 12px rgba(30, 64, 175, 0.3)'
-            }}
-          >
-            <DirectionsCar sx={{ fontSize: '2rem' }} />
-          </Box>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              color: '#1e293b',
-              mb: 2,
-              fontSize: '1.5rem'
-            }}
-          >
-            Add Your Vehicle
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ 
-              lineHeight: 1.6, 
-              fontSize: '1rem',
-              fontWeight: 500,
-              maxWidth: '300px',
-              mx: 'auto'
-            }}
-          >
-            Enter your vehicle details to start tracking maintenance and services
-          </Typography>
-        </Box>
+        <Card className="mb-4">
+          <CardContent className="pt-6 text-center">
+            <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Car className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Add Your Vehicle
+            </h2>
+            <p className="text-muted-foreground max-w-xs mx-auto">
+              Enter your vehicle details to start tracking maintenance and
+              services
+            </p>
+          </CardContent>
+        </Card>
 
         {/* Form Section */}
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 3,
-          p: 3,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          border: '1px solid rgba(255,255,255,0.8)',
-          mb: 2
-        }}>
-        <Stack spacing={4}>
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Make *
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="Toyota, Honda, Ford..."
-              value={vehicle.make}
-              onChange={(e) => handleInputChange('make', e.target.value)}
-              error={!!errors.make}
-              helperText={errors.make}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  fontSize: '1rem',
-                  '&.Mui-focused': {
-                    backgroundColor: 'white'
-                  }
-                }
-              }}
-            />
-          </Box>
+        <Card className="mb-4">
+          <CardContent className="pt-6">
+            <div className="space-y-6">
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Make *
+                </label>
+                <Input
+                  placeholder="Toyota, Honda, Ford..."
+                  value={vehicle.make}
+                  onChange={(e) => handleInputChange("make", e.target.value)}
+                  className={errors.make ? "border-red-500" : ""}
+                />
+                {errors.make && (
+                  <p className="text-red-500 text-sm mt-1">{errors.make}</p>
+                )}
+              </div>
 
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Model *
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="Camry, Civic, F-150..."
-              value={vehicle.model}
-              onChange={(e) => handleInputChange('model', e.target.value)}
-              error={!!errors.model}
-              helperText={errors.model}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  fontSize: '1rem',
-                  '&.Mui-focused': {
-                    backgroundColor: 'white'
-                  }
-                }
-              }}
-            />
-          </Box>
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Model *
+                </label>
+                <Input
+                  placeholder="Camry, Civic, F-150..."
+                  value={vehicle.model}
+                  onChange={(e) => handleInputChange("model", e.target.value)}
+                  className={errors.model ? "border-red-500" : ""}
+                />
+                {errors.model && (
+                  <p className="text-red-500 text-sm mt-1">{errors.model}</p>
+                )}
+              </div>
 
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Year *
-            </Typography>
-            <TextField
-              fullWidth
-              type="number"
-              placeholder="2020"
-              value={vehicle.year}
-              onChange={(e) => handleInputChange('year', e.target.value)}
-              error={!!errors.year}
-              helperText={errors.year}
-              variant="outlined"
-              inputProps={{ min: 1900, max: new Date().getFullYear() + 1 }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  fontSize: '1rem',
-                  '&.Mui-focused': {
-                    backgroundColor: 'white'
-                  }
-                }
-              }}
-            />
-          </Box>
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Year *
+                </label>
+                <Input
+                  type="number"
+                  placeholder="2020"
+                  value={vehicle.year}
+                  onChange={(e) => handleInputChange("year", e.target.value)}
+                  min={1900}
+                  max={new Date().getFullYear() + 1}
+                  className={errors.year ? "border-red-500" : ""}
+                />
+                {errors.year && (
+                  <p className="text-red-500 text-sm mt-1">{errors.year}</p>
+                )}
+              </div>
 
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Current Mileage *
-            </Typography>
-            <TextField
-              fullWidth
-              type="number"
-              placeholder="45,000"
-              value={vehicle.odometer}
-              onChange={(e) => handleInputChange('odometer', e.target.value)}
-              error={!!errors.odometer}
-              helperText={errors.odometer || 'Current odometer reading'}
-              variant="outlined"
-              inputProps={{ min: 0 }}
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  fontSize: '1rem',
-                  '&.Mui-focused': {
-                    backgroundColor: 'white'
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Current Mileage *
+                </label>
+                <Input
+                  type="number"
+                  placeholder="45,000"
+                  value={vehicle.odometer}
+                  onChange={(e) =>
+                    handleInputChange("odometer", e.target.value)
                   }
-                }
-              }}
-            />
-          </Box>
+                  min={0}
+                  className={errors.odometer ? "border-red-500" : ""}
+                />
+                {errors.odometer ? (
+                  <p className="text-red-500 text-sm mt-1">{errors.odometer}</p>
+                ) : (
+                  <p className="text-gray-500 text-sm mt-1">
+                    Current odometer reading
+                  </p>
+                )}
+              </div>
 
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Color (Optional)
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="Silver, Blue, Black..."
-              value={vehicle.color}
-              onChange={(e) => handleInputChange('color', e.target.value)}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  fontSize: '1rem',
-                  '&.Mui-focused': {
-                    backgroundColor: 'white'
-                  }
-                }
-              }}
-            />
-          </Box>
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Color (Optional)
+                </label>
+                <Input
+                  placeholder="Silver, Blue, Black..."
+                  value={vehicle.color}
+                  onChange={(e) => handleInputChange("color", e.target.value)}
+                />
+              </div>
 
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              License Plate (Optional)
-            </Typography>
-            <TextField
-              fullWidth
-              placeholder="ABC 123"
-              value={vehicle.licensePlate}
-              onChange={(e) => handleInputChange('licensePlate', e.target.value.toUpperCase())}
-              variant="outlined"
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2,
-                  backgroundColor: '#f8fafc',
-                  fontSize: '1rem',
-                  '&.Mui-focused': {
-                    backgroundColor: 'white'
+              <div>
+                <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  License Plate (Optional)
+                </label>
+                <Input
+                  placeholder="ABC 123"
+                  value={vehicle.licensePlate}
+                  onChange={(e) =>
+                    handleInputChange(
+                      "licensePlate",
+                      e.target.value.toUpperCase()
+                    )
                   }
-                }
-              }}
-            />
-          </Box>
-        </Stack>
-      </Box>
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Bottom CTA */}
-        <Box sx={{ 
-          mt: 3
-        }}>
-          <Box
-            onClick={canSave() ? handleSave : undefined}
-            sx={{
-              backgroundColor: canSave() ? '#ef4444' : '#e2e8f0',
-              color: canSave() ? 'white' : '#9ca3af',
-              borderRadius: 3,
-              py: 2.5,
-              textAlign: 'center',
-              cursor: canSave() ? 'pointer' : 'not-allowed',
-              transition: 'all 0.2s ease',
-              boxShadow: canSave() ? '0 4px 16px rgba(239, 68, 68, 0.3)' : 'none',
-              '&:active': canSave() ? {
-                transform: 'scale(0.98)',
-                backgroundColor: '#dc2626'
-              } : {}
-            }}
-          >
-            <Typography 
-              variant="h6" 
-              sx={{ 
-                fontWeight: 700,
-                fontSize: '1.125rem'
-              }}
-            >
-              Add Vehicle
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
+        <Button
+          onClick={canSave() ? handleSave : undefined}
+          disabled={!canSave()}
+          className={`w-full py-3 text-lg font-bold rounded-xl transition-all ${
+            canSave()
+              ? "bg-red-500 hover:bg-red-600 text-white shadow-lg active:scale-95"
+              : "bg-gray-200 text-gray-400 cursor-not-allowed"
+          }`}
+        >
+          Add Vehicle
+        </Button>
+      </div>
 
       {/* Success Dialog */}
-      <Dialog
-        open={showSuccess}
-        onClose={() => setShowSuccess(false)}
-        TransitionComponent={Transition}
-        PaperProps={{
-          sx: {
-            backgroundColor: '#22c55e',
-            color: 'white',
-            borderRadius: 3,
-            m: 2,
-            minWidth: 0,
-            boxShadow: '0 10px 40px rgba(34, 197, 94, 0.3)'
-          }
-        }}
-      >
-        <Box sx={{ p: 4, textAlign: 'center' }}>
-          <Check sx={{ fontSize: '4rem', mb: 2 }} />
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-            Vehicle Added!
-          </Typography>
-          <Typography variant="body1" sx={{ opacity: 0.9 }}>
-            Redirecting to your vehicles...
-          </Typography>
-        </Box>
-      </Dialog>
+      {showSuccess && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="w-full max-w-sm bg-green-500 text-white border-0">
+            <CardContent className="pt-6 text-center">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-8 h-8" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Vehicle Added!</h3>
+              <p className="opacity-90">Redirecting to your vehicles...</p>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Bottom Safe Area for Navigation */}
-      <Box sx={{ height: '100px', backgroundColor: 'transparent' }} />
-    </Box>
+      <div className="h-24" />
+    </div>
   );
 }

@@ -1,35 +1,35 @@
 'use client';
 
-import { Box, Typography, Avatar, Stack, Badge } from '@mui/material';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { 
-  DirectionsCar, 
-  Build, 
-  Schedule, 
-  Search,
+  Car, 
+  Wrench, 
   ChevronRight,
-  Person,
-  Notifications,
-  CalendarMonth
-} from '@mui/icons-material';
+  User,
+  Bell,
+  Calendar,
+  TrendingUp,
+  MapPin
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
 export default function Home() {
   const router = useRouter();
-  const [currentTime, setCurrentTime] = useState('');
+  const [greeting, setGreeting] = useState('');
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const hour = now.getHours();
-      let greeting = 'Good morning';
-      if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
-      if (hour >= 17) greeting = 'Good evening';
-      setCurrentTime(greeting);
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
+      if (hour < 12) setGreeting('Good morning');
+      else if (hour < 17) setGreeting('Good afternoon');
+      else setGreeting('Good evening');
     };
     
-    updateTime();
-    const interval = setInterval(updateTime, 60000);
+    updateGreeting();
+    const interval = setInterval(updateGreeting, 60000);
     return () => clearInterval(interval);
   }, []);
 
@@ -42,9 +42,9 @@ export default function Home() {
       status: 'confirmed'
     },
     {
-      vehicle: '2019 Honda Civic',
+      vehicle: '2019 Honda Civic',  
       service: 'Oil Change Due',
-      dueDate: 'Due in 3 days',
+      date: 'Due in 3 days',
       status: 'reminder'
     }
   ];
@@ -52,520 +52,188 @@ export default function Home() {
   const quickActions = [
     {
       title: 'Find Mechanics',
-      description: 'Search nearby mechanics',
-      icon: <Search sx={{ fontSize: '1.5rem' }} />,
-      color: '#1e40af',
+      desc: 'Search nearby mechanics',
+      icon: MapPin,
+      color: 'bg-blue-500',
       path: '/mechanics'
     },
     {
       title: 'Book Service',
-      description: 'Schedule maintenance',
-      icon: <CalendarMonth sx={{ fontSize: '1.5rem' }} />,
-      color: '#059669',
+      desc: 'Schedule maintenance',
+      icon: Calendar,
+      color: 'bg-green-500',
       path: '/mechanics'
     },
     {
       title: 'My Vehicles',
-      description: 'Manage fleet',
-      icon: <DirectionsCar sx={{ fontSize: '1.5rem' }} />,
-      color: '#7c3aed',
+      desc: 'Manage your fleet',
+      icon: Car,
+      color: 'bg-purple-500',
       path: '/vehicles'
     }
   ];
 
-  const recentActivity = [
-    {
-      title: 'Service Completed',
-      description: '2020 Toyota Camry - Basic Service at AutoCare Plus',
-      time: '2 days ago',
-      type: 'completed'
-    },
-    {
-      title: 'Payment Processed',
-      description: '$180 for Honda Civic oil change',
-      time: '1 week ago',
-      type: 'payment'
-    }
-  ];
-
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)',
-      maxWidth: '100vw',
-      overflow: 'hidden'
-    }}>
-      {/* Mobile Status Bar Safe Area */}
-      <Box sx={{ height: '44px', backgroundColor: 'transparent' }} />
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
+      {/* Status Bar Space */}
+      <div className="h-11" />
       
       {/* Header */}
-      <Box 
-        sx={{ 
-          px: 3,
-          py: 2.5,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}
-      >
-        <Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-            <Box
-              sx={{
-                width: 32,
-                height: 32,
-                borderRadius: 2,
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mr: 2
-              }}
-            >
-              <DirectionsCar sx={{ color: 'white', fontSize: '1.25rem' }} />
-            </Box>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                color: 'white',
-                fontWeight: 800,
-                fontSize: '1.625rem',
-                letterSpacing: '-0.02em'
-              }}
-            >
-              Auto Serve
-            </Typography>
-          </Box>
-          <Typography 
-            variant="body2" 
-            sx={{ 
-              color: 'rgba(255,255,255,0.85)',
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              ml: 5
-            }}
-          >
-            Vehicle Management Hub
-          </Typography>
-        </Box>
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+            <Car className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold">Auto Serve</h1>
+            <p className="text-blue-100 text-sm">Vehicle Management</p>
+          </div>
+        </div>
         
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Badge
-            badgeContent={2}
-            sx={{
-              '& .MuiBadge-badge': {
-                backgroundColor: '#ef4444',
-                color: 'white',
-                fontSize: '0.625rem',
-                fontWeight: 600,
-                boxShadow: '0 2px 8px rgba(239, 68, 68, 0.3)'
-              }
-            }}
-          >
-            <Avatar
-              sx={{
-                width: 40,
-                height: 40,
-                backgroundColor: 'rgba(255,255,255,0.2)',
-                color: 'white',
-                backdropFilter: 'blur(10px)',
-                border: '1px solid rgba(255,255,255,0.1)'
-              }}
-            >
-              <Notifications sx={{ fontSize: '1.125rem' }} />
-            </Avatar>
-          </Badge>
-          
-          <Avatar
-            sx={{
-              width: 40,
-              height: 40,
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              color: 'white',
-              ml: 0.5,
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(255,255,255,0.1)'
-            }}
-          >
-            <Person sx={{ fontSize: '1.125rem' }} />
-          </Avatar>
-        </Box>
-      </Box>
+        <div className="flex items-center gap-2">
+          <div className="relative">
+            <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+              <Bell className="w-4 h-4" />
+            </div>
+            <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
+              2
+            </Badge>
+          </div>
+          <div className="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+            <User className="w-4 h-4" />
+          </div>
+        </div>
+      </div>
 
-      {/* Welcome Section */}
-      <Box sx={{ 
-        backgroundColor: 'white', 
-        mx: 2,
-        mt: 1,
-        borderRadius: 3,
-        p: 3,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        border: '1px solid rgba(255,255,255,0.8)'
-      }}>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-            color: '#1e293b',
-            mb: 1,
-            fontSize: '1.5rem'
-          }}
-        >
-          {currentTime}! 👋
-        </Typography>
-        <Typography
-          variant="body1"
-          color="text.secondary"
-          sx={{ 
-            lineHeight: 1.6,
-            fontSize: '1rem',
-            fontWeight: 500
-          }}
-        >
-          Ready to keep your vehicles in top condition?
-        </Typography>
-      </Box>
+      {/* Welcome Card */}
+      <div className="mx-4 mt-4">
+        <Card>
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              {greeting}! 👋
+            </h2>
+            <p className="text-muted-foreground">
+              Ready to keep your vehicles in top condition?
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="px-4 mt-4">
+        <div className="grid grid-cols-3 gap-3">
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-blue-600 mb-1">3</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Vehicles</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-red-600 mb-1">2</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">Due Soon</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardContent className="p-4 text-center">
+              <div className="text-2xl font-bold text-green-600 mb-1">$840</div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide">This Month</div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       {/* Upcoming Services */}
       {upcomingServices.length > 0 && (
-        <Box sx={{ px: 2, mt: 2 }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 700, 
-              mb: 2, 
-              color: 'white',
-              fontSize: '1.125rem',
-              px: 1
-            }}
-          >
-            Upcoming Services
-          </Typography>
-          
-          <Stack spacing={1}>
+        <div className="px-4 mt-6">
+          <h2 className="text-lg font-bold mb-3">Upcoming Services</h2>
+          <div className="space-y-3">
             {upcomingServices.map((service, index) => (
-              <Box
-                key={index}
-                sx={{
-                  backgroundColor: 'white',
-                  borderRadius: 2.5,
-                  p: 3,
-                  boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                  border: '1px solid rgba(255,255,255,0.8)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  '&:active': {
-                    transform: 'scale(0.98)'
-                  }
-                }}
-              >
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <Box
-                    sx={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: '50%',
-                      backgroundColor: service.status === 'confirmed' ? '#22c55e' : '#f59e0b',
-                      mr: 1
-                    }}
-                  />
-                  <Typography
-                    variant="subtitle1"
-                    sx={{
-                      fontWeight: 700,
-                      color: '#1e293b',
-                      fontSize: '1rem'
-                    }}
-                  >
-                    {service.vehicle}
-                  </Typography>
-                </Box>
-                
-                <Typography
-                  variant="body2"
-                  sx={{
-                    color: '#64748b',
-                    fontSize: '0.875rem',
-                    mb: 0.5
-                  }}
-                >
-                  {service.service}
-                </Typography>
-                
-                <Typography
-                  variant="caption"
-                  sx={{
-                    color: service.status === 'confirmed' ? '#22c55e' : '#f59e0b',
-                    fontSize: '0.75rem',
-                    fontWeight: 600
-                  }}
-                >
-                  {service.date || service.dueDate}
-                  {service.mechanic && ` • ${service.mechanic}`}
-                </Typography>
-              </Box>
+              <Card key={index} className="cursor-pointer active:scale-95 transition-transform">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${
+                      service.status === 'confirmed' ? 'bg-green-500' : 'bg-yellow-500'
+                    }`} />
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-gray-900">{service.vehicle}</h3>
+                      <p className="text-sm text-muted-foreground mb-1">{service.service}</p>
+                      <p className={`text-xs font-medium ${
+                        service.status === 'confirmed' ? 'text-green-600' : 'text-yellow-600'
+                      }`}>
+                        {service.date} {service.mechanic && `• ${service.mechanic}`}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-          </Stack>
-        </Box>
+          </div>
+        </div>
       )}
-
-      {/* Quick Stats */}
-      <Box sx={{ px: 2, mt: 2 }}>
-        <Stack direction="row" spacing={1.5}>
-          <Box sx={{ 
-            flex: 1,
-            backgroundColor: 'rgba(255,255,255,0.95)', 
-            borderRadius: 2.5, 
-            p: 2.5,
-            textAlign: 'center',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
-          }}>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 800, 
-              color: '#1e40af',
-              fontSize: '1.75rem',
-              mb: 0.5
-            }}>
-              3
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ 
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Vehicles
-            </Typography>
-          </Box>
-          
-          <Box sx={{ 
-            flex: 1,
-            backgroundColor: 'rgba(255,255,255,0.95)', 
-            borderRadius: 2.5, 
-            p: 2.5,
-            textAlign: 'center',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
-          }}>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 800, 
-              color: '#dc2626',
-              fontSize: '1.75rem',
-              mb: 0.5
-            }}>
-              2
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ 
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Due Soon
-            </Typography>
-          </Box>
-          
-          <Box sx={{ 
-            flex: 1,
-            backgroundColor: 'rgba(255,255,255,0.95)', 
-            borderRadius: 2.5, 
-            p: 2.5,
-            textAlign: 'center',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(255,255,255,0.6)',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
-          }}>
-            <Typography variant="h4" sx={{ 
-              fontWeight: 800, 
-              color: '#059669',
-              fontSize: '1.75rem',
-              mb: 0.5
-            }}>
-              $840
-            </Typography>
-            <Typography variant="caption" color="text.secondary" sx={{ 
-              fontSize: '0.75rem',
-              fontWeight: 600,
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              This Month
-            </Typography>
-          </Box>
-        </Stack>
-      </Box>
 
       {/* Quick Actions */}
-      <Box sx={{ px: 2, mt: 2 }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 700, 
-            mb: 2, 
-            color: 'white',
-            fontSize: '1.125rem',
-            px: 1
-          }}
-        >
-          Quick Actions
-        </Typography>
-        
-        <Stack spacing={1}>
-          {quickActions.map((action, index) => (
-            <Box
-              key={index}
-              onClick={() => router.push(action.path)}
-              sx={{
-                backgroundColor: 'white',
-                borderRadius: 2.5,
-                p: 3,
-                display: 'flex',
-                alignItems: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                border: '1px solid rgba(255,255,255,0.8)',
-                transition: 'all 0.2s ease',
-                '&:active': {
-                  transform: 'scale(0.98)'
-                }
-              }}
-            >
-              <Box
-                sx={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 2.5,
-                  backgroundColor: action.color,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: 'white',
-                  mr: 3,
-                  boxShadow: `0 4px 12px ${action.color}40`
-                }}
-              >
-                {action.icon}
-              </Box>
-              
-              <Box sx={{ flex: 1 }}>
-                <Typography
-                  variant="subtitle1"
-                  sx={{
-                    fontWeight: 700,
-                    color: '#1e293b',
-                    fontSize: '1rem',
-                    mb: 0.5
-                  }}
-                >
-                  {action.title}
-                </Typography>
-                <Typography
-                  variant="body2"
-                  color="text.secondary"
-                  sx={{
-                    fontSize: '0.875rem'
-                  }}
-                >
-                  {action.description}
-                </Typography>
-              </Box>
-              
-              <ChevronRight sx={{ color: action.color, fontSize: '1.5rem', opacity: 0.7 }} />
-            </Box>
-          ))}
-        </Stack>
-      </Box>
+      <div className="px-4 mt-6">
+        <h2 className="text-lg font-bold mb-3">Quick Actions</h2>
+        <div className="space-y-3">
+          {quickActions.map((action, index) => {
+            const IconComponent = action.icon;
+            return (
+              <Card key={index} className="cursor-pointer active:scale-95 transition-transform">
+                <CardContent className="p-4">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start p-0 h-auto"
+                    onClick={() => router.push(action.path)}
+                  >
+                    <div className="flex items-center gap-4 w-full">
+                      <div className={`w-12 h-12 ${action.color} rounded-xl flex items-center justify-center shadow-lg`}>
+                        <IconComponent className="w-6 h-6 text-white" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <h3 className="font-semibold text-gray-900">{action.title}</h3>
+                        <p className="text-sm text-muted-foreground">{action.desc}</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-gray-400" />
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Recent Activity */}
-      {recentActivity.length > 0 && (
-        <Box sx={{ px: 2, mt: 2, mb: 3 }}>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              fontWeight: 700, 
-              mb: 2, 
-              color: 'white',
-              fontSize: '1.125rem',
-              px: 1
-            }}
-          >
-            Recent Activity
-          </Typography>
-          
-          <Box sx={{
-            backgroundColor: 'white',
-            borderRadius: 3,
-            p: 3,
-            boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-            border: '1px solid rgba(255,255,255,0.8)'
-          }}>
-            <Stack spacing={2}>
-              {recentActivity.map((activity, index) => (
-                <Box key={index} sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                  <Box
-                    sx={{
-                      width: 32,
-                      height: 32,
-                      borderRadius: '50%',
-                      backgroundColor: activity.type === 'completed' ? '#22c55e15' : '#1e40af15',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      mr: 2,
-                      mt: 0.5
-                    }}
-                  >
-                    {activity.type === 'completed' ? (
-                      <Build sx={{ fontSize: '1rem', color: '#22c55e' }} />
-                    ) : (
-                      <Schedule sx={{ fontSize: '1rem', color: '#1e40af' }} />
-                    )}
-                  </Box>
-                  
-                  <Box sx={{ flex: 1 }}>
-                    <Typography
-                      variant="subtitle2"
-                      sx={{
-                        fontWeight: 600,
-                        color: '#1e293b',
-                        fontSize: '0.875rem',
-                        mb: 0.5
-                      }}
-                    >
-                      {activity.title}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      color="text.secondary"
-                      sx={{
-                        fontSize: '0.8125rem',
-                        mb: 0.5
-                      }}
-                    >
-                      {activity.description}
-                    </Typography>
-                    <Typography
-                      variant="caption"
-                      sx={{
-                        color: '#9ca3af',
-                        fontSize: '0.75rem'
-                      }}
-                    >
-                      {activity.time}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-            </Stack>
-          </Box>
-        </Box>
-      )}
-
-      {/* Bottom Safe Area for Navigation */}
-      <Box sx={{ height: '100px', backgroundColor: 'transparent' }} />
-    </Box>
+      <div className="px-4 mt-6 mb-6">
+        <h2 className="text-lg font-bold mb-3">Recent Activity</h2>
+        <Card>
+          <CardContent className="p-4">
+            <div className="space-y-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <Wrench className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">Service Completed</h4>
+                  <p className="text-sm text-muted-foreground">2020 Toyota Camry - Basic Service at AutoCare Plus</p>
+                  <p className="text-xs text-gray-400 mt-1">2 days ago</p>
+                </div>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900">Payment Processed</h4>
+                  <p className="text-sm text-muted-foreground">$180 for Honda Civic oil change</p>
+                  <p className="text-xs text-gray-400 mt-1">1 week ago</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 }
