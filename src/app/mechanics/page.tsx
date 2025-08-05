@@ -719,318 +719,386 @@ export default function Mechanics() {
       {/* Content Area - Map or List */}
       <div className="px-4 pb-24">
         {viewMode === "map" ? (
-          /* Map View - High Fidelity */
-          <Card className="border-0 shadow-lg mb-4 overflow-hidden">
-            <CardContent className="p-0">
-              <div className="relative h-96 bg-gray-100">
-                {/* Google Maps Style Background */}
-                <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white">
-                  {/* Roads and Streets */}
-                  <svg
-                    className="absolute inset-0 w-full h-full"
-                    viewBox="0 0 400 300"
-                  >
-                    {/* Major roads - thicker, darker */}
-                    <path
-                      d="M0,120 Q100,115 200,120 T400,125"
-                      stroke="#ffffff"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      d="M0,180 Q150,175 300,180 L400,182"
-                      stroke="#ffffff"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      d="M120,0 Q125,100 130,200 T135,300"
-                      stroke="#ffffff"
-                      strokeWidth="4"
-                      fill="none"
-                    />
-                    <path
-                      d="M280,0 Q275,80 270,160 T265,300"
-                      stroke="#ffffff"
-                      strokeWidth="4"
-                      fill="none"
-                    />
+          /* Full Screen Map View */
+          <div className="fixed inset-0 z-40 bg-white">
+            {/* Full Screen Map Container */}
+            <div className="relative h-full bg-gray-100">
+              {/* Google Maps Style Background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white">
+                {/* Road Network */}
+                <svg
+                  className="absolute inset-0 w-full h-full"
+                  viewBox="0 0 400 800"
+                >
+                  {/* Major roads */}
+                  <path
+                    d="M0,200 Q100,180 200,200 T400,220"
+                    stroke="#ffffff"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    d="M0,400 Q150,380 300,400 L400,410"
+                    stroke="#ffffff"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    d="M0,600 Q200,580 400,600"
+                    stroke="#ffffff"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    d="M150,0 Q160,200 170,400 T180,800"
+                    stroke="#ffffff"
+                    strokeWidth="4"
+                    fill="none"
+                  />
+                  <path
+                    d="M300,0 Q290,300 280,600 T270,800"
+                    stroke="#ffffff"
+                    strokeWidth="4"
+                    fill="none"
+                  />
 
-                    {/* Minor streets */}
-                    <path
-                      d="M0,80 L400,85"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M0,220 L400,215"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M0,260 L400,265"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M60,0 L65,300"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M200,0 L195,300"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      fill="none"
-                    />
-                    <path
-                      d="M340,0 L345,300"
-                      stroke="#ffffff"
-                      strokeWidth="2"
-                      fill="none"
-                    />
+                  {/* Minor streets */}
+                  <path
+                    d="M0,120 L400,130"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M0,280 L400,290"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M0,480 L400,470"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M0,680 L400,690"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M80,0 L90,800"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M220,0 L210,800"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
+                  <path
+                    d="M350,0 L360,800"
+                    stroke="#ffffff"
+                    strokeWidth="2"
+                    fill="none"
+                  />
 
-                    {/* Buildings/blocks */}
-                    <rect
-                      x="20"
-                      y="20"
-                      width="60"
-                      height="40"
-                      fill="#f3f4f6"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <rect
-                      x="140"
-                      y="40"
-                      width="80"
-                      height="60"
-                      fill="#f3f4f6"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <rect
-                      x="300"
-                      y="30"
-                      width="70"
-                      height="50"
-                      fill="#f3f4f6"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <rect
-                      x="50"
-                      y="200"
-                      width="90"
-                      height="70"
-                      fill="#f3f4f6"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <rect
-                      x="200"
-                      y="220"
-                      width="60"
-                      height="50"
-                      fill="#f3f4f6"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
-                    <rect
-                      x="320"
-                      y="200"
-                      width="50"
-                      height="80"
-                      fill="#f3f4f6"
-                      stroke="#e5e7eb"
-                      strokeWidth="1"
-                    />
+                  {/* Buildings */}
+                  <rect
+                    x="20"
+                    y="50"
+                    width="60"
+                    height="40"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="200"
+                    y="80"
+                    width="80"
+                    height="60"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="320"
+                    y="60"
+                    width="70"
+                    height="50"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="50"
+                    y="320"
+                    width="90"
+                    height="70"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="250"
+                    y="350"
+                    width="60"
+                    height="50"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="30"
+                    y="520"
+                    width="80"
+                    height="60"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="300"
+                    y="550"
+                    width="70"
+                    height="80"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="120"
+                    y="650"
+                    width="90"
+                    height="50"
+                    fill="#f3f4f6"
+                    stroke="#e5e7eb"
+                    strokeWidth="1"
+                  />
 
-                    {/* Parks/green areas */}
-                    <circle
-                      cx="350"
-                      cy="100"
-                      r="25"
-                      fill="#dcfce7"
-                      stroke="#bbf7d0"
-                      strokeWidth="1"
-                    />
-                    <rect
-                      x="10"
-                      y="140"
-                      width="40"
-                      height="30"
-                      fill="#dcfce7"
-                      stroke="#bbf7d0"
-                      strokeWidth="1"
-                      rx="5"
-                    />
-                  </svg>
-                </div>
+                  {/* Parks */}
+                  <circle
+                    cx="350"
+                    cy="200"
+                    r="30"
+                    fill="#dcfce7"
+                    stroke="#bbf7d0"
+                    strokeWidth="1"
+                  />
+                  <rect
+                    x="10"
+                    y="400"
+                    width="50"
+                    height="40"
+                    fill="#dcfce7"
+                    stroke="#bbf7d0"
+                    strokeWidth="1"
+                    rx="8"
+                  />
+                  <circle
+                    cx="100"
+                    cy="600"
+                    r="25"
+                    fill="#dcfce7"
+                    stroke="#bbf7d0"
+                    strokeWidth="1"
+                  />
+                </svg>
+              </div>
 
-                {/* Location Pins */}
-                <div className="absolute inset-0">
-                  {/* User Location - Google Maps style blue dot */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                    <div className="relative">
-                      {/* Outer pulse ring */}
-                      <div className="absolute w-12 h-12 bg-blue-500/20 rounded-full animate-ping"></div>
-                      {/* Inner blue dot */}
-                      <div className="relative w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg">
-                        <div className="absolute inset-0.5 bg-white rounded-full"></div>
-                        <div className="absolute inset-1 bg-blue-500 rounded-full"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Mechanic Pins - Google Maps style */}
-                  {filteredAndSortedMechanics
-                    .slice(0, 5)
-                    .map((mechanic, index) => {
-                      const positions = [
-                        { top: "25%", left: "30%" },
-                        { top: "65%", left: "70%" },
-                        { top: "35%", left: "75%" },
-                        { top: "75%", left: "20%" },
-                        { top: "45%", left: "85%" },
-                      ];
-                      const position = positions[index] || positions[0];
-
-                      return (
-                        <div
-                          key={mechanic.id}
-                          className="absolute transform -translate-x-1/2 -translate-y-full cursor-pointer group"
-                          style={{ top: position.top, left: position.left }}
-                          onClick={() => handleMechanicClick(mechanic.id)}
-                        >
-                          {/* Google Maps style pin */}
-                          <div className="relative">
-                            {/* Pin shadow */}
-                            <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-6 h-3 bg-black/20 rounded-full blur-sm"></div>
-
-                            {/* Main pin */}
-                            <div className="relative">
-                              {/* Pin body */}
-                              <div className="w-8 h-10 bg-red-500 rounded-t-full rounded-b-none relative shadow-lg">
-                                <div className="absolute inset-0 bg-gradient-to-b from-red-400 to-red-600 rounded-t-full"></div>
-                                {/* Pin icon */}
-                                <div className="absolute top-1.5 left-1/2 transform -translate-x-1/2">
-                                  <Car className="w-3 h-3 text-white" />
-                                </div>
-                                {/* Pin point */}
-                                <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-red-600 rotate-45"></div>
-                              </div>
-
-                              {/* Price badge */}
-                              <div className="absolute -top-1 -right-1 bg-white border border-gray-300 text-gray-800 text-xs px-1.5 py-0.5 rounded-full font-semibold shadow-md">
-                                {mechanic.priceRange}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Google Maps style info card */}
-                          <div className="absolute top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-20">
-                            <div className="bg-white rounded-lg shadow-xl border border-gray-200 min-w-52 max-w-64">
-                              {/* Card header */}
-                              <div className="p-3 border-b border-gray-100">
-                                <h4 className="font-semibold text-gray-900 text-sm mb-1">
-                                  {mechanic.name}
-                                </h4>
-                                <div className="flex items-center gap-1 mb-1">
-                                  <div className="flex">
-                                    {[...Array(5)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className={`w-3 h-3 ${
-                                          i < Math.floor(mechanic.rating)
-                                            ? "text-yellow-400 fill-yellow-400"
-                                            : "text-gray-300 fill-gray-300"
-                                        }`}
-                                      />
-                                    ))}
-                                  </div>
-                                  <span className="text-xs text-gray-600">
-                                    {mechanic.rating} ({mechanic.reviewCount})
-                                  </span>
-                                </div>
-                                <p className="text-xs text-gray-500">
-                                  {mechanic.distance} •{" "}
-                                  {mechanic.openingHours.today}
-                                </p>
-                              </div>
-
-                              {/* Card body */}
-                              <div className="p-3">
-                                <div className="flex flex-wrap gap-1 mb-2">
-                                  {mechanic.services
-                                    .slice(0, 3)
-                                    .map((service, idx) => (
-                                      <span
-                                        key={idx}
-                                        className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200"
-                                      >
-                                        {service}
-                                      </span>
-                                    ))}
-                                </div>
-                                <div className="flex items-center justify-between">
-                                  <span className="text-sm font-semibold text-green-600">
-                                    {mechanic.priceRange}
-                                  </span>
-                                  <button className="text-xs text-blue-600 font-medium hover:underline">
-                                    View Details
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                            {/* Card pointer */}
-                            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                              <div className="w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-
-                {/* Google Maps style controls */}
-                <div className="absolute top-4 right-4 flex flex-col gap-1">
-                  <button className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                    <span className="text-lg font-normal text-gray-700">+</span>
-                  </button>
-                  <button className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                    <span className="text-lg font-normal text-gray-700">−</span>
-                  </button>
-                </div>
-
-                {/* Current Location Button - Google Maps style */}
-                <div className="absolute bottom-16 right-4">
-                  <button className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                    <Navigation className="w-5 h-5 text-gray-700" />
-                  </button>
-                </div>
-
-                {/* Google watermark */}
-                <div className="absolute bottom-2 left-2">
-                  <div className="text-xs text-gray-500 bg-white/80 px-2 py-1 rounded">
-                    Google
-                  </div>
-                </div>
-
-                {/* Scale indicator */}
-                <div className="absolute bottom-2 right-2">
-                  <div className="flex items-center bg-white/90 px-2 py-1 rounded text-xs text-gray-600">
-                    <div className="w-8 h-0.5 bg-gray-600 mr-1"></div>
-                    500m
+              {/* User Location - Center of map */}
+              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                <div className="relative">
+                  {/* Outer pulse ring */}
+                  <div className="absolute w-16 h-16 bg-blue-500/20 rounded-full animate-ping"></div>
+                  {/* Inner blue dot */}
+                  <div className="relative w-5 h-5 bg-blue-500 rounded-full border-3 border-white shadow-lg">
+                    <div className="absolute inset-0.5 bg-white rounded-full"></div>
+                    <div className="absolute inset-1 bg-blue-500 rounded-full"></div>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+
+              {/* Mechanic Pins - Spread across map */}
+              {filteredAndSortedMechanics.map((mechanic, index) => {
+                const positions = [
+                  { top: "25%", left: "30%" },
+                  { top: "35%", left: "70%" },
+                  { top: "55%", left: "25%" },
+                  { top: "65%", left: "75%" },
+                  { top: "45%", left: "85%" },
+                  { top: "75%", left: "40%" },
+                  { top: "30%", left: "15%" },
+                  { top: "80%", left: "65%" },
+                ];
+                const position =
+                  positions[index] || positions[index % positions.length];
+
+                return (
+                  <div
+                    key={mechanic.id}
+                    className="absolute transform -translate-x-1/2 -translate-y-full cursor-pointer group"
+                    style={{ top: position.top, left: position.left }}
+                    onClick={() => handleMechanicClick(mechanic.id)}
+                  >
+                    {/* Google Maps style pin */}
+                    <div className="relative">
+                      {/* Pin shadow */}
+                      <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black/20 rounded-full blur-sm"></div>
+
+                      {/* Main pin */}
+                      <div className="relative">
+                        {/* Pin body */}
+                        <div className="w-10 h-12 bg-red-500 rounded-t-full rounded-b-none relative shadow-lg">
+                          <div className="absolute inset-0 bg-gradient-to-b from-red-400 to-red-600 rounded-t-full"></div>
+                          {/* Pin icon */}
+                          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+                            <Car className="w-4 h-4 text-white" />
+                          </div>
+                          {/* Pin point */}
+                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-red-600 rotate-45"></div>
+                        </div>
+
+                        {/* Price badge */}
+                        <div className="absolute -top-1 -right-1 bg-white border border-gray-300 text-gray-800 text-xs px-2 py-1 rounded-full font-semibold shadow-md">
+                          {mechanic.priceRange}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Info Card on Hover */}
+                    <div className="absolute top-14 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30">
+                      <div className="bg-white rounded-lg shadow-xl border border-gray-200 min-w-64 max-w-72">
+                        {/* Card content */}
+                        <div className="p-4">
+                          <h4 className="font-bold text-gray-900 text-base mb-2">
+                            {mechanic.name}
+                          </h4>
+                          <div className="flex items-center gap-1 mb-2">
+                            <div className="flex">
+                              {[...Array(5)].map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < Math.floor(mechanic.rating)
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-gray-300 fill-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            <span className="text-sm text-gray-600 ml-1">
+                              {mechanic.rating} ({mechanic.reviewCount} reviews)
+                            </span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            {mechanic.address}
+                          </p>
+                          <p className="text-sm text-gray-600 mb-3">
+                            {mechanic.distance}
+                          </p>
+
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {mechanic.services
+                              .slice(0, 4)
+                              .map((service, idx) => (
+                                <span
+                                  key={idx}
+                                  className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200"
+                                >
+                                  {service}
+                                </span>
+                              ))}
+                          </div>
+
+                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                            <div className="flex items-center gap-2 text-sm">
+                              <span
+                                className={`font-medium ${
+                                  mechanic.openingHours.isOpen
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {mechanic.openingHours.today}
+                              </span>
+                              <span className="text-gray-400">•</span>
+                              <span className="text-blue-600">
+                                {mechanic.phoneNumber}
+                              </span>
+                            </div>
+                            <button className="text-sm text-blue-600 font-medium hover:underline">
+                              Details
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Card pointer */}
+                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                        <div className="w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Map Controls */}
+              <div className="absolute top-4 right-4 flex flex-col gap-2">
+                <button className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
+                  <span className="text-xl font-normal text-gray-700">+</span>
+                </button>
+                <button className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
+                  <span className="text-xl font-normal text-gray-700">−</span>
+                </button>
+              </div>
+
+              {/* Current Location Button */}
+              <div className="absolute bottom-32 right-4">
+                <button className="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
+                  <Navigation className="w-6 h-6 text-gray-700" />
+                </button>
+              </div>
+
+              {/* Search Info Bar */}
+              <div className="absolute top-4 left-4 right-20">
+                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Car className="w-5 h-5 text-red-500" />
+                      <span className="font-medium text-gray-900">
+                        {filteredAndSortedMechanics.length} mechanics in{" "}
+                        {currentLocation}
+                      </span>
+                    </div>
+                    <button
+                      onClick={() => setViewMode("list")}
+                      className="text-blue-600 text-sm font-medium hover:underline"
+                    >
+                      Show list
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Google watermark */}
+              <div className="absolute bottom-4 left-4">
+                <div className="text-sm text-gray-500 bg-white/90 px-3 py-1 rounded shadow">
+                  Google
+                </div>
+              </div>
+
+              {/* Scale indicator */}
+              <div className="absolute bottom-4 right-20">
+                <div className="flex items-center bg-white/90 px-3 py-1 rounded shadow text-sm text-gray-600">
+                  <div className="w-12 h-0.5 bg-gray-600 mr-2"></div>1 km
+                </div>
+              </div>
+            </div>
+          </div>
         ) : null}
 
         {/* Mechanics List */}

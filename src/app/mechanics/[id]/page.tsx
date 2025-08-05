@@ -5,6 +5,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import {
   ArrowLeft,
   Star,
   MapPin,
@@ -14,6 +18,7 @@ import {
   Wrench,
   DollarSign,
   CheckCircle,
+  X,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 
@@ -123,7 +128,7 @@ export default function MechanicDetail() {
   const mechanicId = params.id as string;
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [showQuote, setShowQuote] = useState(false);
+  const [showQuoteDialog, setShowQuoteDialog] = useState(false);
 
   const mechanic = mockMechanicData[mechanicId];
 
@@ -144,7 +149,7 @@ export default function MechanicDetail() {
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
-    setShowQuote(true);
+    setShowQuoteDialog(true);
   };
 
   const handleBookService = () => {
@@ -303,115 +308,158 @@ export default function MechanicDetail() {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Quote Section */}
-        {showQuote && selectedService && (
-          <div className="mb-6">
-            <h3 className="text-lg font-bold text-white mb-4">
-              Your Estimated Quote
-            </h3>
-            <Card>
-              <CardContent className="pt-6">
-                <div className="mb-4">
-                  <h4 className="text-xl font-bold text-gray-900 mb-2">
+      {/* Quote Dialog */}
+      <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
+        <DialogContent className="w-[95vw] max-w-md max-h-[95vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+          {/* Custom Header with Gradient */}
+          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 pb-4 rounded-t-2xl relative">
+            <button
+              onClick={() => setShowQuoteDialog(false)}
+              className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors z-10"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+            <div className="text-center">
+              <h2 className="text-white text-xl font-bold mb-1">
+                Your Estimated Quote
+              </h2>
+              <div className="w-12 h-1 bg-white/30 rounded-full mx-auto"></div>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="p-6">
+            {selectedService && (
+              <div className="space-y-5">
+                {/* Service Header */}
+                <div className="text-center bg-gray-50 rounded-xl p-4">
+                  <h4 className="text-lg font-bold text-gray-900 mb-2">
                     {selectedService.name}
                   </h4>
-                  <p className="text-gray-600">{selectedService.description}</p>
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {selectedService.description}
+                  </p>
                 </div>
 
                 {(() => {
                   const totals = calculateTotal(selectedService);
-
                   return (
-                    <div className="space-y-4">
-                      {/* Parts */}
-                      <div>
-                        <h5 className="font-semibold text-gray-900 mb-2">
+                    <>
+                      {/* Parts Section */}
+                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                        <h5 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
                           Parts
                         </h5>
-                        {selectedService.details.parts.map((part, index) => (
-                          <div
-                            key={index}
-                            className="flex justify-between py-1"
-                          >
-                            <span className="text-gray-600">{part.name}</span>
-                            <span className="font-medium">${part.price}</span>
-                          </div>
-                        ))}
-                        <div className="border-t pt-2 mt-2">
-                          <div className="flex justify-between font-semibold">
-                            <span>Parts Subtotal</span>
-                            <span>${totals.partsTotal}</span>
+                        <div className="space-y-3">
+                          {selectedService.details.parts.map((part, index) => (
+                            <div
+                              key={index}
+                              className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg border border-gray-100"
+                            >
+                              <span className="text-sm text-gray-700 font-medium">
+                                {part.name}
+                              </span>
+                              <span className="text-sm font-bold text-gray-900">
+                                ${part.price}
+                              </span>
+                            </div>
+                          ))}
+                          <div className="flex justify-between items-center py-2 px-3 bg-blue-50 rounded-lg border border-blue-100">
+                            <span className="text-sm font-semibold text-blue-900">
+                              Parts Subtotal
+                            </span>
+                            <span className="text-sm font-bold text-blue-900">
+                              ${totals.partsTotal}
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Labor */}
-                      <div>
-                        <h5 className="font-semibold text-gray-900 mb-2">
+                      {/* Labor Section */}
+                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                        <h5 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
                           Labor
                         </h5>
-                        <div className="flex justify-between py-1">
-                          <span className="text-gray-600">
+                        <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg border border-gray-100">
+                          <span className="text-sm text-gray-700 font-medium">
                             {selectedService.details.labor.description}
                           </span>
-                          <span className="font-medium">
-                            ${totals.laborTotal}
+                          <span className="text-sm font-bold text-gray-900">
+                            ${selectedService.details.labor.price}
                           </span>
                         </div>
                       </div>
 
-                      {/* Fees */}
-                      <div>
-                        <h5 className="font-semibold text-gray-900 mb-2">
+                      {/* Fees Section */}
+                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+                        <h5 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
+                          <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
                           Miscellaneous Fees
                         </h5>
-                        {selectedService.details.fees.map((fee, index) => (
-                          <div
-                            key={index}
-                            className="flex justify-between py-1"
-                          >
-                            <span className="text-gray-600">{fee.name}</span>
-                            <span className="font-medium">${fee.price}</span>
-                          </div>
-                        ))}
+                        <div className="space-y-2">
+                          {selectedService.details.fees.map((fee, index) => (
+                            <div
+                              key={index}
+                              className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg border border-gray-100"
+                            >
+                              <span className="text-sm text-gray-700 font-medium">
+                                {fee.name}
+                              </span>
+                              <span className="text-sm font-bold text-gray-900">
+                                ${fee.price}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
 
                       {/* Totals */}
-                      <div className="border-t pt-4 space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Subtotal</span>
-                          <span className="font-medium">
-                            ${totals.subtotal}
-                          </span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">GST (10%)</span>
-                          <span className="font-medium">
-                            ${totals.gst.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="border-t pt-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-xl font-bold text-gray-900">
-                              Total Estimated Cost
+                      <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-100 shadow-sm">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-center py-2">
+                            <span className="text-sm text-gray-600 font-medium">
+                              Subtotal
                             </span>
-                            <span className="text-2xl font-bold text-green-600">
-                              ${totals.total.toFixed(2)}
+                            <span className="text-sm font-bold text-gray-900">
+                              ${totals.subtotal.toFixed(2)}
                             </span>
+                          </div>
+                          <div className="flex justify-between items-center py-2">
+                            <span className="text-sm text-gray-600 font-medium">
+                              GST (10%)
+                            </span>
+                            <span className="text-sm font-bold text-gray-900">
+                              ${totals.gst.toFixed(2)}
+                            </span>
+                          </div>
+                          <div className="border-t border-gray-300 pt-3">
+                            <div className="flex justify-between items-center py-2 px-3 bg-green-500 rounded-lg text-white">
+                              <span className="font-bold">
+                                Total Estimated Cost
+                              </span>
+                              <span className="text-xl font-bold">
+                                ${totals.total.toFixed(2)}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
 
                       {/* Authorization Notice */}
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mt-4">
-                        <div className="flex items-start gap-2">
-                          <Shield className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-xl p-4 shadow-sm">
+                        <div className="flex items-start gap-3">
+                          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <Shield className="w-4 h-4 text-amber-600" />
+                          </div>
                           <div>
-                            <p className="text-sm font-semibold text-yellow-800 mb-1">
+                            <p className="text-sm font-bold text-amber-900 mb-2">
                               Authorization Notice
                             </p>
-                            <p className="text-sm text-yellow-700">
+                            <p className="text-xs text-amber-800 leading-relaxed">
                               I understand the mechanic must call me for
                               approval before starting any work not included in
                               this estimate.
@@ -421,10 +469,13 @@ export default function MechanicDetail() {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="space-y-3 mt-6">
+                      <div className="space-y-3 pt-2">
                         <Button
-                          onClick={handleBookService}
-                          className="w-full h-12 bg-red-500 hover:bg-red-600 text-white font-bold text-lg"
+                          onClick={() => {
+                            handleBookService();
+                            setShowQuoteDialog(false);
+                          }}
+                          className="w-full h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                         >
                           <CheckCircle className="w-5 h-5 mr-2" />
                           Accept Estimate & Book Service
@@ -432,20 +483,20 @@ export default function MechanicDetail() {
 
                         <Button
                           variant="outline"
-                          onClick={() => router.back()}
-                          className="w-full h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-lg"
+                          onClick={() => setShowQuoteDialog(false)}
+                          className="w-full h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-base rounded-xl transition-all duration-200"
                         >
                           Decline
                         </Button>
                       </div>
-                    </div>
+                    </>
                   );
                 })()}
-              </CardContent>
-            </Card>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
