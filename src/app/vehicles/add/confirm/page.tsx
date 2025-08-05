@@ -38,7 +38,6 @@ function ConfirmVehicleContent() {
 
   const handleAddToGarage = async () => {
     console.log("Button clicked - adding vehicle to garage");
-    alert("Button clicked! Adding vehicle to garage...");
     setIsAdding(true);
 
     // Simulate API call to add vehicle
