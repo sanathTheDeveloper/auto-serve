@@ -10,7 +10,6 @@ import {
   Calendar,
   MapPin,
   Wrench,
-  DollarSign,
   ChevronDown,
   ChevronUp,
   FileText,
@@ -71,15 +70,50 @@ const mockVehicleData: Record<string, Vehicle> = {
         status: "completed",
         warranty: "12 months / 20,000km",
         items: [
-          { name: "Engine Oil (5L) - Castrol GTX", price: 45, category: "parts", condition: "new" },
-          { name: "Oil Filter - Genuine Toyota", price: 18, category: "parts", condition: "genuine" },
-          { name: "Air Filter - K&N Performance", price: 25, category: "parts", condition: "aftermarket" },
-          { name: "Cabin Filter - OEM", price: 32, category: "parts", condition: "genuine" },
-          { name: "Brake Fluid - DOT 4", price: 22, category: "parts", condition: "new" },
-          { name: "Full Service Labor", price: 140, category: "labor", hours: 2.5 },
+          {
+            name: "Engine Oil (5L) - Castrol GTX",
+            price: 45,
+            category: "parts",
+            condition: "new",
+          },
+          {
+            name: "Oil Filter - Genuine Toyota",
+            price: 18,
+            category: "parts",
+            condition: "genuine",
+          },
+          {
+            name: "Air Filter - K&N Performance",
+            price: 25,
+            category: "parts",
+            condition: "aftermarket",
+          },
+          {
+            name: "Cabin Filter - OEM",
+            price: 32,
+            category: "parts",
+            condition: "genuine",
+          },
+          {
+            name: "Brake Fluid - DOT 4",
+            price: 22,
+            category: "parts",
+            condition: "new",
+          },
+          {
+            name: "Full Service Labor",
+            price: 140,
+            category: "labor",
+            hours: 2.5,
+          },
           { name: "Oil Disposal Fee", price: 5, category: "fees" },
           { name: "Shop Supplies", price: 15, category: "fees" },
-          { name: "Diagnostic Check", price: 25, category: "labor", hours: 0.5 },
+          {
+            name: "Diagnostic Check",
+            price: 25,
+            category: "labor",
+            hours: 0.5,
+          },
         ],
         notes:
           "All systems checked and functioning normally. Recommended tire rotation at next service.",
@@ -95,11 +129,36 @@ const mockVehicleData: Record<string, Vehicle> = {
         status: "completed",
         warranty: "6 months / 15,000km",
         items: [
-          { name: "Brake Pads (Front) - Bendix General CT", price: 85, category: "parts", condition: "aftermarket" },
-          { name: "Brake Pads (Rear) - OEM Honda", price: 75, category: "parts", condition: "genuine" },
-          { name: "Brake Fluid - DOT 4", price: 22, category: "parts", condition: "new" },
-          { name: "Brake Rotors (Front) - Refurbished", price: 120, category: "parts", condition: "used" },
-          { name: "Brake Service Labor", price: 75, category: "labor", hours: 1.5 },
+          {
+            name: "Brake Pads (Front) - Bendix General CT",
+            price: 85,
+            category: "parts",
+            condition: "aftermarket",
+          },
+          {
+            name: "Brake Pads (Rear) - OEM Honda",
+            price: 75,
+            category: "parts",
+            condition: "genuine",
+          },
+          {
+            name: "Brake Fluid - DOT 4",
+            price: 22,
+            category: "parts",
+            condition: "new",
+          },
+          {
+            name: "Brake Rotors (Front) - Refurbished",
+            price: 120,
+            category: "parts",
+            condition: "used",
+          },
+          {
+            name: "Brake Service Labor",
+            price: 75,
+            category: "labor",
+            hours: 1.5,
+          },
           { name: "Brake Fluid Disposal", price: 8, category: "fees" },
         ],
         notes:
@@ -116,10 +175,30 @@ const mockVehicleData: Record<string, Vehicle> = {
         status: "completed",
         warranty: "6 months / 10,000km",
         items: [
-          { name: "Engine Oil (5L) - Valvoline MaxLife", price: 45, category: "parts", condition: "new" },
-          { name: "Oil Filter - Aftermarket Premium", price: 18, category: "parts", condition: "aftermarket" },
-          { name: "Air Filter - Mann Filter", price: 25, category: "parts", condition: "new" },
-          { name: "Basic Service Labor", price: 65, category: "labor", hours: 1.0 },
+          {
+            name: "Engine Oil (5L) - Valvoline MaxLife",
+            price: 45,
+            category: "parts",
+            condition: "new",
+          },
+          {
+            name: "Oil Filter - Aftermarket Premium",
+            price: 18,
+            category: "parts",
+            condition: "aftermarket",
+          },
+          {
+            name: "Air Filter - Mann Filter",
+            price: 25,
+            category: "parts",
+            condition: "new",
+          },
+          {
+            name: "Basic Service Labor",
+            price: 65,
+            category: "labor",
+            hours: 1.0,
+          },
           { name: "Oil Disposal Fee", price: 5, category: "fees" },
           { name: "Shop Supplies", price: 8, category: "fees" },
         ],
@@ -136,7 +215,12 @@ const mockVehicleData: Record<string, Vehicle> = {
         status: "completed",
         warranty: "24 months / 40,000km",
         items: [
-          { name: "Premium Tires (Set of 4) - Michelin Primacy", price: 480, category: "parts", condition: "new" },
+          {
+            name: "Premium Tires (Set of 4) - Michelin Primacy",
+            price: 480,
+            category: "parts",
+            condition: "new",
+          },
           { name: "Wheel Alignment", price: 65, category: "labor", hours: 1.0 },
           { name: "Tire Disposal Fee", price: 15, category: "fees" },
         ],
@@ -321,7 +405,8 @@ export default function ServiceLogbook() {
                   Welcome! Your service logbook is empty
                 </h4>
                 <p className="text-gray-600 mb-4">
-                  Once you book a service with Auto Serve, all the details will appear here automatically
+                  Once you book a service with Auto Serve, all the details will
+                  appear here automatically
                 </p>
                 <Button
                   onClick={() => router.push("/mechanics")}
@@ -443,14 +528,25 @@ export default function ServiceLogbook() {
                                           </span>
                                           {item.condition && (
                                             <div className="mt-1">
-                                              <span className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${
-                                                item.condition === 'new' ? 'bg-green-100 text-green-700' :
-                                                item.condition === 'genuine' ? 'bg-blue-100 text-blue-700' :
-                                                item.condition === 'aftermarket' ? 'bg-orange-100 text-orange-700' :
-                                                'bg-yellow-100 text-yellow-700'
-                                              }`}>
-                                                {item.condition === 'genuine' ? 'OEM/Genuine' : 
-                                                 item.condition.charAt(0).toUpperCase() + item.condition.slice(1)}
+                                              <span
+                                                className={`inline-block px-2 py-0.5 text-xs rounded-full font-medium ${
+                                                  item.condition === "new"
+                                                    ? "bg-green-100 text-green-700"
+                                                    : item.condition ===
+                                                      "genuine"
+                                                    ? "bg-blue-100 text-blue-700"
+                                                    : item.condition ===
+                                                      "aftermarket"
+                                                    ? "bg-orange-100 text-orange-700"
+                                                    : "bg-yellow-100 text-yellow-700"
+                                                }`}
+                                              >
+                                                {item.condition === "genuine"
+                                                  ? "OEM/Genuine"
+                                                  : item.condition
+                                                      .charAt(0)
+                                                      .toUpperCase() +
+                                                    item.condition.slice(1)}
                                               </span>
                                             </div>
                                           )}
@@ -464,7 +560,9 @@ export default function ServiceLogbook() {
                                   <div className="border-t pt-2 mt-2">
                                     <div className="flex justify-between font-semibold">
                                       <span>Parts Subtotal</span>
-                                      <span>${totals.partsTotal.toFixed(2)}</span>
+                                      <span>
+                                        ${totals.partsTotal.toFixed(2)}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
@@ -488,7 +586,12 @@ export default function ServiceLogbook() {
                                           </span>
                                           {item.hours && (
                                             <div className="mt-1 text-xs text-gray-500">
-                                              {item.hours} hour{item.hours !== 1 ? 's' : ''} @ ${(item.price / item.hours).toFixed(0)}/hr
+                                              {item.hours} hour
+                                              {item.hours !== 1 ? "s" : ""} @ $
+                                              {(
+                                                item.price / item.hours
+                                              ).toFixed(0)}
+                                              /hr
                                             </div>
                                           )}
                                         </div>
@@ -501,7 +604,9 @@ export default function ServiceLogbook() {
                                   <div className="border-t pt-2 mt-2">
                                     <div className="flex justify-between font-semibold">
                                       <span>Labor Subtotal</span>
-                                      <span>${totals.laborTotal.toFixed(2)}</span>
+                                      <span>
+                                        ${totals.laborTotal.toFixed(2)}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
@@ -531,7 +636,9 @@ export default function ServiceLogbook() {
                                   <div className="border-t pt-2 mt-2">
                                     <div className="flex justify-between font-semibold">
                                       <span>Fees Subtotal</span>
-                                      <span>${totals.feesTotal.toFixed(2)}</span>
+                                      <span>
+                                        ${totals.feesTotal.toFixed(2)}
+                                      </span>
                                     </div>
                                   </div>
                                 </div>

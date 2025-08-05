@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ interface VehicleData {
   rego: string;
 }
 
-export default function ConfirmVehicle() {
+function ConfirmVehicleContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [vehicleData, setVehicleData] = useState<VehicleData | null>(null);
@@ -236,5 +236,13 @@ export default function ConfirmVehicle() {
       {/* Bottom Safe Area for Navigation */}
       <div className="h-32" />
     </div>
+  );
+}
+
+export default function ConfirmVehicle() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+      <ConfirmVehicleContent />
+    </Suspense>
   );
 }

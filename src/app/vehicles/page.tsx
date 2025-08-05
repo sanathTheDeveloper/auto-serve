@@ -1,16 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Car,
-  Plus,
   ArrowLeft,
   ChevronRight,
   Wrench,
   Shield,
-  Heart,
+  Car,
+  Plus,
 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
@@ -120,7 +119,7 @@ const mockVehicleData: Vehicle = {
   ],
 };
 
-export default function MyVehicles() {
+function MyVehiclesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -320,5 +319,13 @@ export default function MyVehicles() {
       {/* Bottom Safe Area for Navigation */}
       <div className="h-24" />
     </div>
+  );
+}
+
+export default function MyVehicles() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+      <MyVehiclesContent />
+    </Suspense>
   );
 }

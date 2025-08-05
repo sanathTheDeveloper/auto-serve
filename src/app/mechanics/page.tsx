@@ -111,7 +111,7 @@ export default function Mechanics() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [showVehicleSelector, setShowVehicleSelector] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState("Melbourne CBD");
+  const [currentLocation] = useState("Melbourne CBD");
   const [mechanics] = useState<Mechanic[]>(mockMechanics);
 
   const handleMechanicClick = (mechanicId: string) => {

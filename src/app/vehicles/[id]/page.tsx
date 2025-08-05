@@ -17,11 +17,14 @@ import {
   FileText,
   Calendar,
   MapPin,
-  AlertTriangle,
   TrendingUp,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { calculateNextService, getStatusBadgeColor, getStatusColor } from "@/lib/service-logic";
+import {
+  calculateNextService,
+  getStatusBadgeColor,
+  getStatusColor,
+} from "@/lib/service-logic";
 
 interface ServiceItem {
   name: string;
@@ -83,9 +86,9 @@ const mockVehicles: Record<string, Vehicle> = {
           { name: "Full Service Labor", price: 140, category: "labor" },
           { name: "Oil Disposal Fee", price: 5, category: "fees" },
         ],
-        notes: "All systems checked and functioning normally."
-      }
-    ]
+        notes: "All systems checked and functioning normally.",
+      },
+    ],
   },
   "2": {
     id: "2",
@@ -113,9 +116,9 @@ const mockVehicles: Record<string, Vehicle> = {
           { name: "Basic Service Labor", price: 85, category: "labor" },
           { name: "Shop Supplies", price: 8, category: "fees" },
         ],
-        notes: "Routine maintenance completed. Vehicle in excellent condition."
-      }
-    ]
+        notes: "Routine maintenance completed. Vehicle in excellent condition.",
+      },
+    ],
   },
   "3": {
     id: "3",
@@ -146,9 +149,10 @@ const mockVehicles: Record<string, Vehicle> = {
           { name: "Diagnostic Check", price: 45, category: "labor" },
           { name: "Disposal Fees", price: 15, category: "fees" },
         ],
-        notes: "Comprehensive service completed. All fluids replaced and systems inspected."
-      }
-    ]
+        notes:
+          "Comprehensive service completed. All fluids replaced and systems inspected.",
+      },
+    ],
   },
 };
 
@@ -216,7 +220,6 @@ export default function VehicleDetail() {
     if (level >= 30) return "bg-yellow-500";
     return "bg-red-500";
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
@@ -409,24 +412,26 @@ export default function VehicleDetail() {
         {/* Smart Next Service Card */}
         {(() => {
           const serviceStatus = calculateNextService(vehicle);
-          const statusIconColor = 
-            serviceStatus.status === 'Overdue' ? 'bg-red-100 text-red-600' :
-            serviceStatus.status === 'Due Soon' ? 'bg-yellow-100 text-yellow-600' :
-            'bg-green-100 text-green-600';
-          
+          const statusIconColor =
+            serviceStatus.status === "Overdue"
+              ? "bg-red-100 text-red-600"
+              : serviceStatus.status === "Due Soon"
+              ? "bg-yellow-100 text-yellow-600"
+              : "bg-green-100 text-green-600";
+
           return (
             <Card className="mb-6">
               <CardContent className="p-5">
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${statusIconColor}`}>
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${statusIconColor}`}
+                  >
                     <TrendingUp className="w-6 h-6" />
                   </div>
 
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-bold text-gray-900">
-                        Next Service
-                      </h3>
+                      <h3 className="font-bold text-gray-900">Next Service</h3>
                       <Badge
                         variant="secondary"
                         className={getStatusBadgeColor(serviceStatus.status)}
@@ -435,7 +440,11 @@ export default function VehicleDetail() {
                       </Badge>
                     </div>
 
-                    <p className={`text-sm mb-3 font-medium ${getStatusColor(serviceStatus.status)}`}>
+                    <p
+                      className={`text-sm mb-3 font-medium ${getStatusColor(
+                        serviceStatus.status
+                      )}`}
+                    >
                       {serviceStatus.message}
                     </p>
 
@@ -443,16 +452,25 @@ export default function VehicleDetail() {
                     <div className="mb-4">
                       <div className="flex justify-between text-xs text-gray-500 mb-1">
                         <span>Service Progress</span>
-                        <span>{Math.round(serviceStatus.progressPercentage)}%</span>
+                        <span>
+                          {Math.round(serviceStatus.progressPercentage)}%
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
                           className={`h-2 rounded-full transition-all ${
-                            serviceStatus.status === 'Overdue' ? 'bg-red-500' :
-                            serviceStatus.status === 'Due Soon' ? 'bg-yellow-500' :
-                            'bg-green-500'
+                            serviceStatus.status === "Overdue"
+                              ? "bg-red-500"
+                              : serviceStatus.status === "Due Soon"
+                              ? "bg-yellow-500"
+                              : "bg-green-500"
                           }`}
-                          style={{ width: `${Math.min(serviceStatus.progressPercentage, 100)}%` }}
+                          style={{
+                            width: `${Math.min(
+                              serviceStatus.progressPercentage,
+                              100
+                            )}%`,
+                          }}
                         />
                       </div>
                     </div>

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Car, Search, FileText, Check } from "lucide-react";
+import { ArrowLeft, Car, Plus, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface VehicleData {
@@ -25,17 +25,17 @@ interface NewVehicle {
 }
 
 // Mock vehicle lookup function
-const mockVehicleLookup = (rego: string): Promise<VehicleData> => {
+const mockVehicleLookup = (): Promise<VehicleData> => {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve({
-        make: 'Toyota',
-        model: 'Camry',
-        year: '2020',
-        color: 'Silver',
-        vin: 'JN1AZ12B00T123456'
+        make: "Toyota",
+        model: "Camry",
+        year: "2020",
+        color: "Silver",
+        vin: "1HGBH41JXMN109186",
       });
-    }, 1500);
+    }, 2000);
   });
 };
 
@@ -57,10 +57,10 @@ export default function AddVehicle() {
 
   const handleFindVehicle = async () => {
     if (!registrationNumber.trim()) return;
-    
+
     setIsLoading(true);
     try {
-      const vehicleData = await mockVehicleLookup(registrationNumber);
+      const vehicleData = await mockVehicleLookup();
       // Navigate to confirm screen with vehicle data
       const params = new URLSearchParams({
         make: vehicleData.make,
@@ -68,11 +68,11 @@ export default function AddVehicle() {
         year: vehicleData.year,
         color: vehicleData.color,
         vin: vehicleData.vin,
-        rego: registrationNumber
+        rego: registrationNumber,
       });
       router.push(`/vehicles/add/confirm?${params.toString()}`);
     } catch (error) {
-      console.error('Error looking up vehicle:', error);
+      console.error("Error looking up vehicle:", error);
     } finally {
       setIsLoading(false);
     }
@@ -186,7 +186,7 @@ export default function AddVehicle() {
                 : "bg-white/10 text-white/50"
             }`}
           >
-            <Check className="w-5 h-5" />
+            <CheckCircle className="w-5 h-5" />
           </Button>
         ) : (
           <div className="w-10" />
@@ -201,13 +201,14 @@ export default function AddVehicle() {
             <Card className="mb-6">
               <CardContent className="pt-6 text-center">
                 <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Search className="w-10 h-10 text-white" />
+                  <Plus className="w-10 h-10 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   Add Your Vehicle Instantly
                 </h2>
                 <p className="text-muted-foreground max-w-sm mx-auto">
-                  Simply enter your registration number and we'll find your vehicle details automatically
+                  Simply enter your registration number and we&apos;ll find your
+                  vehicle details automatically
                 </p>
               </CardContent>
             </Card>
@@ -223,7 +224,9 @@ export default function AddVehicle() {
                     <Input
                       placeholder="ABC 123"
                       value={registrationNumber}
-                      onChange={(e) => setRegistrationNumber(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setRegistrationNumber(e.target.value.toUpperCase())
+                      }
                       className="text-lg text-center font-semibold tracking-wider"
                       disabled={isLoading}
                     />
@@ -248,7 +251,7 @@ export default function AddVehicle() {
                       </div>
                     ) : (
                       <>
-                        <Search className="w-5 h-5 mr-2" />
+                        <Plus className="w-5 h-5 mr-2" />
                         Find My Vehicle
                       </>
                     )}
@@ -280,7 +283,8 @@ export default function AddVehicle() {
                   Add Your Vehicle
                 </h2>
                 <p className="text-muted-foreground max-w-xs mx-auto">
-                  Enter your vehicle details to start tracking maintenance and services
+                  Enter your vehicle details to start tracking maintenance and
+                  services
                 </p>
               </CardContent>
             </Card>
@@ -296,7 +300,9 @@ export default function AddVehicle() {
                     <Input
                       placeholder="Toyota, Honda, Ford..."
                       value={vehicle.make}
-                      onChange={(e) => handleInputChange("make", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("make", e.target.value)
+                      }
                       className={errors.make ? "border-red-500" : ""}
                     />
                     {errors.make && (
@@ -311,11 +317,15 @@ export default function AddVehicle() {
                     <Input
                       placeholder="Camry, Civic, F-150..."
                       value={vehicle.model}
-                      onChange={(e) => handleInputChange("model", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("model", e.target.value)
+                      }
                       className={errors.model ? "border-red-500" : ""}
                     />
                     {errors.model && (
-                      <p className="text-red-500 text-sm mt-1">{errors.model}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.model}
+                      </p>
                     )}
                   </div>
 
@@ -327,7 +337,9 @@ export default function AddVehicle() {
                       type="number"
                       placeholder="2020"
                       value={vehicle.year}
-                      onChange={(e) => handleInputChange("year", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("year", e.target.value)
+                      }
                       min={1900}
                       max={new Date().getFullYear() + 1}
                       className={errors.year ? "border-red-500" : ""}
@@ -345,12 +357,16 @@ export default function AddVehicle() {
                       type="number"
                       placeholder="45,000"
                       value={vehicle.odometer}
-                      onChange={(e) => handleInputChange("odometer", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("odometer", e.target.value)
+                      }
                       min={0}
                       className={errors.odometer ? "border-red-500" : ""}
                     />
                     {errors.odometer ? (
-                      <p className="text-red-500 text-sm mt-1">{errors.odometer}</p>
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.odometer}
+                      </p>
                     ) : (
                       <p className="text-gray-500 text-sm mt-1">
                         Current odometer reading
@@ -365,7 +381,9 @@ export default function AddVehicle() {
                     <Input
                       placeholder="Silver, Blue, Black..."
                       value={vehicle.color}
-                      onChange={(e) => handleInputChange("color", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("color", e.target.value)
+                      }
                     />
                   </div>
 
@@ -376,7 +394,12 @@ export default function AddVehicle() {
                     <Input
                       placeholder="ABC 123"
                       value={vehicle.licensePlate}
-                      onChange={(e) => handleInputChange("licensePlate", e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        handleInputChange(
+                          "licensePlate",
+                          e.target.value.toUpperCase()
+                        )
+                      }
                     />
                   </div>
                 </div>
@@ -416,7 +439,7 @@ export default function AddVehicle() {
           <Card className="w-full max-w-sm bg-green-500 text-white border-0">
             <CardContent className="pt-6 text-center">
               <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Check className="w-8 h-8" />
+                <CheckCircle className="w-8 h-8" />
               </div>
               <h3 className="text-xl font-bold mb-2">Vehicle Added!</h3>
               <p className="opacity-90">Redirecting to your vehicles...</p>
