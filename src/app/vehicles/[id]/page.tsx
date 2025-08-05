@@ -1,27 +1,47 @@
-'use client';
+"use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
-  Box,
-  Typography,
-  TextField,
-  IconButton,
-  Stack,
-  Divider,
-  Slide,
-  Dialog
-} from '@mui/material';
-import {
-  ArrowBack,
+  ArrowLeft,
   Edit,
   Check,
-  Close,
-  DirectionsCar,
-  Build,
-  LocalGasStation,
-  Speed
-} from '@mui/icons-material';
-import { useRouter, useParams } from 'next/navigation';
+  X,
+  Car,
+  Wrench,
+  Fuel,
+  Gauge,
+  FileText,
+  Calendar,
+  MapPin,
+  AlertTriangle,
+  TrendingUp,
+} from "lucide-react";
+import { useRouter, useParams } from "next/navigation";
+import { calculateNextService, getStatusBadgeColor, getStatusColor } from "@/lib/service-logic";
+
+interface ServiceItem {
+  name: string;
+  price: number;
+  category: "parts" | "labor" | "fees";
+}
+
+interface ServiceEntry {
+  id: string;
+  date: string;
+  serviceType: string;
+  mechanicName: string;
+  mechanicAddress: string;
+  totalCost: number;
+  odometer: number;
+  status: "completed" | "in-progress" | "cancelled";
+  items: ServiceItem[];
+  notes?: string;
+  warranty?: string;
+}
 
 interface Vehicle {
   id: string;
@@ -31,593 +51,466 @@ interface Vehicle {
   odometer: number;
   color?: string;
   licensePlate?: string;
-  nextService?: string;
   fuelLevel?: number;
+  serviceHistory: ServiceEntry[];
 }
 
 const mockVehicles: Record<string, Vehicle> = {
-  '1': {
-    id: '1',
-    make: 'Toyota',
-    model: 'Camry',
+  "1": {
+    id: "1",
+    make: "Toyota",
+    model: "Camry",
     year: 2020,
     odometer: 45000,
-    color: 'Silver',
-    licensePlate: 'XYZ 123',
-    nextService: 'Oil Change Due',
-    fuelLevel: 75
+    color: "Silver",
+    licensePlate: "XYZ 123",
+    fuelLevel: 75,
+    serviceHistory: [
+      {
+        id: "service-1",
+        date: "2024-01-15",
+        serviceType: "Full Logbook Service",
+        mechanicName: "AutoCare Plus",
+        mechanicAddress: "123 Collins Street, Melbourne",
+        totalCost: 327.8,
+        odometer: 35000,
+        status: "completed",
+        warranty: "12 months / 20,000km",
+        items: [
+          { name: "Engine Oil (5L)", price: 45, category: "parts" },
+          { name: "Oil Filter", price: 18, category: "parts" },
+          { name: "Air Filter", price: 25, category: "parts" },
+          { name: "Full Service Labor", price: 140, category: "labor" },
+          { name: "Oil Disposal Fee", price: 5, category: "fees" },
+        ],
+        notes: "All systems checked and functioning normally."
+      }
+    ]
   },
-  '2': {
-    id: '2',
-    make: 'Honda',
-    model: 'Civic',
+  "2": {
+    id: "2",
+    make: "Honda",
+    model: "Civic",
     year: 2019,
     odometer: 32000,
-    color: 'Blue',
-    licensePlate: 'ABC 456',
-    nextService: 'Inspection Due',
-    fuelLevel: 40
+    color: "Blue",
+    licensePlate: "ABC 456",
+    fuelLevel: 40,
+    serviceHistory: [
+      {
+        id: "service-2",
+        date: "2024-07-22",
+        serviceType: "Basic Service",
+        mechanicName: "Melbourne Motor Works",
+        mechanicAddress: "456 Flinders Lane, Melbourne",
+        totalCost: 185.5,
+        odometer: 30000,
+        status: "completed",
+        warranty: "6 months / 10,000km",
+        items: [
+          { name: "Engine Oil (5L)", price: 45, category: "parts" },
+          { name: "Oil Filter", price: 18, category: "parts" },
+          { name: "Basic Service Labor", price: 85, category: "labor" },
+          { name: "Shop Supplies", price: 8, category: "fees" },
+        ],
+        notes: "Routine maintenance completed. Vehicle in excellent condition."
+      }
+    ]
   },
-  '3': {
-    id: '3',
-    make: 'Ford',
-    model: 'F-150',
+  "3": {
+    id: "3",
+    make: "Ford",
+    model: "F-150",
     year: 2021,
     odometer: 28000,
-    color: 'Black',
-    licensePlate: 'DEF 789',
-    nextService: 'Tire Rotation',
-    fuelLevel: 90
-  }
+    color: "Black",
+    licensePlate: "DEF 789",
+    fuelLevel: 90,
+    serviceHistory: [
+      {
+        id: "service-3",
+        date: "2023-12-10",
+        serviceType: "Major Service",
+        mechanicName: "Quick Fix Automotive",
+        mechanicAddress: "789 Bourke Street, Melbourne",
+        totalCost: 450.0,
+        odometer: 18000,
+        status: "completed",
+        warranty: "12 months / 20,000km",
+        items: [
+          { name: "Engine Oil (6L)", price: 60, category: "parts" },
+          { name: "Oil Filter", price: 22, category: "parts" },
+          { name: "Air Filter", price: 35, category: "parts" },
+          { name: "Brake Fluid", price: 25, category: "parts" },
+          { name: "Major Service Labor", price: 180, category: "labor" },
+          { name: "Diagnostic Check", price: 45, category: "labor" },
+          { name: "Disposal Fees", price: 15, category: "fees" },
+        ],
+        notes: "Comprehensive service completed. All fluids replaced and systems inspected."
+      }
+    ]
+  },
 };
 
-interface TransitionProps {
-  children: React.ReactElement;
-  in?: boolean;
-  onEnter?: (node: HTMLElement, isAppearing: boolean) => void;
-  onExited?: (node: HTMLElement) => void;
-}
-
-const Transition = React.forwardRef<unknown, TransitionProps>(function Transition(
-  props,
-  ref,
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-
-export default function VehicleDetails() {
+export default function VehicleDetail() {
   const router = useRouter();
   const params = useParams();
   const vehicleId = params.id as string;
 
-  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  const [vehicle, setVehicle] = useState<Vehicle | null>(
+    mockVehicles[vehicleId] || null
+  );
   const [isEditing, setIsEditing] = useState(false);
-  const [editedVehicle, setEditedVehicle] = useState<Vehicle | null>(null);
-  const [showSuccess, setShowSuccess] = useState(false);
-
-  useEffect(() => {
-    const foundVehicle = mockVehicles[vehicleId];
-    if (foundVehicle) {
-      setVehicle(foundVehicle);
-      setEditedVehicle(foundVehicle);
-    }
-  }, [vehicleId]);
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setEditedVehicle(vehicle);
-    setIsEditing(false);
-  };
-
-  const handleSave = () => {
-    if (editedVehicle) {
-      setVehicle(editedVehicle);
-      setIsEditing(false);
-      setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 2000);
-    }
-  };
-
-  const handleInputChange = (field: keyof Vehicle, value: string | number) => {
-    if (editedVehicle) {
-      setEditedVehicle({
-        ...editedVehicle,
-        [field]: value
-      });
-    }
-  };
+  const [editForm, setEditForm] = useState<Vehicle | null>(null);
 
   if (!vehicle) {
     return (
-      <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
-        <Box sx={{ height: '44px', backgroundColor: '#1e40af' }} />
-        <Box 
-          sx={{ 
-            backgroundColor: '#1e40af',
-            px: 2,
-            py: 1.5,
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <IconButton onClick={() => router.back()} sx={{ color: 'white', p: 1 }}>
-            <ArrowBack />
-          </IconButton>
-          <Typography variant="h6" sx={{ color: 'white', fontWeight: 600, ml: 1 }}>
-            Vehicle Details
-          </Typography>
-        </Box>
-        <Box sx={{ p: 3, textAlign: 'center', mt: 8 }}>
-          <Typography variant="h6" color="text.secondary">
-            Vehicle not found
-          </Typography>
-        </Box>
-      </Box>
+      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center">
+        <Card>
+          <CardContent className="p-8 text-center">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">
+              Vehicle not found
+            </h2>
+            <Button onClick={() => router.back()}>Go Back</Button>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
+  const handleEdit = () => {
+    setEditForm({ ...vehicle });
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    if (editForm) {
+      setVehicle(editForm);
+      setIsEditing(false);
+      setEditForm(null);
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditForm(null);
+  };
+
+  const handleInputChange = (field: keyof Vehicle, value: string | number) => {
+    if (editForm) {
+      setEditForm((prev) => ({
+        ...prev!,
+        [field]: value,
+      }));
+    }
+  };
+
+  const getFuelLevelColor = (level: number) => {
+    if (level >= 70) return "text-green-600";
+    if (level >= 30) return "text-yellow-600";
+    return "text-red-600";
+  };
+
+  const getFuelLevelBg = (level: number) => {
+    if (level >= 70) return "bg-green-500";
+    if (level >= 30) return "bg-yellow-500";
+    return "bg-red-500";
+  };
+
+
   return (
-    <Box sx={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%)',
-      maxWidth: '100vw',
-      overflow: 'hidden'
-    }}>
-      {/* Mobile Status Bar Safe Area */}
-      <Box sx={{ height: '44px', backgroundColor: 'transparent' }} />
-      
+    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+      {/* Status Bar Space */}
+      <div className="h-11" />
+
       {/* Header */}
-      <Box 
-        sx={{ 
-          px: 3,
-          py: 2.5,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}
-      >
-        <IconButton
+      <div className="flex items-center justify-between px-4 py-3">
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => router.back()}
-          sx={{ 
-            color: 'white',
-            p: 1,
-            backgroundColor: 'rgba(255,255,255,0.1)',
-            backdropFilter: 'blur(10px)',
-            '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.2)'
-            }
-          }}
+          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
         >
-          <ArrowBack />
-        </IconButton>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Box
-            sx={{
-              width: 28,
-              height: 28,
-              borderRadius: 2,
-              backgroundColor: 'rgba(255,255,255,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              mr: 1.5
-            }}
-          >
-            <DirectionsCar sx={{ color: 'white', fontSize: '1rem' }} />
-          </Box>
-          <Typography 
-            variant="h6" 
-            sx={{ 
-              color: 'white',
-              fontWeight: 700,
-              fontSize: '1.25rem'
-            }}
-          >
-            Vehicle Details
-          </Typography>
-        </Box>
-        
-        {isEditing ? (
-          <Box sx={{ display: 'flex', gap: 1 }}>
-            <IconButton
-              onClick={handleCancel}
-              sx={{ 
-                color: 'white', 
-                p: 1,
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Close />
-            </IconButton>
-            <IconButton
-              onClick={handleSave}
-              sx={{ 
-                color: 'white', 
-                p: 1,
-                backgroundColor: 'rgba(255,255,255,0.1)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <Check />
-            </IconButton>
-          </Box>
-        ) : (
-          <IconButton
-            onClick={handleEdit}
-            sx={{ 
-              color: 'white', 
-              p: 1,
-              backgroundColor: 'rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(10px)',
-              '&:hover': {
-                backgroundColor: 'rgba(255,255,255,0.2)'
-              }
-            }}
-          >
-            <Edit />
-          </IconButton>
-        )}
-      </Box>
+          <ArrowLeft className="w-5 h-5" />
+        </Button>
+
+        <div className="flex items-center gap-3">
+          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+            <Car className="w-4 h-4 text-white" />
+          </div>
+          <h1 className="text-xl font-bold text-white">Vehicle Details</h1>
+        </div>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={isEditing ? handleSave : handleEdit}
+          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
+        >
+          {isEditing ? (
+            <Check className="w-5 h-5" />
+          ) : (
+            <Edit className="w-5 h-5" />
+          )}
+        </Button>
+      </div>
 
       {/* Content */}
-      <Box sx={{ px: 2, pb: 6 }}>
-        {/* Hero Section */}
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 3,
-          p: 4,
-          textAlign: 'center',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          border: '1px solid rgba(255,255,255,0.8)',
-          mb: 2
-        }}>
-          <Box
-            sx={{
-              width: 80,
-              height: 80,
-              borderRadius: 3,
-              backgroundColor: '#1e40af',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              mx: 'auto',
-              mb: 3,
-              boxShadow: '0 4px 12px rgba(30, 64, 175, 0.3)'
-            }}
-          >
-            <DirectionsCar sx={{ fontSize: '2rem' }} />
-          </Box>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 700,
-              color: '#1e293b',
-              mb: 1,
-              fontSize: '1.5rem'
-            }}
-          >
-            {vehicle.year} {vehicle.make} {vehicle.model}
-          </Typography>
-          <Typography
-            variant="body1"
-            color="text.secondary"
-            sx={{ fontSize: '1rem', fontWeight: 500 }}
-          >
-            {vehicle.licensePlate} • {vehicle.color}
-          </Typography>
-        </Box>
+      <div className="px-4 pb-24">
+        {/* Vehicle Info Card */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Car className="w-10 h-10 text-white" />
+              </div>
+
+              <div className="flex-1">
+                {isEditing ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        placeholder="Make"
+                        value={editForm?.make || ""}
+                        onChange={(e) =>
+                          handleInputChange("make", e.target.value)
+                        }
+                      />
+                      <Input
+                        placeholder="Model"
+                        value={editForm?.model || ""}
+                        onChange={(e) =>
+                          handleInputChange("model", e.target.value)
+                        }
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Input
+                        type="number"
+                        placeholder="Year"
+                        value={editForm?.year || ""}
+                        onChange={(e) =>
+                          handleInputChange("year", parseInt(e.target.value))
+                        }
+                      />
+                      <Input
+                        placeholder="Color"
+                        value={editForm?.color || ""}
+                        onChange={(e) =>
+                          handleInputChange("color", e.target.value)
+                        }
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      {vehicle.year} {vehicle.make} {vehicle.model}
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {vehicle.color && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-gray-100 text-gray-700"
+                        >
+                          {vehicle.color}
+                        </Badge>
+                      )}
+                      {vehicle.licensePlate && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-blue-50 text-blue-600"
+                        >
+                          {vehicle.licensePlate}
+                        </Badge>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {isEditing && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleCancel}
+                  className="w-8 h-8 text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+
+            {isEditing && (
+              <div className="space-y-3 border-t pt-4">
+                <Input
+                  placeholder="License Plate"
+                  value={editForm?.licensePlate || ""}
+                  onChange={(e) =>
+                    handleInputChange("licensePlate", e.target.value)
+                  }
+                />
+                <Input
+                  type="number"
+                  placeholder="Odometer"
+                  value={editForm?.odometer || ""}
+                  onChange={(e) =>
+                    handleInputChange("odometer", parseInt(e.target.value))
+                  }
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Quick Stats */}
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 3,
-          p: 3,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          border: '1px solid rgba(255,255,255,0.8)',
-          mb: 2
-        }}>
-          <Stack direction="row" spacing={2}>
-            <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Box sx={{ 
-                backgroundColor: '#f1f5f9', 
-                borderRadius: 2.5, 
-                p: 2.5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 1
-              }}>
-                <Speed sx={{ color: '#1e40af', fontSize: '1.5rem' }} />
-                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e293b' }}>
-                  {vehicle.odometer.toLocaleString()}
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                  Miles
-                </Typography>
-              </Box>
-            </Box>
-            
-            <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Box sx={{ 
-                backgroundColor: '#f0fdf4', 
-                borderRadius: 2.5, 
-                p: 2.5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 1
-              }}>
-                <LocalGasStation sx={{ color: '#059669', fontSize: '1.5rem' }} />
-                <Typography variant="h6" sx={{ fontWeight: 700, fontSize: '1.25rem', color: '#1e293b' }}>
-                  {vehicle.fuelLevel}%
-                </Typography>
-                <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem', fontWeight: 600 }}>
-                  Fuel Level
-                </Typography>
-              </Box>
-            </Box>
-            
-            <Box sx={{ textAlign: 'center', flex: 1 }}>
-              <Box sx={{ 
-                backgroundColor: vehicle.nextService?.includes('Due') ? '#fef2f2' : '#f0fdf4', 
-                borderRadius: 2.5, 
-                p: 2.5,
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 1
-              }}>
-                <Build sx={{ 
-                  color: vehicle.nextService?.includes('Due') ? '#ef4444' : '#22c55e', 
-                  fontSize: '1.5rem' 
-                }} />
-                <Typography 
-                  variant="caption" 
-                  sx={{ 
-                    color: vehicle.nextService?.includes('Due') ? '#ef4444' : '#22c55e',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    textAlign: 'center',
-                    lineHeight: 1.2
-                  }}
-                >
-                  {vehicle.nextService}
-                </Typography>
-              </Box>
-            </Box>
-          </Stack>
-        </Box>
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Gauge className="w-8 h-8 text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900">
+                {vehicle.odometer.toLocaleString()}
+              </div>
+              <div className="text-sm text-gray-500">Kilometers</div>
+            </CardContent>
+          </Card>
 
-        {/* Vehicle Details Form */}
-        <Box sx={{ 
-          backgroundColor: 'white', 
-          borderRadius: 3,
-          p: 3,
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-          border: '1px solid rgba(255,255,255,0.8)'
-        }}>
-        <Typography 
-          variant="h6" 
-          sx={{ 
-            fontWeight: 600, 
-            mb: 3, 
-            color: '#1e293b',
-            fontSize: '1.125rem'
-          }}
-        >
-          Vehicle Information
-        </Typography>
-        
-        <Stack spacing={3}>
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Make
-            </Typography>
-            {isEditing ? (
-              <TextField
-                fullWidth
-                value={editedVehicle?.make || ''}
-                onChange={(e) => handleInputChange('make', e.target.value)}
-                variant="outlined"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    backgroundColor: '#f8fafc',
-                    fontSize: '1rem'
-                  }
-                }}
-              />
-            ) : (
-              <Typography
-                variant="body1"
-                sx={{ 
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: '#1e293b',
-                  py: 1
-                }}
+          <Card>
+            <CardContent className="p-4 text-center">
+              <div className="flex items-center justify-center mb-2">
+                <Fuel
+                  className={`w-8 h-8 ${getFuelLevelColor(
+                    vehicle.fuelLevel || 50
+                  )}`}
+                />
+              </div>
+              <div
+                className={`text-2xl font-bold ${getFuelLevelColor(
+                  vehicle.fuelLevel || 50
+                )}`}
               >
-                {vehicle.make}
-              </Typography>
-            )}
-          </Box>
+                {vehicle.fuelLevel || 50}%
+              </div>
+              <div className="text-sm text-gray-500">Fuel Level</div>
+              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className={`h-2 rounded-full ${getFuelLevelBg(
+                    vehicle.fuelLevel || 50
+                  )}`}
+                  style={{ width: `${vehicle.fuelLevel || 50}%` }}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-          <Divider />
+        {/* Smart Next Service Card */}
+        {(() => {
+          const serviceStatus = calculateNextService(vehicle);
+          const statusIconColor = 
+            serviceStatus.status === 'Overdue' ? 'bg-red-100 text-red-600' :
+            serviceStatus.status === 'Due Soon' ? 'bg-yellow-100 text-yellow-600' :
+            'bg-green-100 text-green-600';
+          
+          return (
+            <Card className="mb-6">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
+                  <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${statusIconColor}`}>
+                    <TrendingUp className="w-6 h-6" />
+                  </div>
 
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Model
-            </Typography>
-            {isEditing ? (
-              <TextField
-                fullWidth
-                value={editedVehicle?.model || ''}
-                onChange={(e) => handleInputChange('model', e.target.value)}
-                variant="outlined"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    backgroundColor: '#f8fafc',
-                    fontSize: '1rem'
-                  }
-                }}
-              />
-            ) : (
-              <Typography
-                variant="body1"
-                sx={{ 
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: '#1e293b',
-                  py: 1
-                }}
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-gray-900">
+                        Next Service
+                      </h3>
+                      <Badge
+                        variant="secondary"
+                        className={getStatusBadgeColor(serviceStatus.status)}
+                      >
+                        {serviceStatus.status}
+                      </Badge>
+                    </div>
+
+                    <p className={`text-sm mb-3 font-medium ${getStatusColor(serviceStatus.status)}`}>
+                      {serviceStatus.message}
+                    </p>
+
+                    {/* Progress Bar */}
+                    <div className="mb-4">
+                      <div className="flex justify-between text-xs text-gray-500 mb-1">
+                        <span>Service Progress</span>
+                        <span>{Math.round(serviceStatus.progressPercentage)}%</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className={`h-2 rounded-full transition-all ${
+                            serviceStatus.status === 'Overdue' ? 'bg-red-500' :
+                            serviceStatus.status === 'Due Soon' ? 'bg-yellow-500' :
+                            'bg-green-500'
+                          }`}
+                          style={{ width: `${Math.min(serviceStatus.progressPercentage, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => router.push("/mechanics")}
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Calendar className="w-4 h-4 mr-2" />
+                      Book Service
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })()}
+
+        {/* Action Buttons */}
+        <div className="space-y-4">
+          <Card>
+            <CardContent className="p-5">
+              <Button
+                onClick={() => router.push(`/vehicles/${vehicleId}/logbook`)}
+                className="w-full h-14 bg-green-600 hover:bg-green-700 text-white font-semibold text-base"
               >
-                {vehicle.model}
-              </Typography>
-            )}
-          </Box>
+                <FileText className="w-5 h-5 mr-3" />
+                View Service Logbook
+              </Button>
+            </CardContent>
+          </Card>
 
-          <Divider />
-
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Year
-            </Typography>
-            {isEditing ? (
-              <TextField
-                fullWidth
-                type="number"
-                value={editedVehicle?.year || ''}
-                onChange={(e) => handleInputChange('year', parseInt(e.target.value))}
-                variant="outlined"
-                inputProps={{ min: 1900, max: new Date().getFullYear() + 1 }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    backgroundColor: '#f8fafc',
-                    fontSize: '1rem'
-                  }
-                }}
-              />
-            ) : (
-              <Typography
-                variant="body1"
-                sx={{ 
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: '#1e293b',
-                  py: 1
-                }}
+          <Card>
+            <CardContent className="p-5">
+              <Button
+                onClick={() => router.push("/mechanics")}
+                variant="outline"
+                className="w-full h-14 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold text-base"
               >
-                {vehicle.year}
-              </Typography>
-            )}
-          </Box>
+                <Wrench className="w-5 h-5 mr-3" />
+                Find Nearby Mechanics
+              </Button>
+            </CardContent>
+          </Card>
 
-          <Divider />
-
-          <Box>
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: 600,
-                color: '#475569',
-                mb: 1.5,
-                fontSize: '0.875rem'
-              }}
-            >
-              Current Odometer (miles)
-            </Typography>
-            {isEditing ? (
-              <TextField
-                fullWidth
-                type="number"
-                value={editedVehicle?.odometer || ''}
-                onChange={(e) => handleInputChange('odometer', parseInt(e.target.value))}
-                variant="outlined"
-                inputProps={{ min: 0 }}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    borderRadius: 2,
-                    backgroundColor: '#f8fafc',
-                    fontSize: '1rem'
-                  }
-                }}
-              />
-            ) : (
-              <Typography
-                variant="body1"
-                sx={{ 
-                  fontSize: '1rem',
-                  fontWeight: 500,
-                  color: '#1e293b',
-                  py: 1
-                }}
+          <Card>
+            <CardContent className="p-5">
+              <Button
+                variant="outline"
+                className="w-full h-14 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-base"
               >
-                {vehicle.odometer.toLocaleString()} miles
-              </Typography>
-            )}
-          </Box>
-        </Stack>
-        </Box>
-      </Box>
-
-      {/* Success Notification */}
-      <Dialog
-        open={showSuccess}
-        onClose={() => setShowSuccess(false)}
-        TransitionComponent={Transition}
-        PaperProps={{
-          sx: {
-            backgroundColor: '#22c55e',
-            color: 'white',
-            borderRadius: 3,
-            m: 2,
-            minWidth: 0,
-            boxShadow: '0 10px 40px rgba(34, 197, 94, 0.3)'
-          }
-        }}
-      >
-        <Box sx={{ p: 3, textAlign: 'center' }}>
-          <Check sx={{ fontSize: '3rem', mb: 1 }} />
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            Changes Saved!
-          </Typography>
-        </Box>
-      </Dialog>
-
-      {/* Bottom Safe Area for Navigation */}
-      <Box sx={{ height: '100px', backgroundColor: 'transparent' }} />
-    </Box>
+                <MapPin className="w-5 h-5 mr-3" />
+                Locate My Vehicle
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -4,8 +4,16 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Car, Check } from "lucide-react";
+import { ArrowLeft, Car, Search, FileText, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+interface VehicleData {
+  make: string;
+  model: string;
+  year: string;
+  color: string;
+  vin: string;
+}
 
 interface NewVehicle {
   make: string;
@@ -16,8 +24,26 @@ interface NewVehicle {
   licensePlate: string;
 }
 
+// Mock vehicle lookup function
+const mockVehicleLookup = (rego: string): Promise<VehicleData> => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        make: 'Toyota',
+        model: 'Camry',
+        year: '2020',
+        color: 'Silver',
+        vin: 'JN1AZ12B00T123456'
+      });
+    }, 1500);
+  });
+};
+
 export default function AddVehicle() {
   const router = useRouter();
+  const [registrationNumber, setRegistrationNumber] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [showManualForm, setShowManualForm] = useState(false);
   const [vehicle, setVehicle] = useState<NewVehicle>({
     make: "",
     model: "",
@@ -28,6 +54,33 @@ export default function AddVehicle() {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleFindVehicle = async () => {
+    if (!registrationNumber.trim()) return;
+    
+    setIsLoading(true);
+    try {
+      const vehicleData = await mockVehicleLookup(registrationNumber);
+      // Navigate to confirm screen with vehicle data
+      const params = new URLSearchParams({
+        make: vehicleData.make,
+        model: vehicleData.model,
+        year: vehicleData.year,
+        color: vehicleData.color,
+        vin: vehicleData.vin,
+        rego: registrationNumber
+      });
+      router.push(`/vehicles/add/confirm?${params.toString()}`);
+    } catch (error) {
+      console.error('Error looking up vehicle:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const canSearch = () => {
+    return registrationNumber.trim().length >= 3;
+  };
 
   const handleInputChange = (field: keyof NewVehicle, value: string) => {
     setVehicle((prev) => ({
@@ -92,7 +145,8 @@ export default function AddVehicle() {
       setShowSuccess(true);
 
       setTimeout(() => {
-        router.push("/vehicles");
+        // After saving, redirect to the vehicles page which will now show the added vehicle
+        router.push("/vehicles?vehicleAdded=true");
       }, 2000);
     }
   };
@@ -120,156 +174,240 @@ export default function AddVehicle() {
           <h1 className="text-xl font-bold text-white">Add Vehicle</h1>
         </div>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={handleSave}
-          disabled={!canSave()}
-          className={`w-10 h-10 rounded-lg ${
-            canSave()
-              ? "bg-white/20 text-white hover:bg-white/30"
-              : "bg-white/10 text-white/50"
-          }`}
-        >
-          <Check className="w-5 h-5" />
-        </Button>
+        {showManualForm ? (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSave}
+            disabled={!canSave()}
+            className={`w-10 h-10 rounded-lg ${
+              canSave()
+                ? "bg-white/20 text-white hover:bg-white/30"
+                : "bg-white/10 text-white/50"
+            }`}
+          >
+            <Check className="w-5 h-5" />
+          </Button>
+        ) : (
+          <div className="w-10" />
+        )}
       </div>
 
       {/* Content */}
       <div className="px-4 pb-6">
-        {/* Hero Section */}
-        <Card className="mb-4">
-          <CardContent className="pt-6 text-center">
-            <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-              <Car className="w-10 h-10 text-white" />
+        {!showManualForm ? (
+          <>
+            {/* Hero Section */}
+            <Card className="mb-6">
+              <CardContent className="pt-6 text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Search className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Add Your Vehicle Instantly
+                </h2>
+                <p className="text-muted-foreground max-w-sm mx-auto">
+                  Simply enter your registration number and we'll find your vehicle details automatically
+                </p>
+              </CardContent>
+            </Card>
+
+            {/* Registration Lookup Section */}
+            <Card className="mb-6">
+              <CardContent className="pt-6">
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-3 block">
+                      Registration Number
+                    </label>
+                    <Input
+                      placeholder="ABC 123"
+                      value={registrationNumber}
+                      onChange={(e) => setRegistrationNumber(e.target.value.toUpperCase())}
+                      className="text-lg text-center font-semibold tracking-wider"
+                      disabled={isLoading}
+                    />
+                    <p className="text-gray-500 text-sm mt-2 text-center">
+                      Enter your license plate number
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={handleFindVehicle}
+                    disabled={!canSearch() || isLoading}
+                    className={`w-full py-3 text-lg font-bold rounded-xl transition-all ${
+                      canSearch() && !isLoading
+                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-lg active:scale-95"
+                        : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                        Finding Your Vehicle...
+                      </div>
+                    ) : (
+                      <>
+                        <Search className="w-5 h-5 mr-2" />
+                        Find My Vehicle
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Alternative Option */}
+            <div className="text-center">
+              <Button
+                variant="link"
+                onClick={() => setShowManualForm(true)}
+                className="text-white/80 hover:text-white underline"
+              >
+                Or, add vehicle details manually
+              </Button>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Add Your Vehicle
-            </h2>
-            <p className="text-muted-foreground max-w-xs mx-auto">
-              Enter your vehicle details to start tracking maintenance and
-              services
-            </p>
-          </CardContent>
-        </Card>
+          </>
+        ) : (
+          <>
+            {/* Manual Form Hero Section */}
+            <Card className="mb-4">
+              <CardContent className="pt-6 text-center">
+                <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Car className="w-10 h-10 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                  Add Your Vehicle
+                </h2>
+                <p className="text-muted-foreground max-w-xs mx-auto">
+                  Enter your vehicle details to start tracking maintenance and services
+                </p>
+              </CardContent>
+            </Card>
 
-        {/* Form Section */}
-        <Card className="mb-4">
-          <CardContent className="pt-6">
-            <div className="space-y-6">
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Make *
-                </label>
-                <Input
-                  placeholder="Toyota, Honda, Ford..."
-                  value={vehicle.make}
-                  onChange={(e) => handleInputChange("make", e.target.value)}
-                  className={errors.make ? "border-red-500" : ""}
-                />
-                {errors.make && (
-                  <p className="text-red-500 text-sm mt-1">{errors.make}</p>
-                )}
-              </div>
+            {/* Manual Form Section */}
+            <Card className="mb-4">
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Make *
+                    </label>
+                    <Input
+                      placeholder="Toyota, Honda, Ford..."
+                      value={vehicle.make}
+                      onChange={(e) => handleInputChange("make", e.target.value)}
+                      className={errors.make ? "border-red-500" : ""}
+                    />
+                    {errors.make && (
+                      <p className="text-red-500 text-sm mt-1">{errors.make}</p>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Model *
-                </label>
-                <Input
-                  placeholder="Camry, Civic, F-150..."
-                  value={vehicle.model}
-                  onChange={(e) => handleInputChange("model", e.target.value)}
-                  className={errors.model ? "border-red-500" : ""}
-                />
-                {errors.model && (
-                  <p className="text-red-500 text-sm mt-1">{errors.model}</p>
-                )}
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Model *
+                    </label>
+                    <Input
+                      placeholder="Camry, Civic, F-150..."
+                      value={vehicle.model}
+                      onChange={(e) => handleInputChange("model", e.target.value)}
+                      className={errors.model ? "border-red-500" : ""}
+                    />
+                    {errors.model && (
+                      <p className="text-red-500 text-sm mt-1">{errors.model}</p>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Year *
-                </label>
-                <Input
-                  type="number"
-                  placeholder="2020"
-                  value={vehicle.year}
-                  onChange={(e) => handleInputChange("year", e.target.value)}
-                  min={1900}
-                  max={new Date().getFullYear() + 1}
-                  className={errors.year ? "border-red-500" : ""}
-                />
-                {errors.year && (
-                  <p className="text-red-500 text-sm mt-1">{errors.year}</p>
-                )}
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Year *
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="2020"
+                      value={vehicle.year}
+                      onChange={(e) => handleInputChange("year", e.target.value)}
+                      min={1900}
+                      max={new Date().getFullYear() + 1}
+                      className={errors.year ? "border-red-500" : ""}
+                    />
+                    {errors.year && (
+                      <p className="text-red-500 text-sm mt-1">{errors.year}</p>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Current Mileage *
-                </label>
-                <Input
-                  type="number"
-                  placeholder="45,000"
-                  value={vehicle.odometer}
-                  onChange={(e) =>
-                    handleInputChange("odometer", e.target.value)
-                  }
-                  min={0}
-                  className={errors.odometer ? "border-red-500" : ""}
-                />
-                {errors.odometer ? (
-                  <p className="text-red-500 text-sm mt-1">{errors.odometer}</p>
-                ) : (
-                  <p className="text-gray-500 text-sm mt-1">
-                    Current odometer reading
-                  </p>
-                )}
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Current Mileage *
+                    </label>
+                    <Input
+                      type="number"
+                      placeholder="45,000"
+                      value={vehicle.odometer}
+                      onChange={(e) => handleInputChange("odometer", e.target.value)}
+                      min={0}
+                      className={errors.odometer ? "border-red-500" : ""}
+                    />
+                    {errors.odometer ? (
+                      <p className="text-red-500 text-sm mt-1">{errors.odometer}</p>
+                    ) : (
+                      <p className="text-gray-500 text-sm mt-1">
+                        Current odometer reading
+                      </p>
+                    )}
+                  </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  Color (Optional)
-                </label>
-                <Input
-                  placeholder="Silver, Blue, Black..."
-                  value={vehicle.color}
-                  onChange={(e) => handleInputChange("color", e.target.value)}
-                />
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      Color (Optional)
+                    </label>
+                    <Input
+                      placeholder="Silver, Blue, Black..."
+                      value={vehicle.color}
+                      onChange={(e) => handleInputChange("color", e.target.value)}
+                    />
+                  </div>
 
-              <div>
-                <label className="text-sm font-semibold text-gray-700 mb-2 block">
-                  License Plate (Optional)
-                </label>
-                <Input
-                  placeholder="ABC 123"
-                  value={vehicle.licensePlate}
-                  onChange={(e) =>
-                    handleInputChange(
-                      "licensePlate",
-                      e.target.value.toUpperCase()
-                    )
-                  }
-                />
-              </div>
+                  <div>
+                    <label className="text-sm font-semibold text-gray-700 mb-2 block">
+                      License Plate (Optional)
+                    </label>
+                    <Input
+                      placeholder="ABC 123"
+                      value={vehicle.licensePlate}
+                      onChange={(e) => handleInputChange("licensePlate", e.target.value.toUpperCase())}
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Bottom CTA */}
+            <Button
+              onClick={canSave() ? handleSave : undefined}
+              disabled={!canSave()}
+              className={`w-full py-3 text-lg font-bold rounded-xl transition-all ${
+                canSave()
+                  ? "bg-red-500 hover:bg-red-600 text-white shadow-lg active:scale-95"
+                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
+              }`}
+            >
+              Add Vehicle
+            </Button>
+
+            {/* Back to Registration Lookup */}
+            <div className="text-center mt-4">
+              <Button
+                variant="link"
+                onClick={() => setShowManualForm(false)}
+                className="text-white/80 hover:text-white underline"
+              >
+                Back to registration lookup
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Bottom CTA */}
-        <Button
-          onClick={canSave() ? handleSave : undefined}
-          disabled={!canSave()}
-          className={`w-full py-3 text-lg font-bold rounded-xl transition-all ${
-            canSave()
-              ? "bg-red-500 hover:bg-red-600 text-white shadow-lg active:scale-95"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
-          }`}
-        >
-          Add Vehicle
-        </Button>
+          </>
+        )}
       </div>
 
       {/* Success Dialog */}
