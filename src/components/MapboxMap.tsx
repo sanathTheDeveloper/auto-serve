@@ -77,13 +77,15 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
       antialias: true, // Smoother rendering
     });
 
-    // Add custom user location marker
+    // Add custom user location marker with modern design
     const userLocationElement = document.createElement("div");
     userLocationElement.innerHTML = `
       <div class="relative">
-        <div class="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg relative z-10"></div>
-        <div class="absolute inset-0 w-4 h-4 bg-blue-500/30 rounded-full animate-pulse"></div>
-        <div class="absolute inset-0 w-6 h-6 bg-blue-500/20 rounded-full animate-ping"></div>
+        <div class="w-5 h-5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full border-3 border-white shadow-xl relative z-10 flex items-center justify-center">
+          <div class="w-2 h-2 bg-white rounded-full"></div>
+        </div>
+        <div class="absolute inset-0 w-5 h-5 bg-blue-500/40 rounded-full animate-pulse"></div>
+        <div class="absolute inset-0 w-8 h-8 bg-blue-500/20 rounded-full animate-ping"></div>
       </div>
     `;
 
@@ -95,7 +97,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
 
     // Clean map - no default controls, using custom location button instead
 
-    // Custom map styling once loaded
+    // Enhanced modern map styling once loaded
     map.current.on("load", () => {
       // Hide MapBox logo completely for cleaner look
       const mapboxLogo = map.current
@@ -105,9 +107,11 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         (mapboxLogo as HTMLElement).style.display = "none";
       }
 
-      // Customize map colors to match app theme
-      map.current?.setPaintProperty("water", "fill-color", "#E3F2FD"); // Light blue water
-      map.current?.setPaintProperty("land", "background-color", "#FAFAFA"); // Light gray land
+      // Modern map color scheme - using correct layer names
+      map.current?.setPaintProperty("water", "fill-color", "#E8F4FD"); // Soft blue water
+      map.current?.setPaintProperty("land", "background-color", "#F8FAFC"); // Very light gray land
+      map.current?.setPaintProperty("building", "fill-color", "#F1F5F9"); // Soft building colors
+      map.current?.setPaintProperty("poi-label", "text-color", "#64748B"); // Muted POI labels
     });
   }, []);
 
@@ -118,24 +122,22 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
     markers.current.forEach((marker) => marker.remove());
     markers.current = [];
 
-    // Add mechanic markers
+    // Add mechanic markers with modern design
     mechanics.forEach((mechanic) => {
       const coordinates = mechanicCoordinates[mechanic.id] || [
         defaultCoordinates[0] + (Math.random() - 0.5) * 0.02,
         defaultCoordinates[1] + (Math.random() - 0.5) * 0.02,
       ];
 
-      // Create elegant small marker - Mobile optimized
+      // Create modern mechanic marker - Clean and minimal (NO GREEN PRICING BADGE)
       const markerElement = document.createElement("div");
       markerElement.className = "mechanic-marker";
       markerElement.innerHTML = `
-        <div class="relative cursor-pointer group transition-all duration-200 hover:scale-110">
-          <div class="w-6 h-6 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full shadow-md flex items-center justify-center border-2 border-white hover:shadow-lg">
-            <div class="w-2 h-2 bg-white rounded-full"></div>
+        <div class="relative cursor-pointer group transition-all duration-300 hover:scale-125">
+          <div class="w-8 h-8 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-full shadow-lg flex items-center justify-center border-3 border-white hover:shadow-xl hover:from-teal-600 hover:to-cyan-700">
+            <div class="w-3 h-3 bg-white rounded-full"></div>
           </div>
-          <div class="absolute -top-1 -right-1 bg-green-500 text-white text-xs px-1 py-0.5 rounded-full font-bold shadow-sm min-w-[20px] text-center">
-            ${mechanic.priceRange.split("-")[0].replace("$", "")}
-          </div>
+          <div class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-teal-500 rotate-45 border-b border-r border-white"></div>
         </div>
       `;
 
@@ -144,21 +146,56 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         .setLngLat(coordinates)
         .addTo(map.current!);
 
-      // Create popup with simple info
+      // Create modern popup with enhanced design
       const popup = new mapboxgl.Popup({
-        offset: [0, -15],
+        offset: [0, -20],
         closeButton: true,
         closeOnClick: true,
+        className: "custom-popup",
       }).setHTML(`
-        <div class="p-3 min-w-[200px]">
-          <h4 class="font-bold text-gray-900 text-base mb-2">${mechanic.name}</h4>
-          <div class="flex items-center gap-1 mb-2">
-            <span class="text-sm font-bold text-gray-900">${mechanic.rating}</span>
-            <span class="text-xs text-gray-500">(${mechanic.reviewCount} reviews)</span>
+        <div class="p-4 min-w-[240px] bg-white rounded-2xl shadow-xl border border-gray-100">
+          <div class="flex items-start gap-3 mb-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h4 class="font-bold text-gray-900 text-base mb-1 truncate">${
+                mechanic.name
+              }</h4>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="flex items-center">
+                  ${[...Array(5)]
+                    .map(
+                      (_, i) => `
+                    <svg class="w-3 h-3 ${
+                      i < Math.floor(mechanic.rating)
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-200 fill-gray-200"
+                    }" viewBox="0 0 20 20">
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                    </svg>
+                  `
+                    )
+                    .join("")}
+                </div>
+                <span class="font-bold text-gray-900 text-sm">${
+                  mechanic.rating
+                }</span>
+                <span class="text-xs text-gray-500">(${
+                  mechanic.reviewCount
+                })</span>
+              </div>
+            </div>
           </div>
-          <p class="text-sm text-gray-600 mb-2">${mechanic.address}</p>
-          <div class="pt-2 border-t border-gray-100">
-            <button class="text-sm text-blue-600 font-medium hover:underline" onclick="window.selectMechanic('${mechanic.id}')">
+          <p class="text-sm text-gray-600 mb-3 line-clamp-2">${
+            mechanic.address
+          }</p>
+          <div class="pt-3 border-t border-gray-100">
+            <button class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-semibold py-2 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-sm" onclick="window.selectMechanic('${
+              mechanic.id
+            }')">
               View Details
             </button>
           </div>
@@ -324,12 +361,12 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Ultra Clean Map */}
+      {/* Modern Enhanced Map */}
       <div ref={mapContainer} className="w-full h-full" />
 
       {/* Overlay when drawer is expanded */}
       <div
-        className={`absolute inset-0 bg-black/10 transition-opacity duration-500 pointer-events-none z-10 ${
+        className={`absolute inset-0 bg-black/20 transition-opacity duration-500 pointer-events-none z-10 ${
           isDrawerExpanded ? "opacity-100" : "opacity-0"
         }`}
       ></div>
