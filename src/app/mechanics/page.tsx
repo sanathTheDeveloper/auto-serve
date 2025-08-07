@@ -1,63 +1,34 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
   Search,
-  MapPin,
-  Car,
-  Star,
-  Clock,
-  ChevronRight,
-  Shield,
-  Heart,
   Navigation,
   X,
   SlidersHorizontal,
-  Phone,
   Map,
   List,
+  Car,
+  MapPin,
 } from "lucide-react";
+import MechanicCard from "@/components/MechanicCard";
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+import { Mechanic, Vehicle, Filters } from "@/types/mechanic";
 
-interface Mechanic {
-  id: string;
-  name: string;
-  rating: number;
-  reviewCount: number;
-  distance: string;
-  address: string;
-  services: string[];
-  priceRange: string;
-  availability: string;
-  image?: string;
-  specialties: string[];
-  verified: boolean;
-  familyFriendly: boolean;
-  phoneNumber: string;
-  openingHours: {
-    today: string;
-    isOpen: boolean;
-  };
-}
-
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  licensePlate: string;
-}
-
-interface Filters {
-  serviceTypes: string[];
-  maxPrice: number;
-  availability: string;
-  verifiedOnly: boolean;
-}
+// Dynamically import MapBox to avoid SSR issues
+const MapboxMap = dynamic(() => import("@/components/MapboxMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-full bg-gray-100 flex items-center justify-center">
+      <div className="text-gray-500">Loading map...</div>
+    </div>
+  ),
+});
 
 const mockVehicles: Vehicle[] = [
   {
@@ -483,33 +454,44 @@ export default function Mechanics() {
       <div className="h-11" />
 
       {/* Header - Simplified */}
-      <div className="px-4 py-6">
+      <div className="px-4 py-8">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-white mb-2">Find Mechanics</h1>
-          <p className="text-white/80 text-sm">
+          <h1 className="text-3xl font-bold text-white mb-3">
+            Find Auto Repair
+          </h1>
+          <p className="text-white/90 text-base">
             Trusted automotive services near you
           </p>
         </div>
       </div>
 
       {/* Vehicle Selection */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-6">
         <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
-          <CardContent className="p-4">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Car className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-gray-900">
-                  {selectedVehicle
-                    ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`
-                    : "Select Vehicle"}
-                </span>
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
+                  <Car className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <span className="text-base font-semibold text-gray-900">
+                    {selectedVehicle
+                      ? `${selectedVehicle.year} ${selectedVehicle.make} ${selectedVehicle.model}`
+                      : "Select Vehicle"}
+                  </span>
+                  {selectedVehicle && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      {selectedVehicle.licensePlate}
+                    </p>
+                  )}
+                </div>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowVehicleSelector(!showVehicleSelector)}
-                className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-medium px-4 py-2 rounded-lg"
               >
                 {selectedVehicle ? "Change" : "Select"}
               </Button>
@@ -517,18 +499,20 @@ export default function Mechanics() {
 
             {/* Vehicle Selector Dropdown */}
             {showVehicleSelector && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <div className="space-y-2">
+              <div className="mt-5 pt-5 border-t border-gray-100">
+                <div className="space-y-3">
                   {mockVehicles.map((vehicle) => (
                     <div
                       key={vehicle.id}
                       onClick={() => handleVehicleSelect(vehicle)}
-                      className="flex items-center justify-between p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-xl cursor-pointer hover:bg-gray-100 transition-all duration-200 hover:shadow-sm"
                     >
-                      <div className="flex items-center gap-3">
-                        <Car className="w-4 h-4 text-blue-600" />
+                      <div className="flex items-center gap-4">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <Car className="w-4 h-4 text-blue-600" />
+                        </div>
                         <div>
-                          <p className="font-medium text-gray-900 text-sm">
+                          <p className="font-semibold text-gray-900 text-sm">
                             {vehicle.year} {vehicle.make} {vehicle.model}
                           </p>
                           <p className="text-gray-500 text-xs">
@@ -537,8 +521,8 @@ export default function Mechanics() {
                         </div>
                       </div>
                       {selectedVehicle?.id === vehicle.id && (
-                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                        <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                          <div className="w-2 h-2 bg-white rounded-full"></div>
                         </div>
                       )}
                     </div>
@@ -551,14 +535,14 @@ export default function Mechanics() {
       </div>
 
       {/* Search Section */}
-      <div className="px-4 mb-4">
+      <div className="px-4 mb-6">
         <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
-          <CardContent className="p-4">
+          <CardContent className="p-6">
             {/* Location */}
-            <div className="flex items-center justify-between mb-4 p-3 bg-blue-50 rounded-lg">
-              <div className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-900">
+            <div className="flex items-center justify-between mb-6 p-4 bg-blue-50 rounded-xl">
+              <div className="flex items-center gap-3">
+                <MapPin className="w-5 h-5 text-blue-600" />
+                <span className="text-base font-medium text-blue-900">
                   {currentLocation}
                 </span>
               </div>
@@ -566,37 +550,37 @@ export default function Mechanics() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowLocationSearch(true)}
-                className="text-blue-600 hover:text-blue-700"
+                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium"
               >
                 Change
               </Button>
             </div>
 
             {/* Search Box */}
-            <div className="relative mb-4">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="relative mb-6">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <Input
-                placeholder="Search mechanics or services..."
+                placeholder="Search mechanics, services or locations..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 bg-gray-50 border-gray-200 focus:border-blue-500 rounded-lg"
+                className="pl-12 pr-4 h-14 bg-gray-50 border-gray-200 focus:border-blue-500 focus:bg-white rounded-xl text-base placeholder:text-gray-500"
               />
             </div>
 
             {/* Search Radius */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-600">Search within:</span>
-              <div className="flex gap-1">
+              <span className="text-sm font-medium text-gray-700">Search radius:</span>
+              <div className="flex gap-2">
                 {[2, 5, 10, 20].map((radius) => (
                   <Button
                     key={radius}
                     variant={searchRadius === radius ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSearchRadius(radius)}
-                    className={`h-8 px-3 text-xs ${
+                    className={`h-9 px-4 text-sm font-medium rounded-lg transition-all ${
                       searchRadius === radius
-                        ? "bg-blue-600 text-white"
-                        : "text-gray-600 border-gray-200"
+                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                        : "text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
                     }`}
                   >
                     {radius}km
@@ -614,15 +598,15 @@ export default function Mechanics() {
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               {/* Map/List Toggle */}
-              <div className="flex bg-gray-100 rounded-lg p-1">
+              <div className="flex bg-gray-100 rounded-xl p-1">
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => setViewMode("list")}
-                  className={`h-8 px-4 text-sm ${
+                  className={`h-10 px-5 text-sm font-medium rounded-lg transition-all ${
                     viewMode === "list"
                       ? "bg-white text-blue-600 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
                   <List className="w-4 h-4 mr-2" />
@@ -632,10 +616,10 @@ export default function Mechanics() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setViewMode("map")}
-                  className={`h-8 px-4 text-sm ${
+                  className={`h-10 px-5 text-sm font-medium rounded-lg transition-all ${
                     viewMode === "map"
                       ? "bg-white text-blue-600 shadow-sm"
-                      : "text-gray-600 hover:text-gray-900"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
                   <Map className="w-4 h-4 mr-2" />
@@ -647,10 +631,10 @@ export default function Mechanics() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowFilterModal(true)}
-                className={`h-8 px-4 text-sm border-gray-200 relative ${
+                className={`h-10 px-5 text-sm font-medium border-gray-200 relative rounded-lg transition-all ${
                   hasActiveFilters
-                    ? "border-blue-500 bg-blue-50 text-blue-700"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "border-blue-500 bg-blue-50 text-blue-700 hover:bg-blue-100"
+                    : "text-gray-600 hover:bg-gray-50 hover:border-blue-300 hover:text-blue-600"
                 }`}
               >
                 <SlidersHorizontal className="w-4 h-4 mr-2" />
@@ -668,14 +652,14 @@ export default function Mechanics() {
 
       {/* Active Filters Display */}
       {hasActiveFilters && (
-        <div className="px-4 mb-4">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm text-white/80">Active filters:</span>
+        <div className="px-4 mb-6">
+          <div className="flex items-center gap-3 flex-wrap">
+            <span className="text-sm font-medium text-white/90">Active filters:</span>
             {filters.serviceTypes.map((service) => (
               <Badge
                 key={service}
                 variant="secondary"
-                className="bg-white/20 text-white border-white/30"
+                className="bg-white/20 text-white border-white/30 px-3 py-1 rounded-lg"
               >
                 {service}
               </Badge>
@@ -683,7 +667,7 @@ export default function Mechanics() {
             {filters.maxPrice < 500 && (
               <Badge
                 variant="secondary"
-                className="bg-white/20 text-white border-white/30"
+                className="bg-white/20 text-white border-white/30 px-3 py-1 rounded-lg"
               >
                 Under ${filters.maxPrice}
               </Badge>
@@ -691,7 +675,7 @@ export default function Mechanics() {
             {filters.availability !== "Any" && (
               <Badge
                 variant="secondary"
-                className="bg-white/20 text-white border-white/30"
+                className="bg-white/20 text-white border-white/30 px-3 py-1 rounded-lg"
               >
                 {filters.availability}
               </Badge>
@@ -699,7 +683,7 @@ export default function Mechanics() {
             {filters.verifiedOnly && (
               <Badge
                 variant="secondary"
-                className="bg-white/20 text-white border-white/30"
+                className="bg-white/20 text-white border-white/30 px-3 py-1 rounded-lg"
               >
                 Verified Only
               </Badge>
@@ -708,7 +692,7 @@ export default function Mechanics() {
               variant="ghost"
               size="sm"
               onClick={handleResetFilters}
-              className="text-white/80 hover:text-white text-xs"
+              className="text-white/80 hover:text-white text-sm font-medium hover:bg-white/10 rounded-lg px-3 py-1"
             >
               Clear All
             </Button>
@@ -717,515 +701,30 @@ export default function Mechanics() {
       )}
 
       {/* Content Area - Map or List */}
-      <div className="px-4 pb-24">
+      <div className={viewMode === "map" ? "" : "px-4 pb-24"}>
         {viewMode === "map" ? (
           /* Full Screen Map View */
-          <div className="fixed inset-0 z-40 bg-white">
-            {/* Full Screen Map Container */}
-            <div className="relative h-full bg-gray-100">
-              {/* Google Maps Style Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-100 via-gray-50 to-white">
-                {/* Road Network */}
-                <svg
-                  className="absolute inset-0 w-full h-full"
-                  viewBox="0 0 400 800"
-                >
-                  {/* Major roads */}
-                  <path
-                    d="M0,200 Q100,180 200,200 T400,220"
-                    stroke="#ffffff"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    d="M0,400 Q150,380 300,400 L400,410"
-                    stroke="#ffffff"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    d="M0,600 Q200,580 400,600"
-                    stroke="#ffffff"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    d="M150,0 Q160,200 170,400 T180,800"
-                    stroke="#ffffff"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    d="M300,0 Q290,300 280,600 T270,800"
-                    stroke="#ffffff"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-
-                  {/* Minor streets */}
-                  <path
-                    d="M0,120 L400,130"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M0,280 L400,290"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M0,480 L400,470"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M0,680 L400,690"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M80,0 L90,800"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M220,0 L210,800"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-                  <path
-                    d="M350,0 L360,800"
-                    stroke="#ffffff"
-                    strokeWidth="2"
-                    fill="none"
-                  />
-
-                  {/* Buildings */}
-                  <rect
-                    x="20"
-                    y="50"
-                    width="60"
-                    height="40"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="200"
-                    y="80"
-                    width="80"
-                    height="60"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="320"
-                    y="60"
-                    width="70"
-                    height="50"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="50"
-                    y="320"
-                    width="90"
-                    height="70"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="250"
-                    y="350"
-                    width="60"
-                    height="50"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="30"
-                    y="520"
-                    width="80"
-                    height="60"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="300"
-                    y="550"
-                    width="70"
-                    height="80"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="120"
-                    y="650"
-                    width="90"
-                    height="50"
-                    fill="#f3f4f6"
-                    stroke="#e5e7eb"
-                    strokeWidth="1"
-                  />
-
-                  {/* Parks */}
-                  <circle
-                    cx="350"
-                    cy="200"
-                    r="30"
-                    fill="#dcfce7"
-                    stroke="#bbf7d0"
-                    strokeWidth="1"
-                  />
-                  <rect
-                    x="10"
-                    y="400"
-                    width="50"
-                    height="40"
-                    fill="#dcfce7"
-                    stroke="#bbf7d0"
-                    strokeWidth="1"
-                    rx="8"
-                  />
-                  <circle
-                    cx="100"
-                    cy="600"
-                    r="25"
-                    fill="#dcfce7"
-                    stroke="#bbf7d0"
-                    strokeWidth="1"
-                  />
-                </svg>
-              </div>
-
-              {/* User Location - Center of map */}
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                <div className="relative">
-                  {/* Outer pulse ring */}
-                  <div className="absolute w-16 h-16 bg-blue-500/20 rounded-full animate-ping"></div>
-                  {/* Inner blue dot */}
-                  <div className="relative w-5 h-5 bg-blue-500 rounded-full border-3 border-white shadow-lg">
-                    <div className="absolute inset-0.5 bg-white rounded-full"></div>
-                    <div className="absolute inset-1 bg-blue-500 rounded-full"></div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Mechanic Pins - Spread across map */}
-              {filteredAndSortedMechanics.map((mechanic, index) => {
-                const positions = [
-                  { top: "25%", left: "30%" },
-                  { top: "35%", left: "70%" },
-                  { top: "55%", left: "25%" },
-                  { top: "65%", left: "75%" },
-                  { top: "45%", left: "85%" },
-                  { top: "75%", left: "40%" },
-                  { top: "30%", left: "15%" },
-                  { top: "80%", left: "65%" },
-                ];
-                const position =
-                  positions[index] || positions[index % positions.length];
-
-                return (
-                  <div
-                    key={mechanic.id}
-                    className="absolute transform -translate-x-1/2 -translate-y-full cursor-pointer group"
-                    style={{ top: position.top, left: position.left }}
-                    onClick={() => handleMechanicClick(mechanic.id)}
-                  >
-                    {/* Google Maps style pin */}
-                    <div className="relative">
-                      {/* Pin shadow */}
-                      <div className="absolute top-10 left-1/2 transform -translate-x-1/2 w-8 h-4 bg-black/20 rounded-full blur-sm"></div>
-
-                      {/* Main pin */}
-                      <div className="relative">
-                        {/* Pin body */}
-                        <div className="w-10 h-12 bg-red-500 rounded-t-full rounded-b-none relative shadow-lg">
-                          <div className="absolute inset-0 bg-gradient-to-b from-red-400 to-red-600 rounded-t-full"></div>
-                          {/* Pin icon */}
-                          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
-                            <Car className="w-4 h-4 text-white" />
-                          </div>
-                          {/* Pin point */}
-                          <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-red-600 rotate-45"></div>
-                        </div>
-
-                        {/* Price badge */}
-                        <div className="absolute -top-1 -right-1 bg-white border border-gray-300 text-gray-800 text-xs px-2 py-1 rounded-full font-semibold shadow-md">
-                          {mechanic.priceRange}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Info Card on Hover */}
-                    <div className="absolute top-14 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-30">
-                      <div className="bg-white rounded-lg shadow-xl border border-gray-200 min-w-64 max-w-72">
-                        {/* Card content */}
-                        <div className="p-4">
-                          <h4 className="font-bold text-gray-900 text-base mb-2">
-                            {mechanic.name}
-                          </h4>
-                          <div className="flex items-center gap-1 mb-2">
-                            <div className="flex">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < Math.floor(mechanic.rating)
-                                      ? "text-yellow-400 fill-yellow-400"
-                                      : "text-gray-300 fill-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="text-sm text-gray-600 ml-1">
-                              {mechanic.rating} ({mechanic.reviewCount} reviews)
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 mb-2">
-                            {mechanic.address}
-                          </p>
-                          <p className="text-sm text-gray-600 mb-3">
-                            {mechanic.distance}
-                          </p>
-
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {mechanic.services
-                              .slice(0, 4)
-                              .map((service, idx) => (
-                                <span
-                                  key={idx}
-                                  className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200"
-                                >
-                                  {service}
-                                </span>
-                              ))}
-                          </div>
-
-                          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                            <div className="flex items-center gap-2 text-sm">
-                              <span
-                                className={`font-medium ${
-                                  mechanic.openingHours.isOpen
-                                    ? "text-green-600"
-                                    : "text-red-600"
-                                }`}
-                              >
-                                {mechanic.openingHours.today}
-                              </span>
-                              <span className="text-gray-400">•</span>
-                              <span className="text-blue-600">
-                                {mechanic.phoneNumber}
-                              </span>
-                            </div>
-                            <button className="text-sm text-blue-600 font-medium hover:underline">
-                              Details
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      {/* Card pointer */}
-                      <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                        <div className="w-4 h-4 bg-white border-l border-t border-gray-200 transform rotate-45"></div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-
-              {/* Map Controls */}
-              <div className="absolute top-4 right-4 flex flex-col gap-2">
-                <button className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                  <span className="text-xl font-normal text-gray-700">+</span>
-                </button>
-                <button className="w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                  <span className="text-xl font-normal text-gray-700">−</span>
-                </button>
-              </div>
-
-              {/* Current Location Button */}
-              <div className="absolute bottom-32 right-4">
-                <button className="w-14 h-14 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors border border-gray-200">
-                  <Navigation className="w-6 h-6 text-gray-700" />
-                </button>
-              </div>
-
-              {/* Search Info Bar */}
-              <div className="absolute top-4 left-4 right-20">
-                <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Car className="w-5 h-5 text-red-500" />
-                      <span className="font-medium text-gray-900">
-                        {filteredAndSortedMechanics.length} mechanics in{" "}
-                        {currentLocation}
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setViewMode("list")}
-                      className="text-blue-600 text-sm font-medium hover:underline"
-                    >
-                      Show list
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Google watermark */}
-              <div className="absolute bottom-4 left-4">
-                <div className="text-sm text-gray-500 bg-white/90 px-3 py-1 rounded shadow">
-                  Google
-                </div>
-              </div>
-
-              {/* Scale indicator */}
-              <div className="absolute bottom-4 right-20">
-                <div className="flex items-center bg-white/90 px-3 py-1 rounded shadow text-sm text-gray-600">
-                  <div className="w-12 h-0.5 bg-gray-600 mr-2"></div>1 km
-                </div>
-              </div>
-            </div>
+          <div className="fixed inset-0 z-40">
+            <MapboxMap
+              mechanics={filteredAndSortedMechanics}
+              onMechanicClick={handleMechanicClick}
+              currentLocation={currentLocation}
+              onToggleView={() => setViewMode("list")}
+              onFilterClick={() => setShowFilterModal(true)}
+            />
           </div>
         ) : null}
 
         {/* Mechanics List */}
-        <div className="space-y-3">
+        <div className="space-y-4">
           {filteredAndSortedMechanics.length > 0 ? (
             filteredAndSortedMechanics.map((mechanic) => (
-              <Card
+              <MechanicCard
                 key={mechanic.id}
-                className="cursor-pointer hover:shadow-lg active:scale-98 transition-all duration-200 border-0 bg-white/95 backdrop-blur-sm shadow-md"
-                onClick={() => handleMechanicClick(mechanic.id)}
-              >
-                <CardContent className="p-4">
-                  <div className="flex gap-4">
-                    {/* Mechanic Avatar */}
-                    <div className="relative flex-shrink-0">
-                      <div className="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center shadow-md">
-                        <Car className="w-6 h-6 text-white" />
-                      </div>
-                      {mechanic.verified && (
-                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                          <Shield className="w-2.5 h-2.5 text-white" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Mechanic Info */}
-                    <div className="flex-1 min-w-0">
-                      {/* Header with Name and Rating */}
-                      <div className="flex items-start justify-between mb-1">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-gray-900 text-base truncate">
-                              {mechanic.name}
-                            </h3>
-                            {mechanic.familyFriendly && (
-                              <Heart className="w-3 h-3 text-pink-500 flex-shrink-0" />
-                            )}
-                          </div>
-
-                          {/* Rating - Most Prominent */}
-                          <div className="flex items-center gap-1 mb-2">
-                            <div className="flex items-center">
-                              {[...Array(5)].map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`w-4 h-4 ${
-                                    i < Math.floor(mechanic.rating)
-                                      ? "text-yellow-500 fill-yellow-500"
-                                      : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
-                            <span className="font-bold text-gray-900 text-sm">
-                              {mechanic.rating}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              ({mechanic.reviewCount} reviews)
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="text-right flex-shrink-0 ml-2">
-                          <div className="text-xs text-gray-500 mb-1">
-                            {mechanic.distance}
-                          </div>
-                          <span className="text-sm font-bold text-green-600">
-                            {mechanic.priceRange}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Services */}
-                      <div className="flex flex-wrap gap-1 mb-2">
-                        {mechanic.services.slice(0, 3).map((service, index) => (
-                          <Badge
-                            key={index}
-                            variant="secondary"
-                            className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 h-5"
-                          >
-                            {service}
-                          </Badge>
-                        ))}
-                        {mechanic.services.length > 3 && (
-                          <span className="text-xs text-gray-500 self-center">
-                            +{mechanic.services.length - 3} more
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Address */}
-                      <div className="flex items-center gap-1 mb-2">
-                        <MapPin className="w-3 h-3 text-gray-500 flex-shrink-0" />
-                        <span className="text-xs text-gray-600 truncate">
-                          {mechanic.address}
-                        </span>
-                      </div>
-
-                      {/* Opening Hours and Phone */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-gray-500" />
-                          <span
-                            className={`text-xs font-medium ${
-                              mechanic.openingHours.isOpen
-                                ? "text-green-600"
-                                : "text-red-600"
-                            }`}
-                          >
-                            {mechanic.openingHours.today}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <div className="flex items-center gap-1">
-                            <Phone className="w-3 h-3 text-blue-600" />
-                            <span className="text-xs text-blue-600 font-medium">
-                              {mechanic.phoneNumber}
-                            </span>
-                          </div>
-                          <ChevronRight className="w-4 h-4 text-gray-400" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                mechanic={mechanic}
+                onClick={handleMechanicClick}
+                className="bg-white/95 backdrop-blur-sm shadow-md"
+              />
             ))
           ) : (
             <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
