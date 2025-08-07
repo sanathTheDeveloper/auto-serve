@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -569,7 +569,9 @@ export default function Mechanics() {
 
             {/* Search Radius */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">Search radius:</span>
+              <span className="text-sm font-medium text-gray-700">
+                Search radius:
+              </span>
               <div className="flex gap-2">
                 {[2, 5, 10, 20].map((radius) => (
                   <Button
@@ -654,7 +656,9 @@ export default function Mechanics() {
       {hasActiveFilters && (
         <div className="px-4 mb-6">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="text-sm font-medium text-white/90">Active filters:</span>
+            <span className="text-sm font-medium text-white/90">
+              Active filters:
+            </span>
             {filters.serviceTypes.map((service) => (
               <Badge
                 key={service}

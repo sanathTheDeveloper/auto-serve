@@ -6,13 +6,10 @@ import {
   Car,
   Star,
   MapPin,
-  Clock,
-  Phone,
   ChevronRight,
   Shield,
   Heart,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 
 interface MechanicCardProps {
   mechanic: Mechanic;
@@ -24,7 +21,6 @@ interface MechanicCardProps {
 const MechanicCard: React.FC<MechanicCardProps> = ({
   mechanic,
   onClick,
-  variant = "default",
   className = "",
 }) => {
   const handleClick = () => {

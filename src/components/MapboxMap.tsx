@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import mapboxgl from "mapbox-gl";
 import { Mechanic } from "@/types/mechanic";
 import {
@@ -10,7 +10,6 @@ import {
   ChevronUp,
   ChevronDown,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import MechanicCard from "@/components/MechanicCard";
 
 // Import Mapbox CSS
@@ -33,16 +32,12 @@ mapboxgl.accessToken =
 const MapboxMap: React.FC<MapboxMapProps> = ({
   mechanics,
   onMechanicClick,
-  currentLocation,
   onToggleView,
   onFilterClick,
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
-  const [selectedMechanic, setSelectedMechanic] = useState<Mechanic | null>(
-    null
-  );
   const [isDrawerExpanded, setIsDrawerExpanded] = useState(false);
   const [viewMode, setViewMode] = useState<"list" | "map">("map");
   const [isDragging, setIsDragging] = useState(false);
@@ -51,14 +46,14 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
   const drawerRef = useRef<HTMLDivElement>(null);
 
   // Melbourne CBD coordinates
-  const defaultCoordinates: [number, number] = [144.9631, -37.8136];
+  const defaultCoordinates: [number, number] = useMemo(() => [144.9631, -37.8136], []);
 
   // Mock coordinates for mechanics (spread around Melbourne CBD)
-  const mechanicCoordinates: { [key: string]: [number, number] } = {
+  const mechanicCoordinates: { [key: string]: [number, number] } = useMemo(() => ({
     "1": [144.97, -37.81], // AutoCare Plus
     "2": [144.96, -37.815], // Melbourne Motor Works
     "3": [144.955, -37.82], // Quick Fix Automotive
-  };
+  }), []);
 
   useEffect(() => {
     if (map.current) return; // Initialize map only once
@@ -113,7 +108,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
       map.current?.setPaintProperty("building", "fill-color", "#F1F5F9"); // Soft building colors
       map.current?.setPaintProperty("poi-label", "text-color", "#64748B"); // Muted POI labels
     });
-  }, []);
+  }, [defaultCoordinates]);
 
   useEffect(() => {
     if (!map.current) return;
@@ -204,14 +199,13 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
 
       // Add click event to marker
       markerElement.addEventListener("click", () => {
-        setSelectedMechanic(mechanic);
         marker.setPopup(popup);
         popup.addTo(map.current!);
       });
 
       markers.current.push(marker);
     });
-  }, [mechanics]);
+  }, [mechanics, defaultCoordinates, mechanicCoordinates]);
 
   // Expose function to global window for popup button clicks
   useEffect(() => {
