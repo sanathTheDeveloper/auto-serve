@@ -569,19 +569,19 @@ export default function Mechanics() {
 
             {/* Search Radius */}
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700">
+              <span className="text-xs font-medium text-gray-700 flex-shrink-0">
                 Search radius:
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-shrink-0">
                 {[2, 5, 10, 20].map((radius) => (
                   <Button
                     key={radius}
                     variant={searchRadius === radius ? "default" : "outline"}
                     size="sm"
                     onClick={() => setSearchRadius(radius)}
-                    className={`h-9 px-4 text-sm font-medium rounded-lg transition-all ${
+                    className={`h-7 px-3 text-xs font-medium rounded-md transition-all flex-shrink-0 ${
                       searchRadius === radius
-                        ? "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
                         : "text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-600"
                     }`}
                   >
@@ -835,19 +835,13 @@ export default function Mechanics() {
 
               {/* Popular Locations */}
               <div>
-                <h3 className="font-semibold text-gray-900 mb-4">
+                <h3 className="font-medium text-gray-900 mb-3 text-sm">
                   Popular Locations
                 </h3>
                 <div className="space-y-2">
                   {[
                     { name: "Melbourne CBD", state: "VIC" },
                     { name: "Sydney CBD", state: "NSW" },
-                    { name: "Brisbane CBD", state: "QLD" },
-                    { name: "Perth CBD", state: "WA" },
-                    { name: "Adelaide CBD", state: "SA" },
-                    { name: "Gold Coast", state: "QLD" },
-                    { name: "Newcastle", state: "NSW" },
-                    { name: "Canberra", state: "ACT" },
                   ]
                     .filter(
                       (location) =>
@@ -857,29 +851,35 @@ export default function Mechanics() {
                           .includes(locationSearchQuery.toLowerCase())
                     )
                     .map((location) => (
-                      <Button
+                      <div
                         key={location.name}
-                        variant="outline"
                         onClick={() => handleLocationSelect(location.name)}
-                        className={`w-full justify-start h-12 px-4 ${
+                        className={`w-full p-3 rounded-lg cursor-pointer transition-all ${
                           currentLocation === location.name
-                            ? "border-blue-500 bg-blue-50 text-blue-700"
-                            : "border-gray-200 hover:bg-gray-50"
-                        } rounded-xl`}
+                            ? "bg-blue-50 border border-blue-200"
+                            : "bg-gray-50 hover:bg-gray-100 border border-transparent"
+                        }`}
                       >
-                        <MapPin className="w-4 h-4 mr-3 flex-shrink-0" />
-                        <div className="text-left">
-                          <span className="font-medium">{location.name}</span>
-                          <span className="text-sm text-gray-500 ml-2">
+                        <div className="flex items-center justify-center">
+                          <span className={`font-medium text-sm ${
+                            currentLocation === location.name
+                              ? "text-blue-700"
+                              : "text-gray-900"
+                          }`}>
+                            {location.name}
+                          </span>
+                          <span className={`text-xs ml-2 ${
+                            currentLocation === location.name
+                              ? "text-blue-600"
+                              : "text-gray-500"
+                          }`}>
                             {location.state}
                           </span>
+                          {currentLocation === location.name && (
+                            <div className="ml-2 w-2 h-2 bg-blue-500 rounded-full"></div>
+                          )}
                         </div>
-                        {currentLocation === location.name && (
-                          <div className="ml-auto w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
-                            <div className="w-2 h-2 bg-white rounded-full"></div>
-                          </div>
-                        )}
-                      </Button>
+                      </div>
                     ))}
                 </div>
               </div>
