@@ -102,9 +102,6 @@ export default function Home() {
               2
             </Badge>
           </div>
-          <div className="w-9 h-9 card-elevated rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-slate-700" />
-          </div>
         </div>
       </div>
 
