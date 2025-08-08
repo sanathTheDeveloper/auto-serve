@@ -6,9 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   Car,
   Calendar,
-  CheckCircle,
-  Clock,
-  History,
   MapPin,
   Wrench,
 } from "lucide-react";
