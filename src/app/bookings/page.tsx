@@ -8,8 +8,25 @@ import {
   Calendar,
   MapPin,
   Wrench,
+  Shield,
+  DollarSign,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+
+interface PaymentDetails {
+  totalAmount: number;
+  depositAmount?: number;
+  remainingAmount?: number;
+  paidAmount: number;
+  escrowStatus: "holding" | "released" | "refunded";
+  paymentMethod: string;
+  transactionId: string;
+  paidAt: string;
+  releasedAt?: string;
+}
 
 interface Booking {
   id: string;
@@ -19,23 +36,34 @@ interface Booking {
   address: string;
   date: string;
   time: string;
-  price: string;
   status: "upcoming" | "completed" | "pending";
-  paymentStatus: "paid" | "pending" | "deposit";
+  paymentStatus: "pending" | "deposit_paid" | "fully_paid" | "released";
+  paymentDetails: PaymentDetails;
+  escrowProtection: boolean;
 }
 
 const mockBookings: Booking[] = [
   {
     id: "1",
     vehicle: "2020 Toyota Camry",
-    service: "Basic Service",
+    service: "Full Service",
     mechanic: "AutoCare Plus",
     address: "123 Collins Street, Melbourne",
     date: "Tomorrow",
     time: "2:00 PM",
-    price: "$120",
     status: "upcoming",
-    paymentStatus: "deposit",
+    paymentStatus: "deposit_paid",
+    escrowProtection: true,
+    paymentDetails: {
+      totalAmount: 280.00,
+      depositAmount: 84.00,
+      remainingAmount: 196.00,
+      paidAmount: 84.00,
+      escrowStatus: "holding",
+      paymentMethod: "•••• 3456",
+      transactionId: "TXN-1735789200000",
+      paidAt: "2024-01-02T14:30:00Z",
+    },
   },
   {
     id: "2",
@@ -45,9 +73,18 @@ const mockBookings: Booking[] = [
     address: "789 Bourke Street, Melbourne",
     date: "Dec 28",
     time: "10:30 AM",
-    price: "$80",
     status: "completed",
-    paymentStatus: "paid",
+    paymentStatus: "released",
+    escrowProtection: true,
+    paymentDetails: {
+      totalAmount: 85.00,
+      paidAmount: 85.00,
+      escrowStatus: "released",
+      paymentMethod: "•••• 1234",
+      transactionId: "TXN-1735616400000",
+      paidAt: "2024-12-28T08:30:00Z",
+      releasedAt: "2024-12-28T12:00:00Z",
+    },
   },
   {
     id: "3",
@@ -57,9 +94,17 @@ const mockBookings: Booking[] = [
     address: "456 Flinders Lane, Melbourne",
     date: "Jan 5",
     time: "3:00 PM",
-    price: "$200",
     status: "pending",
     paymentStatus: "pending",
+    escrowProtection: true,
+    paymentDetails: {
+      totalAmount: 450.00,
+      paidAmount: 0,
+      escrowStatus: "holding",
+      paymentMethod: "",
+      transactionId: "",
+      paidAt: "",
+    },
   },
 ];
 
@@ -78,6 +123,70 @@ export default function Bookings() {
         return "#f59e0b";
       default:
         return "#64748b";
+    }
+  };
+
+  const getPaymentStatusDisplay = (booking: Booking) => {
+    switch (booking.paymentStatus) {
+      case "pending":
+        return {
+          text: "Payment Pending",
+          color: "bg-yellow-100 text-yellow-800",
+          icon: <Clock className="w-3 h-3" />,
+        };
+      case "deposit_paid":
+        return {
+          text: `Deposit Paid ($${booking.paymentDetails.paidAmount.toFixed(0)})`,
+          color: "bg-blue-100 text-blue-800",
+          icon: <DollarSign className="w-3 h-3" />,
+        };
+      case "fully_paid":
+        return {
+          text: "Paid in Full",
+          color: "bg-green-100 text-green-800",
+          icon: <CheckCircle className="w-3 h-3" />,
+        };
+      case "released":
+        return {
+          text: "Payment Released",
+          color: "bg-emerald-100 text-emerald-800",
+          icon: <CheckCircle className="w-3 h-3" />,
+        };
+      default:
+        return {
+          text: "Unknown",
+          color: "bg-gray-100 text-gray-800",
+          icon: <AlertTriangle className="w-3 h-3" />,
+        };
+    }
+  };
+
+  const getEscrowStatusDisplay = (escrowStatus: string) => {
+    switch (escrowStatus) {
+      case "holding":
+        return {
+          text: "Escrow Protected",
+          color: "text-blue-600",
+          icon: <Shield className="w-4 h-4 text-blue-600" />,
+        };
+      case "released":
+        return {
+          text: "Funds Released",
+          color: "text-green-600",
+          icon: <CheckCircle className="w-4 h-4 text-green-600" />,
+        };
+      case "refunded":
+        return {
+          text: "Refunded",
+          color: "text-purple-600",
+          icon: <Shield className="w-4 h-4 text-purple-600" />,
+        };
+      default:
+        return {
+          text: "No Protection",
+          color: "text-gray-500",
+          icon: <AlertTriangle className="w-4 h-4 text-gray-500" />,
+        };
     }
   };
 
@@ -190,9 +299,16 @@ export default function Bookings() {
                         <h3 className="font-semibold text-slate-900 leading-tight truncate pr-3">
                           {booking.vehicle}
                         </h3>
-                        <span className="text-base font-bold text-green-600 ml-2 whitespace-nowrap">
-                          {booking.price}
-                        </span>
+                        <div className="text-right ml-2">
+                          <div className="text-base font-bold text-green-600 whitespace-nowrap">
+                            ${booking.paymentDetails.totalAmount.toFixed(0)}
+                          </div>
+                          {booking.paymentDetails.remainingAmount && booking.paymentDetails.remainingAmount > 0 && (
+                            <div className="text-xs text-gray-500">
+                              ${booking.paymentDetails.remainingAmount.toFixed(0)} remaining
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Service + status */}
@@ -231,24 +347,51 @@ export default function Bookings() {
                         </div>
                       </div>
 
-                      {/* Payment status */}
-                      <div className="mt-3 flex items-center gap-2">
-                        <span className="text-[11px] text-slate-600 flex items-center gap-1">
-                          <span
-                            className={`inline-block w-2 h-2 rounded-full ${
-                              booking.paymentStatus === "paid"
-                                ? "bg-green-500"
-                                : booking.paymentStatus === "deposit"
-                                ? "bg-blue-500"
-                                : "bg-yellow-500"
-                            }`}
-                          />
-                          {booking.paymentStatus === "paid"
-                            ? "Paid"
-                            : booking.paymentStatus === "deposit"
-                            ? "Deposit paid"
-                            : "Payment due"}
-                        </span>
+                      {/* Payment Status & Escrow */}
+                      <div className="mt-3 space-y-2">
+                        {/* Payment Status Badge */}
+                        <div className="flex items-center gap-2">
+                          {(() => {
+                            const paymentStatus = getPaymentStatusDisplay(booking);
+                            return (
+                              <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${paymentStatus.color}`}>
+                                {paymentStatus.icon}
+                                {paymentStatus.text}
+                              </div>
+                            );
+                          })()}
+                        </div>
+
+                        {/* Escrow Protection */}
+                        {booking.escrowProtection && (
+                          <div className="flex items-center gap-2">
+                            {(() => {
+                              const escrowStatus = getEscrowStatusDisplay(booking.paymentDetails.escrowStatus);
+                              return (
+                                <div className={`flex items-center gap-1 text-xs ${escrowStatus.color}`}>
+                                  {escrowStatus.icon}
+                                  <span className="font-medium">{escrowStatus.text}</span>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        )}
+
+                        {/* Action Button for pending payments */}
+                        {booking.paymentStatus === "pending" && (
+                          <div className="pt-1">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/payment/${booking.id}`);
+                              }}
+                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-3 h-7"
+                            >
+                              Complete Payment
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

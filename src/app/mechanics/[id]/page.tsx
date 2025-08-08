@@ -155,8 +155,25 @@ export default function MechanicDetail() {
   };
 
   const handleBookService = () => {
-    // Navigate to bookings page
-    router.push("/bookings");
+    // Create a temporary booking ID for the payment flow
+    const tempBookingId = `booking-${Date.now()}`;
+    
+    // In a real app, you would save the booking details to state/localStorage 
+    // or make an API call to create a pending booking
+    const bookingData = {
+      id: tempBookingId,
+      service: selectedService?.name,
+      mechanic: mechanic.name,
+      address: mechanic.address,
+      estimatedTotal: selectedService ? calculateTotal(selectedService) : 0,
+      status: "pending_payment",
+    };
+    
+    // Save booking data to localStorage for payment flow
+    localStorage.setItem(`booking-${tempBookingId}`, JSON.stringify(bookingData));
+    
+    // Navigate to payment page
+    router.push(`/payment/${tempBookingId}`);
   };
 
   const calculateTotal = (service: Service) => {
