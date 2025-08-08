@@ -157,8 +157,8 @@ export default function MechanicDetail() {
   const handleBookService = () => {
     // Create a temporary booking ID for the payment flow
     const tempBookingId = `booking-${Date.now()}`;
-    
-    // In a real app, you would save the booking details to state/localStorage 
+
+    // In a real app, you would save the booking details to state/localStorage
     // or make an API call to create a pending booking
     const bookingData = {
       id: tempBookingId,
@@ -168,10 +168,13 @@ export default function MechanicDetail() {
       estimatedTotal: selectedService ? calculateTotal(selectedService) : 0,
       status: "pending_payment",
     };
-    
+
     // Save booking data to localStorage for payment flow
-    localStorage.setItem(`booking-${tempBookingId}`, JSON.stringify(bookingData));
-    
+    localStorage.setItem(
+      `booking-${tempBookingId}`,
+      JSON.stringify(bookingData)
+    );
+
     // Navigate to payment page
     router.push(`/payment/${tempBookingId}`);
   };
@@ -275,6 +278,18 @@ export default function MechanicDetail() {
                 </Badge>
               ))}
             </div>
+
+            {/* Quick Action: View Reviews */}
+            <div className="mt-5">
+              <Button
+                onClick={() => router.push(`/mechanics/${mechanicId}/reviews`)}
+                className="w-full btn-brand hover:btn-brand-hover text-white"
+                aria-label="View mechanic reviews"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                View Reviews
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -328,6 +343,8 @@ export default function MechanicDetail() {
             ))}
           </div>
         </div>
+
+        {/* Reviews quick action is now on the title card; detailed reviews moved to separate page */}
       </div>
 
       {/* Quote Dialog */}

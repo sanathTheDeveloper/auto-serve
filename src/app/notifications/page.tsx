@@ -14,13 +14,19 @@ import {
   AlertTriangle,
   CheckCircle,
   X,
-  Settings,
+  Star,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface Notification {
   id: string;
-  type: "service_due" | "service_reminder" | "service_overdue" | "service_completed" | "booking_confirmed";
+  type:
+    | "service_due"
+    | "service_reminder"
+    | "service_overdue"
+    | "service_completed"
+    | "booking_confirmed"
+    | "review_request";
   title: string;
   message: string;
   vehicleInfo: string;
@@ -28,6 +34,8 @@ interface Notification {
   isRead: boolean;
   priority: "high" | "medium" | "low";
   actionRequired?: boolean;
+  bookingId?: string;
+  mechanicName?: string;
 }
 
 export default function NotificationsPage() {
@@ -40,9 +48,24 @@ export default function NotificationsPage() {
     const mockNotifications: Notification[] = [
       {
         id: "1",
+        type: "review_request",
+        title: "Rate Your Service",
+        message:
+          "How was your Full Service at AutoCare Plus? Share your experience to help others",
+        vehicleInfo: "2020 Toyota Camry",
+        timestamp: "1 hour ago",
+        isRead: false,
+        priority: "medium",
+        actionRequired: true,
+        bookingId: "booking-123",
+        mechanicName: "AutoCare Plus",
+      },
+      {
+        id: "2",
         type: "service_overdue",
         title: "Service Overdue",
-        message: "Your Toyota Camry is overdue for its scheduled service by 2 weeks",
+        message:
+          "Your Toyota Camry is overdue for its scheduled service by 2 weeks",
         vehicleInfo: "2020 Toyota Camry",
         timestamp: "2 hours ago",
         isRead: false,
@@ -50,7 +73,7 @@ export default function NotificationsPage() {
         actionRequired: true,
       },
       {
-        id: "2",
+        id: "3",
         type: "service_due",
         title: "Service Due Soon",
         message: "Oil change recommended within the next 500km or 2 weeks",
@@ -61,17 +84,18 @@ export default function NotificationsPage() {
         actionRequired: true,
       },
       {
-        id: "3",
+        id: "4",
         type: "booking_confirmed",
         title: "Booking Confirmed",
-        message: "Your service appointment has been confirmed for tomorrow at 2:00 PM",
+        message:
+          "Your service appointment has been confirmed for tomorrow at 2:00 PM",
         vehicleInfo: "2020 Toyota Camry",
         timestamp: "2 days ago",
         isRead: true,
         priority: "medium",
       },
       {
-        id: "4",
+        id: "5",
         type: "service_reminder",
         title: "Service Reminder",
         message: "Annual inspection due in 1 month. Book early to avoid delays",
@@ -81,10 +105,11 @@ export default function NotificationsPage() {
         priority: "low",
       },
       {
-        id: "5",
+        id: "6",
         type: "service_completed",
         title: "Service Completed",
-        message: "Basic service completed successfully. Next service due in 6 months",
+        message:
+          "Basic service completed successfully. Next service due in 6 months",
         vehicleInfo: "2019 Honda Civic",
         timestamp: "1 week ago",
         isRead: true,
@@ -96,8 +121,8 @@ export default function NotificationsPage() {
   }, []);
 
   const markAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
+    setNotifications((prev) =>
+      prev.map((notification) =>
         notification.id === notificationId
           ? { ...notification, isRead: true }
           : notification
@@ -105,15 +130,24 @@ export default function NotificationsPage() {
     );
   };
 
+  const handleNotificationClick = (notification: Notification) => {
+    markAsRead(notification.id);
+
+    if (notification.type === "review_request" && notification.bookingId) {
+      router.push(`/reviews/${notification.bookingId}/rate`);
+    }
+    // Add other notification type handlers as needed
+  };
+
   const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, isRead: true }))
+    setNotifications((prev) =>
+      prev.map((notification) => ({ ...notification, isRead: true }))
     );
   };
 
   const deleteNotification = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.filter(notification => notification.id !== notificationId)
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== notificationId)
     );
   };
 
@@ -129,6 +163,8 @@ export default function NotificationsPage() {
         return <CheckCircle className="w-5 h-5 text-green-600" />;
       case "booking_confirmed":
         return <Calendar className="w-5 h-5 text-purple-600" />;
+      case "review_request":
+        return <Star className="w-5 h-5 text-yellow-600" />;
       default:
         return <Bell className="w-5 h-5 text-gray-600" />;
     }
@@ -147,11 +183,11 @@ export default function NotificationsPage() {
     }
   };
 
-  const filteredNotifications = notifications.filter(notification => 
-    filter === "all" || !notification.isRead
+  const filteredNotifications = notifications.filter(
+    (notification) => filter === "all" || !notification.isRead
   );
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
     <div className="min-h-screen bg-app-brand">
@@ -175,13 +211,7 @@ export default function NotificationsPage() {
           </div>
           <h1 className="text-xl font-bold text-slate-900">Notifications</h1>
         </div>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-10 h-10 rounded-lg card-elevated"
-        >
-          <Settings className="w-5 h-5" />
-        </Button>
+        <div className="w-10" />
       </div>
 
       {/* Content */}
@@ -235,13 +265,14 @@ export default function NotificationsPage() {
                 <Bell className="w-8 h-8 text-gray-500" />
               </div>
               <h3 className="text-lg font-bold text-gray-900 mb-2">
-                {filter === "unread" ? "No unread notifications" : "No notifications"}
+                {filter === "unread"
+                  ? "No unread notifications"
+                  : "No notifications"}
               </h3>
               <p className="text-gray-600 text-sm">
-                {filter === "unread" 
+                {filter === "unread"
                   ? "You're all caught up! Check back later for new updates."
-                  : "We'll notify you about service reminders and important updates here."
-                }
+                  : "We'll notify you about service reminders and important updates here."}
               </p>
             </CardContent>
           </Card>
@@ -253,7 +284,7 @@ export default function NotificationsPage() {
                 className={`card-elevated transition-all cursor-pointer ${
                   !notification.isRead ? "border-l-4 border-l-blue-600" : ""
                 }`}
-                onClick={() => markAsRead(notification.id)}
+                onClick={() => handleNotificationClick(notification)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start gap-3">
@@ -265,14 +296,20 @@ export default function NotificationsPage() {
                     {/* Notification Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-1">
-                        <h3 className={`font-semibold text-slate-900 truncate pr-2 ${
-                          !notification.isRead ? "font-bold" : ""
-                        }`}>
+                        <h3
+                          className={`font-semibold text-slate-900 truncate pr-2 ${
+                            !notification.isRead ? "font-bold" : ""
+                          }`}
+                        >
                           {notification.title}
                         </h3>
                         <div className="flex items-center gap-2 flex-shrink-0">
                           {notification.priority === "high" && (
-                            <Badge className={`text-xs px-2 py-0.5 ${getNotificationBadgeColor(notification.priority)}`}>
+                            <Badge
+                              className={`text-xs px-2 py-0.5 ${getNotificationBadgeColor(
+                                notification.priority
+                              )}`}
+                            >
                               Urgent
                             </Badge>
                           )}
@@ -290,9 +327,11 @@ export default function NotificationsPage() {
                         </div>
                       </div>
 
-                      <p className={`text-sm text-gray-600 mb-2 ${
-                        !notification.isRead ? "font-medium" : ""
-                      }`}>
+                      <p
+                        className={`text-sm text-gray-600 mb-2 ${
+                          !notification.isRead ? "font-medium" : ""
+                        }`}
+                      >
                         {notification.message}
                       </p>
 
@@ -308,16 +347,33 @@ export default function NotificationsPage() {
 
                       {notification.actionRequired && (
                         <div className="mt-3 flex gap-2">
-                          <Button
-                            size="sm"
-                            className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              router.push("/mechanics");
-                            }}
-                          >
-                            Book Service
-                          </Button>
+                          {notification.type === "review_request" ? (
+                            <Button
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (notification.bookingId) {
+                                  router.push(
+                                    `/reviews/${notification.bookingId}/rate`
+                                  );
+                                }
+                              }}
+                            >
+                              Rate Service
+                            </Button>
+                          ) : (
+                            <Button
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push("/mechanics");
+                              }}
+                            >
+                              Book Service
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"

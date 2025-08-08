@@ -377,7 +377,7 @@ export default function Bookings() {
                           </div>
                         )}
 
-                        {/* Action Button for pending payments */}
+                        {/* Action Buttons */}
                         {booking.paymentStatus === "pending" && (
                           <div className="pt-1">
                             <Button
@@ -389,6 +389,21 @@ export default function Bookings() {
                               className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-3 h-7"
                             >
                               Complete Payment
+                            </Button>
+                          </div>
+                        )}
+
+                        {booking.status === "completed" && (
+                          <div className="pt-1">
+                            <Button
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/reviews/${booking.id}/rate`);
+                              }}
+                              className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs py-1 px-3 h-7"
+                            >
+                              Rate Service
                             </Button>
                           </div>
                         )}
