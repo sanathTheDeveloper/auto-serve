@@ -7,7 +7,6 @@ import {
   Car,
   Wrench,
   ChevronRight,
-  User,
   Bell,
   Calendar,
   TrendingUp,

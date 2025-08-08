@@ -10,13 +10,9 @@ import {
   CreditCard,
   Lock,
   CheckCircle,
-  Clock,
-  DollarSign,
-  Info,
   Car,
   Calendar,
   MapPin,
-  AlertCircle,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 
@@ -82,7 +78,7 @@ export default function PaymentPage() {
           depositPercentage: 30,
         });
       }
-    } catch (error) {
+    } catch {
       console.log("Using default booking data");
     }
   }, [bookingId]);
@@ -300,7 +296,7 @@ export default function PaymentPage() {
                       </div>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span>Full refund protection if service isn't delivered</span>
+                        <span>Full refund protection if service isn&apos;t delivered</span>
                       </div>
                     </div>
                   </div>

@@ -3,16 +3,12 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle,
   Shield,
   Calendar,
   Car,
   MapPin,
-  Clock,
-  DollarSign,
-  ArrowRight,
   Home,
   Receipt,
 } from "lucide-react";
