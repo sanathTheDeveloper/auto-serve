@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -238,7 +238,35 @@ export default function ServiceLogbook() {
 
   const [expandedService, setExpandedService] = useState<string | null>(null);
 
-  const vehicle = mockVehicleData[vehicleId];
+  const [vehicle, setVehicle] = useState<Vehicle | null>(null);
+  useEffect(() => {
+    try {
+      const stored =
+        typeof window !== "undefined" ? localStorage.getItem("vehicles") : null;
+      if (stored) {
+        const list = JSON.parse(stored) as Vehicle[];
+        const found = Array.isArray(list)
+          ? list.find((v) => v.id === vehicleId)
+          : null;
+        if (found) {
+          // If added vehicles have no service history, fallback to demo history for id 1
+          setVehicle({
+            ...found,
+            serviceHistory:
+              found.serviceHistory && found.serviceHistory.length > 0
+                ? found.serviceHistory
+                : mockVehicleData["1"].serviceHistory,
+          });
+        } else {
+          setVehicle(mockVehicleData[vehicleId] || mockVehicleData["1"]);
+        }
+      } else {
+        setVehicle(mockVehicleData[vehicleId] || mockVehicleData["1"]);
+      }
+    } catch {
+      setVehicle(mockVehicleData[vehicleId] || mockVehicleData["1"]);
+    }
+  }, [vehicleId]);
 
   if (!vehicle) {
     return (
@@ -319,7 +347,7 @@ export default function ServiceLogbook() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
@@ -329,15 +357,16 @@ export default function ServiceLogbook() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
+          aria-label="Go back"
+          className="w-10 h-10 rounded-lg card-elevated"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-            <FileText className="w-4 h-4 text-white" />
+          <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
+            <FileText className="w-4 h-4" />
           </div>
-          <h1 className="text-xl font-bold text-white">Service Logbook</h1>
+          <h1 className="text-xl font-bold text-slate-900">Service Logbook</h1>
         </div>
         <div className="w-10" /> {/* Spacer */}
       </div>
@@ -345,11 +374,11 @@ export default function ServiceLogbook() {
       {/* Content */}
       <div className="px-4 pb-24">
         {/* Vehicle Info Card */}
-        <Card className="mb-6">
+        <Card className="mb-6 card-elevated">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4 mb-4">
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Car className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 tile-brand rounded-2xl flex items-center justify-center shadow-lg">
+                <Car className="w-8 h-8" />
               </div>
 
               <div className="flex-1">
@@ -393,7 +422,10 @@ export default function ServiceLogbook() {
 
         {/* Service History */}
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-white mb-4">Service History</h3>
+          <h3 className="text-lg font-bold text-slate-900">Service History</h3>
+          <p className="text-xs text-slate-600 mt-1">
+            Your recent services at a glance
+          </p>
 
           {vehicle.serviceHistory.length === 0 ? (
             <Card>
@@ -417,29 +449,31 @@ export default function ServiceLogbook() {
               </CardContent>
             </Card>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {vehicle.serviceHistory.map((service) => (
-                <Card key={service.id} className="overflow-hidden">
-                  <CardContent className="p-0">
+                <Card key={service.id} className="card-elevated">
+                  <CardContent className="p-4">
                     {/* Service Summary */}
                     <div
-                      className="p-5 cursor-pointer hover:bg-gray-50 transition-colors"
+                      className="cursor-pointer"
                       onClick={() => toggleServiceExpansion(service.id)}
                     >
-                      <div className="flex items-start gap-4">
-                        <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-md flex-shrink-0">
-                          <Wrench className="w-6 h-6 text-white" />
+                      <div className="flex items-start gap-3">
+                        <div className="w-10 h-10 tile-brand rounded-lg flex items-center justify-center text-white flex-shrink-0">
+                          <Wrench className="w-5 h-5" />
                         </div>
 
                         <div className="flex-1">
-                          <div className="flex items-start justify-between mb-2">
-                            <h4 className="text-lg font-bold text-gray-900">
+                          <div className="flex items-start justify-between mb-1">
+                            <h4 className="font-semibold text-gray-900 truncate pr-2">
                               {service.serviceType}
                             </h4>
                             <div className="flex items-center gap-2">
                               <Badge
                                 variant="secondary"
-                                className={getStatusColor(service.status)}
+                                className={`text-[11px] px-2 py-0.5 ${getStatusColor(
+                                  service.status
+                                )}`}
                               >
                                 {getStatusIcon(service.status)}
                                 <span className="ml-1 capitalize">
@@ -447,15 +481,15 @@ export default function ServiceLogbook() {
                                 </span>
                               </Badge>
                               {expandedService === service.id ? (
-                                <ChevronUp className="w-5 h-5 text-gray-400" />
+                                <ChevronUp className="w-4 h-4 text-gray-400" />
                               ) : (
-                                <ChevronDown className="w-5 h-5 text-gray-400" />
+                                <ChevronDown className="w-4 h-4 text-gray-400" />
                               )}
                             </div>
                           </div>
 
-                          <div className="space-y-1 mb-3">
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="space-y-1 mb-2">
+                            <div className="flex items-center gap-2 text-[11px] text-gray-600">
                               <Calendar className="w-4 h-4 text-gray-500" />
                               <span>
                                 {formatDate(service.date)} •{" "}
@@ -463,23 +497,23 @@ export default function ServiceLogbook() {
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
+                            <div className="flex items-center gap-1 text-[11px] text-gray-600 truncate">
                               <MapPin className="w-4 h-4 text-gray-500" />
-                              <span>
+                              <span className="truncate">
                                 {service.mechanicName} •{" "}
                                 {service.mechanicAddress}
                               </span>
                             </div>
                           </div>
 
-                          <div className="flex items-center justify-between">
-                            <span className="text-2xl font-bold text-green-600">
+                          <div className="flex items-center justify-between pt-2 mt-2 border-t border-gray-100 gap-2 flex-wrap">
+                            <span className="text-lg font-bold text-green-600 leading-none">
                               ${service.totalCost.toFixed(2)}
                             </span>
                             {service.warranty && (
                               <Badge
                                 variant="secondary"
-                                className="bg-purple-50 text-purple-600"
+                                className="bg-purple-50 text-purple-600 text-[10px] px-1.5 py-0.5 whitespace-normal leading-tight max-w-[60%]"
                               >
                                 Warranty: {service.warranty}
                               </Badge>
@@ -713,13 +747,14 @@ export default function ServiceLogbook() {
       </div>
 
       {/* Floating Action Button - Add Past Service */}
-      <div className="fixed bottom-6 right-6">
+      <div className="fixed bottom-24 right-4 z-50">
         <Button
+          aria-label="Add past service"
           onClick={() => {
             // Placeholder for add past service functionality
             alert("Add Past Service feature coming soon!");
           }}
-          className="w-14 h-14 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-lg hover:shadow-xl transition-all"
+          className="w-14 h-14 rounded-full shadow-lg active:scale-95 transition-all border-2 border-white btn-brand hover:btn-brand-hover text-white"
         >
           <Plus className="w-6 h-6" />
         </Button>

@@ -449,17 +449,17 @@ export default function Mechanics() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
       {/* Header - Simplified */}
       <div className="px-4 py-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-3">
+          <h1 className="text-3xl font-bold text-slate-900 mb-3">
             Find Auto Repair
           </h1>
-          <p className="text-white/90 text-base">
+          <p className="text-slate-700 text-base">
             Trusted automotive services near you
           </p>
         </div>
@@ -467,12 +467,12 @@ export default function Mechanics() {
 
       {/* Vehicle Selection */}
       <div className="px-4 mb-6">
-        <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
+        <Card className="card-elevated">
           <CardContent className="p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
-                  <Car className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 tile-brand rounded-xl flex items-center justify-center">
+                  <Car className="w-5 h-5" />
                 </div>
                 <div>
                   <span className="text-base font-semibold text-gray-900">
@@ -491,7 +491,7 @@ export default function Mechanics() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowVehicleSelector(!showVehicleSelector)}
-                className="text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-medium px-4 py-2 rounded-lg"
+                className="text-blue-700 border-blue-200 hover:bg-blue-50 hover:border-blue-300 font-medium px-4 py-2 rounded-lg"
               >
                 {selectedVehicle ? "Change" : "Select"}
               </Button>
@@ -536,7 +536,7 @@ export default function Mechanics() {
 
       {/* Search Section */}
       <div className="px-4 mb-6">
-        <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
+        <Card className="card-elevated">
           <CardContent className="p-6">
             {/* Location */}
             <div className="flex items-center justify-between mb-6 p-4 bg-blue-50 rounded-xl">
@@ -550,7 +550,7 @@ export default function Mechanics() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowLocationSearch(true)}
-                className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium"
+                className="text-blue-700 hover:text-blue-800 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium"
               >
                 Change
               </Button>
@@ -596,7 +596,7 @@ export default function Mechanics() {
 
       {/* View Controls */}
       <div className="px-4 mb-6">
-        <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
+        <Card className="card-elevated">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               {/* Map/List Toggle */}
@@ -727,11 +727,11 @@ export default function Mechanics() {
                 key={mechanic.id}
                 mechanic={mechanic}
                 onClick={handleMechanicClick}
-                className="bg-white/95 backdrop-blur-sm shadow-md"
+                className="card-elevated"
               />
             ))
           ) : (
-            <Card className="border-0 bg-white/95 backdrop-blur-sm shadow-lg">
+            <Card className="card-elevated">
               <CardContent className="p-8 text-center">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Search className="w-8 h-8 text-gray-400" />
@@ -861,18 +861,22 @@ export default function Mechanics() {
                         }`}
                       >
                         <div className="flex items-center justify-center">
-                          <span className={`font-medium text-sm ${
-                            currentLocation === location.name
-                              ? "text-blue-700"
-                              : "text-gray-900"
-                          }`}>
+                          <span
+                            className={`font-medium text-sm ${
+                              currentLocation === location.name
+                                ? "text-blue-700"
+                                : "text-gray-900"
+                            }`}
+                          >
                             {location.name}
                           </span>
-                          <span className={`text-xs ml-2 ${
-                            currentLocation === location.name
-                              ? "text-blue-600"
-                              : "text-gray-500"
-                          }`}>
+                          <span
+                            className={`text-xs ml-2 ${
+                              currentLocation === location.name
+                                ? "text-blue-600"
+                                : "text-gray-500"
+                            }`}
+                          >
                             {location.state}
                           </span>
                           {currentLocation === location.name && (

@@ -2,14 +2,7 @@
 
 import React from "react";
 import { Mechanic } from "@/types/mechanic";
-import {
-  Car,
-  Star,
-  MapPin,
-  ChevronRight,
-  Shield,
-  Heart,
-} from "lucide-react";
+import { Car, Star, MapPin, ChevronRight, Shield, Heart } from "lucide-react";
 
 interface MechanicCardProps {
   mechanic: Mechanic;
@@ -36,7 +29,7 @@ const MechanicCard: React.FC<MechanicCardProps> = ({
 
   return (
     <div
-      className={`bg-white rounded-2xl border border-gray-100 cursor-pointer hover:shadow-lg active:scale-[0.98] transition-all duration-200 p-4 ${className}`}
+      className={`card-elevated cursor-pointer hover:shadow-lg active:scale-[0.98] transition-all duration-200 p-4 ${className}`}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -46,8 +39,8 @@ const MechanicCard: React.FC<MechanicCardProps> = ({
       <div className="flex gap-4">
         {/* Mechanic Avatar */}
         <div className="relative flex-shrink-0">
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-sm">
-            <Car className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 tile-brand rounded-xl flex items-center justify-center shadow-sm">
+            <Car className="w-6 h-6" />
           </div>
           {mechanic.verified && (
             <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center border-2 border-white">

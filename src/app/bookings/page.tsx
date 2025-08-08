@@ -109,31 +109,33 @@ export default function Bookings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 text-white">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
       {/* Header */}
       <div className="flex items-center justify-center px-4 py-3">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+          <div className="w-8 h-8 tile-brand rounded-lg flex items-center justify-center">
             <Calendar className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold">My Bookings</h1>
+            <h1 className="text-xl font-bold text-slate-900">My Bookings</h1>
           </div>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="px-4 mb-4">
-        <Card>
+        <Card className="card-elevated">
           <CardContent className="p-0">
             <div className="flex w-full">
               <Button
                 variant={tabValue === 0 ? "default" : "ghost"}
                 className={`flex-1 rounded-none first:rounded-l-lg last:rounded-r-lg py-3 ${
-                  tabValue === 0 ? "bg-blue-600 text-white" : "text-gray-600"
+                  tabValue === 0
+                    ? "btn-brand hover:btn-brand-hover text-white"
+                    : "text-gray-600"
                 }`}
                 onClick={() => setTabValue(0)}
               >
@@ -142,7 +144,9 @@ export default function Bookings() {
               <Button
                 variant={tabValue === 1 ? "default" : "ghost"}
                 className={`flex-1 rounded-none py-3 ${
-                  tabValue === 1 ? "bg-blue-600 text-white" : "text-gray-600"
+                  tabValue === 1
+                    ? "btn-brand hover:btn-brand-hover text-white"
+                    : "text-gray-600"
                 }`}
                 onClick={() => setTabValue(1)}
               >
@@ -151,7 +155,9 @@ export default function Bookings() {
               <Button
                 variant={tabValue === 2 ? "default" : "ghost"}
                 className={`flex-1 rounded-none first:rounded-l-lg last:rounded-r-lg py-3 ${
-                  tabValue === 2 ? "bg-blue-600 text-white" : "text-gray-600"
+                  tabValue === 2
+                    ? "btn-brand hover:btn-brand-hover text-white"
+                    : "text-gray-600"
                 }`}
                 onClick={() => setTabValue(2)}
               >
@@ -165,7 +171,7 @@ export default function Bookings() {
       {/* Content */}
       <div className="px-4 pb-24">
         {filteredBookings.length === 0 ? (
-          <Card className="mb-6">
+          <Card className="mb-6 card-elevated">
             <CardContent className="p-8 text-center">
               <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Calendar className="w-8 h-8 text-gray-500" />
@@ -179,98 +185,86 @@ export default function Bookings() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {filteredBookings.map((booking) => (
               <Card
                 key={booking.id}
-                className="cursor-pointer hover:shadow-lg active:scale-98 transition-all duration-200 border-0 shadow-md"
+                className="cursor-pointer hover:shadow-lg active:scale-98 transition-all duration-200 card-elevated"
                 onClick={() => handleBookingClick(booking.id)}
               >
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-5">
+                <CardContent className="p-4">
+                  <div className="flex items-start gap-3">
                     {/* Vehicle Avatar */}
-                    <div
-                      className="w-20 h-20 rounded-2xl flex items-center justify-center shadow-lg flex-shrink-0"
-                      style={{
-                        backgroundColor: getStatusColor(booking.status),
-                      }}
-                    >
-                      <Car className="w-8 h-8 text-white" />
+                    <div className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 tile-brand shadow">
+                      <Car className="w-6 h-6 text-white" />
                     </div>
 
                     {/* Booking Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-bold text-gray-900 text-xl leading-tight">
+                      {/* Title row */}
+                      <div className="flex items-start justify-between">
+                        <h3 className="font-semibold text-slate-900 leading-tight truncate pr-3">
                           {booking.vehicle}
                         </h3>
-
-                        <div className="flex items-center gap-2 ml-2">
-                          {getStatusIcon(booking.status)}
-                          <Badge
-                            variant="secondary"
-                            className="text-xs font-semibold px-2 py-1"
-                            style={{
-                              backgroundColor: `${getStatusColor(
-                                booking.status
-                              )}15`,
-                              color: getStatusColor(booking.status),
-                            }}
-                          >
-                            {booking.status.charAt(0).toUpperCase() +
-                              booking.status.slice(1)}
-                          </Badge>
-                        </div>
+                        <span className="text-base font-bold text-green-600 ml-2 whitespace-nowrap">
+                          {booking.price}
+                        </span>
                       </div>
 
-                      <p className="text-base text-gray-700 font-semibold mb-3">
-                        {booking.service}
-                      </p>
+                      {/* Service + status */}
+                      <div className="mt-1 flex items-center gap-2">
+                        <span className="text-sm text-slate-700 font-medium truncate">
+                          {booking.service}
+                        </span>
+                        <span
+                          className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                          style={{
+                            backgroundColor: `${getStatusColor(
+                              booking.status
+                            )}15`,
+                            color: getStatusColor(booking.status),
+                          }}
+                        >
+                          {booking.status}
+                        </span>
+                      </div>
 
-                      <div className="space-y-2 mb-4">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <Wrench className="w-4 h-4 mr-2 text-gray-500" />
-                          <span className="font-medium">
-                            {booking.mechanic}
-                          </span>
+                      {/* Meta */}
+                      <div className="mt-2 grid grid-cols-1 gap-1 text-xs text-slate-600">
+                        <div className="flex items-center gap-2 truncate">
+                          <Wrench className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="truncate">{booking.mechanic}</span>
                         </div>
-
-                        <div className="flex items-center text-sm text-gray-600">
-                          <MapPin className="w-4 h-4 mr-2 text-gray-500" />
+                        <div className="flex items-center gap-2 truncate">
+                          <MapPin className="w-3.5 h-3.5 text-slate-400" />
                           <span className="truncate">{booking.address}</span>
                         </div>
-                      </div>
-
-                      <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4 text-gray-500" />
-                          <span className="text-sm font-semibold text-gray-900">
+                        <div className="flex items-center gap-2 truncate">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="truncate">
                             {booking.date} at {booking.time}
                           </span>
                         </div>
+                      </div>
 
-                        <div className="flex items-center gap-3">
-                          <Badge
-                            variant="secondary"
-                            className={`text-xs font-semibold px-3 py-1 ${
+                      {/* Payment status */}
+                      <div className="mt-3 flex items-center gap-2">
+                        <span className="text-[11px] text-slate-600 flex items-center gap-1">
+                          <span
+                            className={`inline-block w-2 h-2 rounded-full ${
                               booking.paymentStatus === "paid"
-                                ? "bg-green-50 text-green-600 border border-green-200"
+                                ? "bg-green-500"
                                 : booking.paymentStatus === "deposit"
-                                ? "bg-blue-50 text-blue-600 border border-blue-200"
-                                : "bg-yellow-50 text-yellow-600 border border-yellow-200"
+                                ? "bg-blue-500"
+                                : "bg-yellow-500"
                             }`}
-                          >
-                            {booking.paymentStatus === "paid"
-                              ? "Paid"
-                              : booking.paymentStatus === "deposit"
-                              ? "Deposit Paid"
-                              : "Payment Due"}
-                          </Badge>
-
-                          <span className="text-lg font-bold text-green-600">
-                            {booking.price}
-                          </span>
-                        </div>
+                          />
+                          {booking.paymentStatus === "paid"
+                            ? "Paid"
+                            : booking.paymentStatus === "deposit"
+                            ? "Deposit paid"
+                            : "Payment due"}
+                        </span>
                       </div>
                     </div>
                   </div>
