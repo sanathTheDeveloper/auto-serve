@@ -242,7 +242,7 @@ function ConfirmVehicleContent() {
             onClick={handleGoBack}
             disabled={isAdding}
             variant="outline"
-            className="w-full py-4 text-lg font-semibold rounded-xl border-2 border-white text-white hover:bg-white/20 transition-all bg-white/10"
+            className="w-full py-4 text-lg font-semibold rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-100 transition-all bg-white"
           >
             <X className="w-5 h-5 mr-2" />
             No, that&apos;s not it
@@ -251,7 +251,7 @@ function ConfirmVehicleContent() {
 
         {/* Help Text */}
         <div className="mt-6 text-center">
-          <p className="text-white/70 text-sm">
+          <p className="text-black text-sm">
             Don&apos;t see your vehicle? Try entering your registration number
             again or add details manually.
           </p>
