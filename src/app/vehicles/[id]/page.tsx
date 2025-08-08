@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Car, Gauge, FileText, Calendar } from "lucide-react";
+import { ArrowLeft, Car, Gauge, FileText, Calendar, Edit3, Trash2, X, MoreVertical } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { calculateNextService } from "@/lib/service-logic";
 
@@ -170,7 +170,9 @@ export default function VehicleDetail() {
       setVehicle(mockVehicles[vehicleId] || null);
     }
   }, [vehicleId]);
-  const [isEditing, setIsEditing] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [editForm, setEditForm] = useState<Vehicle | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
@@ -253,19 +255,53 @@ export default function VehicleDetail() {
 
   const handleEdit = () => {
     setEditForm({ ...vehicle });
-    setIsEditing(true);
+    setShowEditModal(true);
+    setShowActionsMenu(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (editForm) {
+      // Update the current state
       setVehicle(editForm);
-      setIsEditing(false);
+      
+      // Update localStorage
+      try {
+        const stored = localStorage.getItem("vehicles");
+        if (stored) {
+          const vehicles = JSON.parse(stored) as Vehicle[];
+          const updatedVehicles = vehicles.map(v => 
+            v.id === editForm.id ? editForm : v
+          );
+          localStorage.setItem("vehicles", JSON.stringify(updatedVehicles));
+        }
+      } catch (error) {
+        console.error("Failed to save vehicle:", error);
+      }
+      
+      setShowEditModal(false);
       setEditForm(null);
     }
   };
 
+  const handleDelete = async () => {
+    try {
+      // Remove from localStorage
+      const stored = localStorage.getItem("vehicles");
+      if (stored) {
+        const vehicles = JSON.parse(stored) as Vehicle[];
+        const updatedVehicles = vehicles.filter(v => v.id !== vehicle.id);
+        localStorage.setItem("vehicles", JSON.stringify(updatedVehicles));
+      }
+      
+      setShowDeleteModal(false);
+      router.push("/vehicles");
+    } catch (error) {
+      console.error("Failed to delete vehicle:", error);
+    }
+  };
+
   const handleCancel = () => {
-    setIsEditing(false);
+    setShowEditModal(false);
     setEditForm(null);
   };
 
@@ -313,7 +349,38 @@ export default function VehicleDetail() {
           <h1 className="text-xl font-bold text-slate-900">Vehicle Details</h1>
         </div>
 
-        <div className="w-10" />
+        <div className="relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setShowActionsMenu(!showActionsMenu)}
+            className="w-10 h-10 rounded-lg card-elevated"
+          >
+            <MoreVertical className="w-5 h-5" />
+          </Button>
+          
+          {showActionsMenu && (
+            <div className="absolute right-0 top-12 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              <button
+                onClick={handleEdit}
+                className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+              >
+                <Edit3 className="w-4 h-4 text-blue-600" />
+                <span className="text-sm font-medium text-gray-700">Edit Vehicle</span>
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteModal(true);
+                  setShowActionsMenu(false);
+                }}
+                className="flex items-center gap-3 w-full px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+              >
+                <Trash2 className="w-4 h-4 text-red-600" />
+                <span className="text-sm font-medium text-gray-700">Delete Vehicle</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Content */}
@@ -485,6 +552,203 @@ export default function VehicleDetail() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Edit Vehicle Modal */}
+      {showEditModal && editForm && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-28">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm max-h-[80vh] overflow-hidden my-4">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <Edit3 className="w-4 h-4 text-blue-600" />
+                </div>
+                <h2 className="text-lg font-bold text-slate-900">Edit Vehicle</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCancel}
+                className="w-8 h-8 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Modal Content - Scrollable */}
+            <div className="p-4 max-h-[60vh] overflow-y-auto">
+              <div className="space-y-4">
+                {/* Make */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Make *
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.make}
+                    onChange={(e) => handleInputChange('make', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="Toyota"
+                  />
+                </div>
+
+                {/* Model */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Model *
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.model}
+                    onChange={(e) => handleInputChange('model', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="Camry"
+                  />
+                </div>
+
+                {/* Year */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Year *
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.year}
+                    onChange={(e) => handleInputChange('year', parseInt(e.target.value) || 0)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="2020"
+                  />
+                </div>
+
+                {/* Odometer */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Current Odometer (km)
+                  </label>
+                  <input
+                    type="number"
+                    value={editForm.odometer}
+                    onChange={(e) => handleInputChange('odometer', parseInt(e.target.value) || 0)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="45000"
+                  />
+                </div>
+
+                {/* License Plate */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    License Plate
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.licensePlate || ''}
+                    onChange={(e) => handleInputChange('licensePlate', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="XYZ 123"
+                  />
+                </div>
+
+                {/* Color */}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-2">
+                    Color
+                  </label>
+                  <input
+                    type="text"
+                    value={editForm.color || ''}
+                    onChange={(e) => handleInputChange('color', e.target.value)}
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="Silver"
+                  />
+                </div>
+              </div>
+
+            </div>
+            
+            {/* Form Actions - Fixed Footer */}
+            <div className="flex gap-3 p-4 border-t bg-gray-50">
+              <Button
+                variant="outline"
+                onClick={handleCancel}
+                className="flex-1 text-sm"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSave}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-sm"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 pb-28">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden my-4">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                  <Trash2 className="w-5 h-5 text-red-600" />
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">Delete Vehicle</h2>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowDeleteModal(false)}
+                className="w-10 h-10 rounded-lg hover:bg-gray-100"
+              >
+                <X className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Trash2 className="w-8 h-8 text-red-600" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900 mb-2">
+                  Delete {vehicle.year} {vehicle.make} {vehicle.model}?
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  This action cannot be undone. All service history and data for this vehicle will be permanently removed.
+                </p>
+              </div>
+
+              {/* Form Actions */}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowDeleteModal(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleDelete}
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Delete Vehicle
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Click outside to close actions menu */}
+      {showActionsMenu && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setShowActionsMenu(false)}
+        />
+      )}
     </div>
   );
 }
