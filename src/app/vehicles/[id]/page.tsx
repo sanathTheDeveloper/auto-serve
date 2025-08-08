@@ -39,15 +39,6 @@ interface Vehicle {
   serviceHistory: ServiceEntry[];
 }
 
-interface Booking {
-  id: string;
-  vehicle: string;
-  service: string;
-  date: string;
-  time: string;
-  price: string;
-  status: "upcoming" | "completed" | "pending";
-}
 
 const mockVehicles: Record<string, Vehicle> = {
   "1": {
@@ -174,64 +165,7 @@ export default function VehicleDetail() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [editForm, setEditForm] = useState<Vehicle | null>(null);
-  const [bookings, setBookings] = useState<Booking[]>([]);
 
-  useEffect(() => {
-    if (!vehicle) return;
-    const vehicleLabel = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
-    try {
-      const stored =
-        typeof window !== "undefined" ? localStorage.getItem("bookings") : null;
-      if (stored) {
-        const list = JSON.parse(stored) as Booking[];
-        const filtered = Array.isArray(list)
-          ? list.filter(
-              (b) =>
-                b.vehicle === vehicleLabel || b.vehicle?.includes(vehicle.make)
-            )
-          : [];
-        setBookings(
-          filtered.length > 0
-            ? filtered
-            : [
-                {
-                  id: "b1",
-                  vehicle: vehicleLabel,
-                  service: "Basic Service",
-                  date: "Jan 12",
-                  time: "10:00 AM",
-                  price: "$120",
-                  status: "completed",
-                },
-              ]
-        );
-      } else {
-        setBookings([
-          {
-            id: "b1",
-            vehicle: vehicleLabel,
-            service: "Basic Service",
-            date: "Jan 12",
-            time: "10:00 AM",
-            price: "$120",
-            status: "completed",
-          },
-        ]);
-      }
-    } catch {
-      setBookings([
-        {
-          id: "b1",
-          vehicle: vehicleLabel,
-          service: "Basic Service",
-          date: "Jan 12",
-          time: "10:00 AM",
-          price: "$120",
-          status: "completed",
-        },
-      ]);
-    }
-  }, [vehicle]);
 
   if (!vehicle) {
     return (
@@ -314,17 +248,6 @@ export default function VehicleDetail() {
     }
   };
 
-  const getFuelLevelColor = (level: number) => {
-    if (level >= 70) return "text-green-600";
-    if (level >= 30) return "text-yellow-600";
-    return "text-red-600";
-  };
-
-  const getFuelLevelBg = (level: number) => {
-    if (level >= 70) return "bg-green-500";
-    if (level >= 30) return "bg-yellow-500";
-    return "bg-red-500";
-  };
 
   return (
     <div className="min-h-screen bg-app-brand">

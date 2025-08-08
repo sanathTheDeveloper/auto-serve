@@ -21,7 +21,6 @@ import {
   Upload,
   Camera,
   DollarSign,
-  User,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 

@@ -168,7 +168,7 @@ export default function AddVehicle() {
           if (typeof window !== "undefined") {
             localStorage.setItem("vehicles", JSON.stringify(updated));
           }
-        } catch (_e) {
+        } catch {
           // ignore demo storage errors
         }
         // After saving, redirect to the vehicles page which will now show the added vehicle

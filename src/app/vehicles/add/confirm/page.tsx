@@ -66,7 +66,7 @@ function ConfirmVehicleContent() {
         if (typeof window !== "undefined") {
           localStorage.setItem("vehicles", JSON.stringify(updated));
         }
-      } catch (_e) {
+      } catch {
         // ignore demo storage errors
       }
       // Navigate to vehicles page to show the newly added vehicle

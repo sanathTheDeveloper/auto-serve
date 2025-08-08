@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Car,
   Calendar,
@@ -85,18 +84,6 @@ export default function Bookings() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "upcoming":
-        return <Calendar className="w-4 h-4" />;
-      case "completed":
-        return <CheckCircle className="w-4 h-4" />;
-      case "pending":
-        return <Clock className="w-4 h-4" />;
-      default:
-        return <History className="w-4 h-4" />;
-    }
-  };
 
   const filteredBookings = bookings.filter((booking) => {
     if (tabValue === 0) return booking.status === "upcoming";
