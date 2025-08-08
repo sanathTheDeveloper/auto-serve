@@ -145,6 +145,32 @@ export default function AddVehicle() {
       setShowSuccess(true);
 
       setTimeout(() => {
+        // Persist to localStorage for demo so vehicles list can load it later
+        try {
+          const existing =
+            typeof window !== "undefined"
+              ? localStorage.getItem("vehicles")
+              : null;
+          const vehicles = existing ? JSON.parse(existing) : [];
+          const newVehicle = {
+            id: `${Date.now()}`,
+            make: vehicle.make,
+            model: vehicle.model,
+            year: parseInt(vehicle.year || "0", 10),
+            color: vehicle.color,
+            licensePlate: vehicle.licensePlate,
+            odometer: parseInt(vehicle.odometer || "0", 10),
+            serviceHistory: [],
+          };
+          const updated = Array.isArray(vehicles)
+            ? [...vehicles, newVehicle]
+            : [newVehicle];
+          if (typeof window !== "undefined") {
+            localStorage.setItem("vehicles", JSON.stringify(updated));
+          }
+        } catch {
+          // ignore demo storage errors
+        }
         // After saving, redirect to the vehicles page which will now show the added vehicle
         router.push("/vehicles?vehicleAdded=true");
       }, 2000);
@@ -152,7 +178,7 @@ export default function AddVehicle() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
@@ -162,16 +188,16 @@ export default function AddVehicle() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
+          className="w-10 h-10 rounded-lg border border-slate-200 bg-white/70 hover:bg-white shadow-sm"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
 
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-            <Car className="w-4 h-4 text-white" />
+          <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
+            <Car className="w-4 h-4" />
           </div>
-          <h1 className="text-xl font-bold text-white">Add Vehicle</h1>
+          <h1 className="text-xl font-bold text-slate-900">Add Vehicle</h1>
         </div>
 
         {showManualForm ? (
@@ -198,10 +224,10 @@ export default function AddVehicle() {
         {!showManualForm ? (
           <>
             {/* Hero Section */}
-            <Card className="mb-6">
+            <Card className="mb-6 card-elevated">
               <CardContent className="pt-6 text-center">
-                <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-                  <Plus className="w-10 h-10 text-white" />
+                <div className="w-20 h-20 tile-brand rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                  <Plus className="w-10 h-10" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 mb-2">
                   Add Your Vehicle Instantly
@@ -214,7 +240,7 @@ export default function AddVehicle() {
             </Card>
 
             {/* Registration Lookup Section */}
-            <Card className="mb-6">
+            <Card className="mb-6 card-elevated">
               <CardContent className="pt-6">
                 <div className="space-y-4">
                   <div>
@@ -265,7 +291,7 @@ export default function AddVehicle() {
               <Button
                 variant="link"
                 onClick={() => setShowManualForm(true)}
-                className="text-white/80 hover:text-white underline"
+                className="text-black hover:text-blue-600 underline"
               >
                 Or, add vehicle details manually
               </Button>
@@ -290,7 +316,7 @@ export default function AddVehicle() {
             </Card>
 
             {/* Manual Form Section */}
-            <Card className="mb-4">
+            <Card className="mb-4 card-elevated">
               <CardContent className="pt-6">
                 <div className="space-y-6">
                   <div>

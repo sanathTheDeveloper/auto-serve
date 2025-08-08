@@ -13,8 +13,8 @@ function LoginContent() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [loadingMethod, setLoadingMethod] = useState<string | null>(null);
-  
-  const returnTo = searchParams.get('returnTo') || '/vehicles';
+
+  const returnTo = searchParams.get("returnTo") || "/vehicles";
 
   const handleSocialLogin = async (method: string) => {
     setIsLoading(true);
@@ -22,6 +22,11 @@ function LoginContent() {
 
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    // Persist login flag for demo
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isLoggedIn", "true");
+    }
 
     // Navigate to the returnTo path or vehicles page
     router.push(returnTo);
@@ -36,12 +41,17 @@ function LoginContent() {
     // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
+    // Persist login flag for demo
+    if (typeof window !== "undefined") {
+      localStorage.setItem("isLoggedIn", "true");
+    }
+
     // Navigate to the returnTo path or vehicles page
     router.push(returnTo);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
@@ -51,16 +61,16 @@ function LoginContent() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
+          className="w-10 h-10 rounded-lg border border-slate-200 bg-white/70 hover:bg-white shadow-sm text-slate-700"
           disabled={isLoading}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-            <Car className="w-4 h-4 text-white" />
+          <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
+            <Car className="w-4 h-4" />
           </div>
-          <h1 className="text-xl font-bold text-white">Auto Serve</h1>
+          <h1 className="text-xl font-bold text-slate-900">Auto Serve</h1>
         </div>
         <div className="w-10" /> {/* Spacer for center alignment */}
       </div>
@@ -68,26 +78,27 @@ function LoginContent() {
       {/* Content */}
       <div className="px-4 pb-6 mt-8">
         {/* Welcome Card */}
-        <Card className="mb-6">
+        <Card className="mb-6 card-elevated">
           <CardContent className="pt-8 pb-8 text-center">
-            <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-              <Car className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 tile-brand rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+              <Car className="w-10 h-10" />
             </div>
 
             <h2 className="text-2xl font-bold text-gray-900 mb-3">
-              {returnTo.includes('/vehicles/add') ? 'Almost There!' : 'Welcome to Auto Serve'}
+              {returnTo.includes("/vehicles/add")
+                ? "Almost There!"
+                : "Welcome to Auto Serve"}
             </h2>
             <p className="text-muted-foreground max-w-sm mx-auto text-base">
-              {returnTo.includes('/vehicles/add') 
-                ? 'Sign in to add your vehicle and start tracking your service history securely'
-                : 'Sign in or create an account to securely manage your service history'
-              }
+              {returnTo.includes("/vehicles/add")
+                ? "Sign in to add your vehicle and start tracking your service history securely"
+                : "Sign in or create an account to securely manage your service history"}
             </p>
           </CardContent>
         </Card>
 
         {/* Authentication Options */}
-        <Card>
+        <Card className="card-elevated">
           <CardContent className="pt-6 pb-6">
             <div className="space-y-4">
               {/* Google Login */}
@@ -177,7 +188,7 @@ function LoginContent() {
                 <Button
                   onClick={handleEmailLogin}
                   disabled={isLoading || !email.trim()}
-                  className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base"
+                  className="w-full h-12 btn-brand hover:btn-brand-hover font-semibold text-base"
                 >
                   {loadingMethod === "email" && isLoading ? (
                     <div className="flex items-center gap-2">
@@ -197,7 +208,7 @@ function LoginContent() {
         </Card>
 
         {/* Terms */}
-        <p className="text-center text-sm text-white/80 mt-6 px-4">
+        <p className="text-center text-sm text-black mt-6 px-4">
           By continuing, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>
@@ -210,7 +221,13 @@ function LoginContent() {
 
 export default function Login() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   );

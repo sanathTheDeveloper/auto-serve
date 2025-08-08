@@ -4,10 +4,7 @@ import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   ArrowLeft,
   Star,
@@ -134,13 +131,18 @@ export default function MechanicDetail() {
 
   if (!mechanic) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center">
-        <Card>
+      <div className="min-h-screen bg-app-brand flex items-center justify-center">
+        <Card className="card-elevated">
           <CardContent className="p-8 text-center">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
               Mechanic not found
             </h2>
-            <Button onClick={() => router.back()}>Go Back</Button>
+            <Button
+              className="btn-brand hover:btn-brand-hover text-white"
+              onClick={() => router.back()}
+            >
+              Go Back
+            </Button>
           </CardContent>
         </Card>
       </div>
@@ -153,8 +155,28 @@ export default function MechanicDetail() {
   };
 
   const handleBookService = () => {
-    // Navigate to bookings page
-    router.push("/bookings");
+    // Create a temporary booking ID for the payment flow
+    const tempBookingId = `booking-${Date.now()}`;
+
+    // In a real app, you would save the booking details to state/localStorage
+    // or make an API call to create a pending booking
+    const bookingData = {
+      id: tempBookingId,
+      service: selectedService?.name,
+      mechanic: mechanic.name,
+      address: mechanic.address,
+      estimatedTotal: selectedService ? calculateTotal(selectedService) : 0,
+      status: "pending_payment",
+    };
+
+    // Save booking data to localStorage for payment flow
+    localStorage.setItem(
+      `booking-${tempBookingId}`,
+      JSON.stringify(bookingData)
+    );
+
+    // Navigate to payment page
+    router.push(`/payment/${tempBookingId}`);
   };
 
   const calculateTotal = (service: Service) => {
@@ -180,7 +202,7 @@ export default function MechanicDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
@@ -190,26 +212,27 @@ export default function MechanicDetail() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
+          className="w-10 h-10 rounded-lg card-elevated"
+          aria-label="Go back"
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+          <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
             <Wrench className="w-4 h-4 text-white" />
           </div>
-          <h1 className="text-xl font-bold text-white">Book Service</h1>
+          <h1 className="text-xl font-bold text-slate-900">Book Service</h1>
         </div>
-        <div className="w-10" /> {/* Spacer */}
+        <div className="w-10" />
       </div>
 
       {/* Content */}
       <div className="px-4 pb-24">
         {/* Mechanic Info Card */}
-        <Card className="mb-6">
+        <Card className="mb-6 card-elevated">
           <CardContent className="pt-6">
             <div className="flex items-start gap-4 mb-4">
-              <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow tile-brand">
                 <Wrench className="w-8 h-8 text-white" />
               </div>
 
@@ -249,25 +272,37 @@ export default function MechanicDetail() {
                 <Badge
                   key={index}
                   variant="secondary"
-                  className="bg-blue-50 text-blue-600"
+                  className="bg-blue-50 text-blue-700"
                 >
                   {specialty}
                 </Badge>
               ))}
+            </div>
+
+            {/* Quick Action: View Reviews */}
+            <div className="mt-5">
+              <Button
+                onClick={() => router.push(`/mechanics/${mechanicId}/reviews`)}
+                className="w-full btn-brand hover:btn-brand-hover text-white"
+                aria-label="View mechanic reviews"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                View Reviews
+              </Button>
             </div>
           </CardContent>
         </Card>
 
         {/* Services Section */}
         <div className="mb-6">
-          <h3 className="text-lg font-bold text-white mb-4">
+          <h3 className="text-lg font-bold text-slate-900 mb-4">
             Available Services
           </h3>
           <div className="space-y-4">
             {mechanic.services.map((service) => (
               <Card
                 key={service.id}
-                className="cursor-pointer hover:shadow-lg transition-all duration-200"
+                className="cursor-pointer hover:shadow-lg transition-all duration-200 card-elevated"
               >
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-3">
@@ -299,7 +334,7 @@ export default function MechanicDetail() {
 
                   <Button
                     onClick={() => handleServiceSelect(service)}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    className="w-full btn-brand hover:btn-brand-hover text-white"
                   >
                     Get Quote
                   </Button>
@@ -308,13 +343,16 @@ export default function MechanicDetail() {
             ))}
           </div>
         </div>
+
+        {/* Reviews quick action is now on the title card; detailed reviews moved to separate page */}
       </div>
 
       {/* Quote Dialog */}
       <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
         <DialogContent className="w-[95vw] max-w-md max-h-[95vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
+          <DialogTitle className="sr-only">Your Estimated Quote</DialogTitle>
           {/* Custom Header with Gradient */}
-          <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-6 pb-4 rounded-t-2xl relative">
+          <div className="bg-gradient-to-r from-[var(--brand-blue)] to-[var(--brand-indigo)] p-6 pb-4 rounded-t-2xl relative">
             <button
               onClick={() => setShowQuoteDialog(false)}
               className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors z-10"
@@ -475,7 +513,7 @@ export default function MechanicDetail() {
                             handleBookService();
                             setShowQuoteDialog(false);
                           }}
-                          className="w-full h-12 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                          className="w-full h-12 btn-brand hover:btn-brand-hover text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                         >
                           <CheckCircle className="w-5 h-5 mr-2" />
                           Accept Estimate & Book Service

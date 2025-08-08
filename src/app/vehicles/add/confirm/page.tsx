@@ -43,6 +43,32 @@ function ConfirmVehicleContent() {
     // Simulate API call to add vehicle
     setTimeout(() => {
       console.log("Navigating to vehicles page");
+      // Save simple vehicle array in localStorage for demo purposes
+      try {
+        const existing =
+          typeof window !== "undefined"
+            ? localStorage.getItem("vehicles")
+            : null;
+        const vehicles = existing ? JSON.parse(existing) : [];
+        const newVehicle = {
+          id: `${Date.now()}`,
+          make: vehicleData?.make,
+          model: vehicleData?.model,
+          year: parseInt(vehicleData?.year || "0", 10),
+          color: vehicleData?.color,
+          licensePlate: vehicleData?.rego,
+          odometer: 0,
+          serviceHistory: [],
+        };
+        const updated = Array.isArray(vehicles)
+          ? [...vehicles, newVehicle]
+          : [newVehicle];
+        if (typeof window !== "undefined") {
+          localStorage.setItem("vehicles", JSON.stringify(updated));
+        }
+      } catch {
+        // ignore demo storage errors
+      }
       // Navigate to vehicles page to show the newly added vehicle
       router.push("/vehicles?vehicleAdded=true");
     }, 1000);
@@ -72,7 +98,7 @@ function ConfirmVehicleContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800">
+    <div className="min-h-screen bg-app-brand">
       {/* Status Bar Space */}
       <div className="h-11" />
 
@@ -82,16 +108,16 @@ function ConfirmVehicleContent() {
           variant="ghost"
           size="icon"
           onClick={handleGoBack}
-          className="w-10 h-10 bg-white/20 text-white hover:bg-white/30 rounded-lg"
+          className="w-10 h-10 rounded-lg border border-slate-200 bg-white/70 hover:bg-white shadow-sm"
           disabled={isAdding}
         >
           <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
-            <Shield className="w-4 h-4 text-white" />
+          <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
+            <Shield className="w-4 h-4" />
           </div>
-          <h1 className="text-xl font-bold text-white">
+          <h1 className="text-xl font-bold text-slate-900">
             Is this your vehicle?
           </h1>
         </div>
@@ -101,11 +127,11 @@ function ConfirmVehicleContent() {
       {/* Content */}
       <div className="px-4 pb-8">
         {/* Vehicle Details Card */}
-        <Card className="mb-6">
+        <Card className="mb-6 card-elevated">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-20 h-20 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <Car className="w-10 h-10 text-white" />
+              <div className="w-20 h-20 tile-brand rounded-2xl flex items-center justify-center shadow-lg">
+                <Car className="w-10 h-10" />
               </div>
 
               <div className="flex-1">
@@ -216,7 +242,7 @@ function ConfirmVehicleContent() {
             onClick={handleGoBack}
             disabled={isAdding}
             variant="outline"
-            className="w-full py-4 text-lg font-semibold rounded-xl border-2 border-white text-white hover:bg-white/20 transition-all bg-white/10"
+            className="w-full py-4 text-lg font-semibold rounded-xl border-2 border-gray-300 text-gray-700 hover:bg-gray-100 transition-all bg-white"
           >
             <X className="w-5 h-5 mr-2" />
             No, that&apos;s not it
@@ -225,7 +251,7 @@ function ConfirmVehicleContent() {
 
         {/* Help Text */}
         <div className="mt-6 text-center">
-          <p className="text-white/70 text-sm">
+          <p className="text-black text-sm">
             Don&apos;t see your vehicle? Try entering your registration number
             again or add details manually.
           </p>
@@ -240,7 +266,13 @@ function ConfirmVehicleContent() {
 
 export default function ConfirmVehicle() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center"><div className="text-white">Loading...</div></div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800 flex items-center justify-center">
+          <div className="text-white">Loading...</div>
+        </div>
+      }
+    >
       <ConfirmVehicleContent />
     </Suspense>
   );

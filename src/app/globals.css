@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
 :root {
+  /* Core brand palette (Trust Blue) */
   --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  --foreground: 222.2 84% 5%;
   --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
+  --card-foreground: 222.2 84% 5%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
+  --popover-foreground: 222.2 84% 5%;
+  --primary: 217 91% 60%; /* Tailwind blue-500 */
   --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
+  --secondary: 210 40% 98%;
+  --secondary-foreground: 222.2 47.4% 11.2%;
   --muted: 210 40% 96%;
   --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 84% 4.9%;
-  --destructive: 0 72.22% 50.59%;
+  --accent: 226 100% 94%;
+  --accent-foreground: 222.2 47.4% 11.2%;
+  --destructive: 0 72% 51%;
   --destructive-foreground: 210 40% 98%;
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
-  --radius: 0.5rem;
+  --ring: 217 91% 60%;
+  --radius: 0.75rem;
+
+  /* Brand gradients */
+  --brand-sky: 204 100% 97%; /* sky-100ish */
+  --brand-blue: 217 91% 60%; /* blue-500 */
+  --brand-indigo: 239 84% 67%; /* indigo-500 */
+  --brand-blue-700: 217 91% 50%;
 }
 
 @theme inline {
@@ -74,4 +81,49 @@ body {
   body {
     font-size: 16px; /* Prevent zoom on iOS */
   }
+}
+
+/* Design system utilities */
+@utility bg-app-brand {
+  background-image: linear-gradient(
+    to bottom right,
+    hsl(var(--brand-sky)),
+    hsl(220 100% 92%),
+    hsl(225 100% 90%)
+  );
+}
+
+@utility tile-brand {
+  background-image: linear-gradient(
+    to bottom right,
+    hsl(199 89% 48%),
+    hsl(var(--brand-blue)),
+    hsl(var(--brand-indigo))
+  );
+  color: white;
+}
+
+@utility btn-brand {
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--brand-blue)),
+    hsl(var(--brand-indigo))
+  );
+  color: white;
+}
+
+@utility btn-brand-hover {
+  background-image: linear-gradient(
+    to right,
+    hsl(var(--brand-blue-700)),
+    hsl(244 75% 57%)
+  );
+}
+
+@utility card-elevated {
+  background-color: hsl(0 0% 100% / 0.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  box-shadow: 0 6px 20px rgba(30, 64, 175, 0.08);
 }
