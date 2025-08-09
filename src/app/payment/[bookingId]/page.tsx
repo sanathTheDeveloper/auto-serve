@@ -14,7 +14,7 @@ import {
   Calendar,
   MapPin,
 } from "lucide-react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter, useParams, useSearchParams } from "next/navigation";
 
 interface PaymentOption {
   id: "full" | "deposit";
@@ -42,10 +42,15 @@ export default function PaymentPage() {
   const router = useRouter();
   const params = useParams();
   const bookingId = params.bookingId as string;
+  const searchParams = useSearchParams();
 
-  const [selectedOption, setSelectedOption] = useState<"full" | "deposit" | null>(null);
+  const [selectedOption, setSelectedOption] = useState<
+    "full" | "deposit" | null
+  >(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"options" | "payment" | "processing">("options");
+  const [currentStep, setCurrentStep] = useState<
+    "options" | "payment" | "processing"
+  >("options");
 
   // Load booking data from localStorage or use mock data
   const [bookingDetails, setBookingDetails] = useState<BookingDetails>({
@@ -56,7 +61,7 @@ export default function PaymentPage() {
     address: "123 Collins Street, Melbourne",
     date: "Tomorrow",
     time: "2:00 PM",
-    totalAmount: 280.00,
+    totalAmount: 280.0,
     depositPercentage: 30,
   });
 
@@ -74,7 +79,7 @@ export default function PaymentPage() {
           address: parsedData.address || "123 Collins Street, Melbourne",
           date: "Tomorrow", // Default scheduling
           time: "2:00 PM", // Default time
-          totalAmount: Number(parsedData.estimatedTotal) || 280.00,
+          totalAmount: Number(parsedData.estimatedTotal) || 280.0,
           depositPercentage: 30,
         });
       }
@@ -83,14 +88,31 @@ export default function PaymentPage() {
     }
   }, [bookingId]);
 
-  const depositAmount = (bookingDetails.totalAmount * bookingDetails.depositPercentage) / 100;
+  // Initialize from query params to jump straight to payment
+  useEffect(() => {
+    const step = searchParams.get("step");
+    const option = searchParams.get("option");
+    if (step === "payment") {
+      if (option === "full" || option === "deposit") {
+        setSelectedOption(option);
+      } else {
+        setSelectedOption("full");
+      }
+      setCurrentStep("payment");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const depositAmount =
+    (bookingDetails.totalAmount * bookingDetails.depositPercentage) / 100;
   const remainingAmount = bookingDetails.totalAmount - depositAmount;
 
   const paymentOptions: PaymentOption[] = [
     {
       id: "deposit",
       title: "Pay Deposit",
-      description: "Secure your booking with a deposit. Pay the remainder after service completion.",
+      description:
+        "Secure your booking with a deposit. Pay the remainder after service completion.",
       amount: depositAmount,
       originalAmount: bookingDetails.totalAmount,
       badge: "Most Popular",
@@ -99,7 +121,8 @@ export default function PaymentPage() {
     {
       id: "full",
       title: "Pay in Full",
-      description: "Pay the complete amount upfront. Funds held in escrow until service completion.",
+      description:
+        "Pay the complete amount upfront. Funds held in escrow until service completion.",
       amount: bookingDetails.totalAmount,
       originalAmount: bookingDetails.totalAmount,
     },
@@ -124,7 +147,9 @@ export default function PaymentPage() {
     // Simulate payment processing
     setTimeout(() => {
       // In real app, handle actual payment processing here
-      router.push(`/payment/${bookingId}/confirmation?option=${selectedOption}`);
+      router.push(
+        `/payment/${bookingId}/confirmation?option=${selectedOption}`
+      );
     }, 3000);
   };
 
@@ -189,8 +214,12 @@ export default function PaymentPage() {
                 <Car className="w-6 h-6" />
               </div>
               <div className="flex-1">
-                <h3 className="font-bold text-slate-900">{bookingDetails.service}</h3>
-                <p className="text-sm text-gray-600">{bookingDetails.vehicle}</p>
+                <h3 className="font-bold text-slate-900">
+                  {bookingDetails.service}
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {bookingDetails.vehicle}
+                </p>
               </div>
               <div className="text-right">
                 <div className="text-xl font-bold text-slate-900">
@@ -207,7 +236,9 @@ export default function PaymentPage() {
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Calendar className="w-4 h-4 text-gray-400" />
-                <span>{bookingDetails.date} at {bookingDetails.time}</span>
+                <span>
+                  {bookingDetails.date} at {bookingDetails.time}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -231,25 +262,31 @@ export default function PaymentPage() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-bold text-slate-900">{option.title}</h3>
+                          <h3 className="font-bold text-slate-900">
+                            {option.title}
+                          </h3>
                           {option.recommended && (
                             <Badge className="bg-green-100 text-green-700 text-xs">
                               {option.badge}
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-gray-600 mb-3">{option.description}</p>
-                        
+                        <p className="text-sm text-gray-600 mb-3">
+                          {option.description}
+                        </p>
+
                         <div className="space-y-1">
                           <div className="flex items-center justify-between">
                             <span className="text-sm text-gray-600">
-                              {option.id === "deposit" ? "Deposit Amount" : "Full Amount"}
+                              {option.id === "deposit"
+                                ? "Deposit Amount"
+                                : "Full Amount"}
                             </span>
                             <span className="font-bold text-lg text-slate-900">
                               ${option.amount.toFixed(2)}
                             </span>
                           </div>
-                          
+
                           {option.id === "deposit" && (
                             <div className="flex items-center justify-between">
                               <span className="text-xs text-gray-500">
@@ -262,12 +299,14 @@ export default function PaymentPage() {
                           )}
                         </div>
                       </div>
-                      
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedOption === option.id
-                          ? "border-blue-600 bg-blue-600"
-                          : "border-gray-300"
-                      }`}>
+
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          selectedOption === option.id
+                            ? "border-blue-600 bg-blue-600"
+                            : "border-gray-300"
+                        }`}
+                      >
                         {selectedOption === option.id && (
                           <CheckCircle className="w-3 h-3 text-white" />
                         )}
@@ -284,19 +323,29 @@ export default function PaymentPage() {
                 <div className="flex items-start gap-3">
                   <Shield className="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h3 className="font-bold text-blue-900 mb-2">Payment Protection</h3>
+                    <h3 className="font-bold text-blue-900 mb-2">
+                      Payment Protection
+                    </h3>
                     <div className="space-y-2 text-sm text-blue-800">
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span>Your payment is held securely in escrow until service completion</span>
+                        <span>
+                          Your payment is held securely in escrow until service
+                          completion
+                        </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span>Automatic release after you confirm satisfactory service</span>
+                        <span>
+                          Automatic release after you confirm satisfactory
+                          service
+                        </span>
                       </div>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <span>Full refund protection if service isn&apos;t delivered</span>
+                        <span>
+                          Full refund protection if service isn&apos;t delivered
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -324,10 +373,15 @@ export default function PaymentPage() {
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900">
-                      {selectedOption === "deposit" ? "Deposit Payment" : "Full Payment"}
+                      {selectedOption === "deposit"
+                        ? "Deposit Payment"
+                        : "Full Payment"}
                     </h3>
                     <p className="text-sm text-gray-600">
-                      Amount: ${selectedOption === "deposit" ? depositAmount.toFixed(2) : bookingDetails.totalAmount.toFixed(2)}
+                      Amount: $
+                      {selectedOption === "deposit"
+                        ? depositAmount.toFixed(2)
+                        : bookingDetails.totalAmount.toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -393,9 +447,12 @@ export default function PaymentPage() {
                 <div className="flex items-start gap-3">
                   <Lock className="w-5 h-5 text-gray-600 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-medium text-gray-900 mb-1">Secure Payment</h4>
+                    <h4 className="font-medium text-gray-900 mb-1">
+                      Secure Payment
+                    </h4>
                     <p className="text-sm text-gray-600">
-                      Your payment information is encrypted and secure. We never store your card details.
+                      Your payment information is encrypted and secure. We never
+                      store your card details.
                     </p>
                   </div>
                 </div>
@@ -405,17 +462,25 @@ export default function PaymentPage() {
             {/* Payment Summary */}
             <Card className="mb-6 card-elevated">
               <CardContent className="p-5">
-                <h3 className="font-bold text-slate-900 mb-4">Payment Summary</h3>
+                <h3 className="font-bold text-slate-900 mb-4">
+                  Payment Summary
+                </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Service Amount</span>
-                    <span className="font-medium">${bookingDetails.totalAmount.toFixed(2)}</span>
+                    <span className="font-medium">
+                      ${bookingDetails.totalAmount.toFixed(2)}
+                    </span>
                   </div>
                   {selectedOption === "deposit" && (
                     <>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Deposit ({bookingDetails.depositPercentage}%)</span>
-                        <span className="font-medium">${depositAmount.toFixed(2)}</span>
+                        <span className="text-gray-600">
+                          Deposit ({bookingDetails.depositPercentage}%)
+                        </span>
+                        <span className="font-medium">
+                          ${depositAmount.toFixed(2)}
+                        </span>
                       </div>
                       <div className="flex justify-between text-sm text-gray-500">
                         <span>Remaining after service</span>
@@ -425,10 +490,15 @@ export default function PaymentPage() {
                   )}
                   <div className="border-t pt-3 flex justify-between">
                     <span className="font-bold text-slate-900">
-                      {selectedOption === "deposit" ? "Paying Today" : "Total Amount"}
+                      {selectedOption === "deposit"
+                        ? "Paying Today"
+                        : "Total Amount"}
                     </span>
                     <span className="font-bold text-xl text-green-600">
-                      ${selectedOption === "deposit" ? depositAmount.toFixed(2) : bookingDetails.totalAmount.toFixed(2)}
+                      $
+                      {selectedOption === "deposit"
+                        ? depositAmount.toFixed(2)
+                        : bookingDetails.totalAmount.toFixed(2)}
                     </span>
                   </div>
                 </div>
@@ -444,7 +514,7 @@ export default function PaymentPage() {
                 <Lock className="w-5 h-5 mr-2" />
                 Secure Payment
               </Button>
-              
+
               <Button
                 variant="outline"
                 onClick={() => setCurrentStep("options")}

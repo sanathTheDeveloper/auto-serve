@@ -161,13 +161,15 @@ export default function MechanicDetail() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showQuoteDialog, setShowQuoteDialog] = useState(false);
   const [showServiceSelector, setShowServiceSelector] = useState(false);
-  
+
   // Streamlined state for service concerns and requests
   const [damagePhotos, setDamagePhotos] = useState<DamagePhoto[]>([]);
   const [serviceConcerns, setServiceConcerns] = useState<ServiceConcern[]>([]);
-  const [sparePartRequests, setSparePartRequests] = useState<SparePartRequest[]>([]);
-  const [additionalNotes, setAdditionalNotes] = useState('');
-  
+  const [sparePartRequests, setSparePartRequests] = useState<
+    SparePartRequest[]
+  >([]);
+  const [additionalNotes, setAdditionalNotes] = useState("");
+
   const mechanic = mockMechanicData[mechanicId];
 
   if (!mechanic) {
@@ -204,9 +206,9 @@ export default function MechanicDetail() {
           const newPhoto: DamagePhoto = {
             id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
             url: e.target?.result as string,
-            description: '',
+            description: "",
           };
-          setDamagePhotos(prev => [...prev, newPhoto]);
+          setDamagePhotos((prev) => [...prev, newPhoto]);
         };
         reader.readAsDataURL(file);
       });
@@ -214,50 +216,84 @@ export default function MechanicDetail() {
   };
 
   const handleRemovePhoto = (photoId: string) => {
-    setDamagePhotos(prev => prev.filter(photo => photo.id !== photoId));
+    setDamagePhotos((prev) => prev.filter((photo) => photo.id !== photoId));
   };
 
   const addServiceConcern = () => {
     const newConcern: ServiceConcern = {
       id: Date.now().toString(),
-      title: '',
-      description: '',
+      title: "",
+      description: "",
     };
-    setServiceConcerns(prev => [...prev, newConcern]);
+    setServiceConcerns((prev) => [...prev, newConcern]);
   };
 
-  const updateServiceConcern = (id: string, field: 'title' | 'description', value: string) => {
-    setServiceConcerns(prev => prev.map(concern => 
-      concern.id === id ? { ...concern, [field]: value } : concern
-    ));
+  const updateServiceConcern = (
+    id: string,
+    field: "title" | "description",
+    value: string
+  ) => {
+    setServiceConcerns((prev) =>
+      prev.map((concern) =>
+        concern.id === id ? { ...concern, [field]: value } : concern
+      )
+    );
   };
 
   const removeServiceConcern = (id: string) => {
-    setServiceConcerns(prev => prev.filter(concern => concern.id !== id));
+    setServiceConcerns((prev) => prev.filter((concern) => concern.id !== id));
   };
 
   const addSparePartRequest = () => {
     const newRequest: SparePartRequest = {
       id: Date.now().toString(),
-      partName: '',
-      reason: '',
+      partName: "",
+      reason: "",
     };
-    setSparePartRequests(prev => [...prev, newRequest]);
+    setSparePartRequests((prev) => [...prev, newRequest]);
   };
 
-  const updateSparePartRequest = (id: string, field: 'partName' | 'reason', value: string) => {
-    setSparePartRequests(prev => prev.map(request => 
-      request.id === id ? { ...request, [field]: value } : request
-    ));
+  const updateSparePartRequest = (
+    id: string,
+    field: "partName" | "reason",
+    value: string
+  ) => {
+    setSparePartRequests((prev) =>
+      prev.map((request) =>
+        request.id === id ? { ...request, [field]: value } : request
+      )
+    );
   };
 
   const removeSparePartRequest = (id: string) => {
-    setSparePartRequests(prev => prev.filter(request => request.id !== id));
+    setSparePartRequests((prev) => prev.filter((request) => request.id !== id));
   };
 
   const handleRequestQuote = () => {
     setShowServiceSelector(false);
     setShowQuoteDialog(true);
+  };
+
+  const handleProceedToPayment = () => {
+    if (!selectedService) {
+      setShowQuoteDialog(false);
+      return;
+    }
+    const tempBookingId = `booking-${Date.now()}`;
+    const bookingData = {
+      id: tempBookingId,
+      service: selectedService.name,
+      mechanic: mechanic.name,
+      address: mechanic.address,
+      estimatedTotal: 0,
+      status: "pending_payment",
+    };
+    localStorage.setItem(
+      `booking-${tempBookingId}`,
+      JSON.stringify(bookingData)
+    );
+    setShowQuoteDialog(false);
+    router.push(`/payment/${tempBookingId}?step=payment&option=full`);
   };
 
   // handleBookService function removed as it was unused
@@ -414,7 +450,7 @@ export default function MechanicDetail() {
       <Dialog open={showServiceSelector} onOpenChange={setShowServiceSelector}>
         <DialogContent className="w-[95vw] max-w-md max-h-[90vh] p-0 gap-0 rounded-2xl border-0 shadow-2xl bg-white flex flex-col">
           <DialogTitle className="sr-only">Service Request Details</DialogTitle>
-          
+
           {/* Header - Fixed at top */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6 rounded-t-2xl relative flex-shrink-0">
             <button
@@ -436,269 +472,321 @@ export default function MechanicDetail() {
           {/* Scrollable Content */}
           <div className="overflow-y-auto flex-1 min-h-0">
             <div className="p-6 space-y-6">
-            {/* Selected Service - Top Priority */}
-            {selectedService && (
-              <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+              {/* Selected Service - Top Priority */}
+              {selectedService && (
+                <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Wrench className="w-6 h-6 text-blue-600" />
+                    <h3 className="font-bold text-blue-900 text-lg">
+                      {selectedService.name}
+                    </h3>
+                  </div>
+                  <p className="text-blue-800 text-sm mb-4 leading-relaxed">
+                    {selectedService.description}
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded-full font-medium">
+                      {selectedService.priceRange}
+                    </span>
+                    <span className="text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded-full font-medium">
+                      {selectedService.estimatedTime}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Your Vehicle */}
+              <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
                 <div className="flex items-center gap-3 mb-3">
-                  <Wrench className="w-6 h-6 text-blue-600" />
-                  <h3 className="font-bold text-blue-900 text-lg">{selectedService.name}</h3>
+                  <Car className="w-6 h-6 text-gray-700" />
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    Your Vehicle
+                  </h3>
                 </div>
-                <p className="text-blue-800 text-sm mb-4 leading-relaxed">{selectedService.description}</p>
-                <div className="flex items-center gap-3 flex-wrap">
-                  <span className="text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded-full font-medium">
-                    {selectedService.priceRange}
-                  </span>
-                  <span className="text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded-full font-medium">
-                    {selectedService.estimatedTime}
-                  </span>
-                </div>
+                <p className="font-bold text-gray-900 text-lg">
+                  {selectedVehicle.year} {selectedVehicle.make}{" "}
+                  {selectedVehicle.model}
+                </p>
+                <p className="text-gray-600 text-base mt-1">
+                  {selectedVehicle.licensePlate}
+                </p>
               </div>
-            )}
 
-            {/* Your Vehicle */}
-            <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
-              <div className="flex items-center gap-3 mb-3">
-                <Car className="w-6 h-6 text-gray-700" />
-                <h3 className="font-bold text-gray-900 text-lg">Your Vehicle</h3>
-              </div>
-              <p className="font-bold text-gray-900 text-lg">
-                {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
-              </p>
-              <p className="text-gray-600 text-base mt-1">{selectedVehicle.licensePlate}</p>
-            </div>
-
-            {/* Service Concerns Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="w-6 h-6 text-gray-700" />
-                <h3 className="font-bold text-gray-900 text-lg">Specific Concerns or Issues</h3>
-              </div>
-              
-              {serviceConcerns.length === 0 ? (
-                <div 
-                  onClick={addServiceConcern}
-                  className="cursor-pointer text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
-                >
-                  <AlertCircle className="w-10 h-10 text-gray-400 group-hover:text-blue-500 mx-auto mb-3 transition-colors" />
-                  <p className="text-gray-600 group-hover:text-blue-600 text-base font-semibold transition-colors">
-                    Tap to add your first concern or issue
-                  </p>
-                  <p className="text-gray-500 group-hover:text-blue-400 text-sm mt-2 transition-colors">
-                    Describe specific problems or symptoms
-                  </p>
+              {/* Service Concerns Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <AlertCircle className="w-6 h-6 text-gray-700" />
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    Specific Concerns or Issues
+                  </h3>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {serviceConcerns.map((concern, index) => (
-                    <div key={concern.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="font-bold text-gray-900 text-base flex items-center gap-3">
-                          <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
-                            {index + 1}
-                          </div>
-                          Issue #{index + 1}
-                        </h4>
-                        <button
-                          onClick={() => removeServiceConcern(concern.id)}
-                          className="w-9 h-9 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
-                        >
-                          <X className="w-5 h-5" />
-                        </button>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Brief description (e.g., Strange noise when braking)"
-                        value={concern.title}
-                        onChange={(e) => updateServiceConcern(concern.id, 'title', e.target.value)}
-                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none mb-4"
-                      />
-                      <textarea
-                        placeholder="When does it happen? How long has this been occurring? Any specific symptoms?"
-                        value={concern.description}
-                        onChange={(e) => updateServiceConcern(concern.id, 'description', e.target.value)}
-                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none resize-none h-24"
-                        rows={3}
-                      />
-                    </div>
-                  ))}
-                  
-                  {/* Add More Button */}
-                  <div 
+
+                {serviceConcerns.length === 0 ? (
+                  <div
                     onClick={addServiceConcern}
-                    className="cursor-pointer text-center py-6 bg-blue-50 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-100 transition-all duration-200 group"
+                    className="cursor-pointer text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
                   >
-                    <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
-                      <span className="text-xl leading-none">+</span>
-                    </div>
-                    <p className="text-blue-600 text-base font-semibold">
-                      Add another issue
+                    <AlertCircle className="w-10 h-10 text-gray-400 group-hover:text-blue-500 mx-auto mb-3 transition-colors" />
+                    <p className="text-gray-600 group-hover:text-blue-600 text-base font-semibold transition-colors">
+                      Tap to add your first concern or issue
+                    </p>
+                    <p className="text-gray-500 group-hover:text-blue-400 text-sm mt-2 transition-colors">
+                      Describe specific problems or symptoms
                     </p>
                   </div>
-                </div>
-              )}
-            </div>
+                ) : (
+                  <div className="space-y-4">
+                    {serviceConcerns.map((concern, index) => (
+                      <div
+                        key={concern.id}
+                        className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+                      >
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="font-bold text-gray-900 text-base flex items-center gap-3">
+                            <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </div>
+                            Issue #{index + 1}
+                          </h4>
+                          <button
+                            onClick={() => removeServiceConcern(concern.id)}
+                            className="w-9 h-9 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Brief description (e.g., Strange noise when braking)"
+                          value={concern.title}
+                          onChange={(e) =>
+                            updateServiceConcern(
+                              concern.id,
+                              "title",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none mb-4"
+                        />
+                        <textarea
+                          placeholder="When does it happen? How long has this been occurring? Any specific symptoms?"
+                          value={concern.description}
+                          onChange={(e) =>
+                            updateServiceConcern(
+                              concern.id,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none resize-none h-24"
+                          rows={3}
+                        />
+                      </div>
+                    ))}
 
-            {/* Spare Parts Request Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Wrench className="w-6 h-6 text-gray-700" />
-                <h3 className="font-bold text-gray-900 text-lg">Spare Parts Needed</h3>
+                    {/* Add More Button */}
+                    <div
+                      onClick={addServiceConcern}
+                      className="cursor-pointer text-center py-6 bg-blue-50 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-100 transition-all duration-200 group"
+                    >
+                      <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span className="text-xl leading-none">+</span>
+                      </div>
+                      <p className="text-blue-600 text-base font-semibold">
+                        Add another issue
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
-              
-              {sparePartRequests.length === 0 ? (
-                <div 
-                  onClick={addSparePartRequest}
-                  className="cursor-pointer text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 transition-all duration-200 group"
-                >
-                  <Wrench className="w-10 h-10 text-gray-400 group-hover:text-green-500 mx-auto mb-3 transition-colors" />
-                  <p className="text-gray-600 group-hover:text-green-600 text-base font-semibold transition-colors">
-                    Tap to request specific parts
-                  </p>
-                  <p className="text-gray-500 group-hover:text-green-400 text-sm mt-2 transition-colors">
-                    Add parts you need or prefer
-                  </p>
+
+              {/* Spare Parts Request Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Wrench className="w-6 h-6 text-gray-700" />
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    Spare Parts Needed
+                  </h3>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {sparePartRequests.map((request, index) => (
-                    <div key={request.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-                      <div className="flex justify-between items-center mb-4">
-                        <h4 className="font-bold text-gray-900 text-base flex items-center gap-3">
-                          <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">
-                            {index + 1}
-                          </div>
-                          Part #{index + 1}
-                        </h4>
+
+                {sparePartRequests.length === 0 ? (
+                  <div
+                    onClick={addSparePartRequest}
+                    className="cursor-pointer text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 transition-all duration-200 group"
+                  >
+                    <Wrench className="w-10 h-10 text-gray-400 group-hover:text-green-500 mx-auto mb-3 transition-colors" />
+                    <p className="text-gray-600 group-hover:text-green-600 text-base font-semibold transition-colors">
+                      Tap to request specific parts
+                    </p>
+                    <p className="text-gray-500 group-hover:text-green-400 text-sm mt-2 transition-colors">
+                      Add parts you need or prefer
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {sparePartRequests.map((request, index) => (
+                      <div
+                        key={request.id}
+                        className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm"
+                      >
+                        <div className="flex justify-between items-center mb-4">
+                          <h4 className="font-bold text-gray-900 text-base flex items-center gap-3">
+                            <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">
+                              {index + 1}
+                            </div>
+                            Part #{index + 1}
+                          </h4>
+                          <button
+                            onClick={() => removeSparePartRequest(request.id)}
+                            className="w-9 h-9 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          placeholder="Part name (e.g., Front brake pads, Air filter)"
+                          value={request.partName}
+                          onChange={(e) =>
+                            updateSparePartRequest(
+                              request.id,
+                              "partName",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none mb-4"
+                        />
+                        <textarea
+                          placeholder="Why do you need this part? Any brand preferences or requirements?"
+                          value={request.reason}
+                          onChange={(e) =>
+                            updateSparePartRequest(
+                              request.id,
+                              "reason",
+                              e.target.value
+                            )
+                          }
+                          className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none resize-none h-24"
+                          rows={3}
+                        />
+                      </div>
+                    ))}
+
+                    {/* Add More Button */}
+                    <div
+                      onClick={addSparePartRequest}
+                      className="cursor-pointer text-center py-6 bg-green-50 rounded-xl border-2 border-dashed border-green-200 hover:border-green-400 hover:bg-green-100 transition-all duration-200 group"
+                    >
+                      <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                        <span className="text-xl leading-none">+</span>
+                      </div>
+                      <p className="text-green-600 text-base font-semibold">
+                        Add another part
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Photo Upload Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Camera className="w-5 h-5 text-gray-700" />
+                  <h3 className="font-bold text-gray-900">
+                    Vehicle Photos (Optional)
+                  </h3>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Upload photos of any damage, issues, or specific areas you
+                  want the mechanic to examine.
+                </p>
+
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                    className="hidden"
+                    id="photo-upload"
+                  />
+                  <label htmlFor="photo-upload" className="cursor-pointer">
+                    <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm font-medium text-gray-600 mb-1">
+                      Tap to upload photos
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      JPG, PNG up to 10MB each
+                    </p>
+                  </label>
+                </div>
+
+                {/* Uploaded Photos */}
+                {damagePhotos.length > 0 && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {damagePhotos.map((photo) => (
+                      <div
+                        key={photo.id}
+                        className="relative bg-gray-50 rounded-lg p-2"
+                      >
+                        <Image
+                          src={photo.url}
+                          alt="Vehicle photo"
+                          className="w-full h-20 object-cover rounded-lg"
+                        />
                         <button
-                          onClick={() => removeSparePartRequest(request.id)}
-                          className="w-9 h-9 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
+                          onClick={() => handleRemovePhoto(photo.id)}
+                          className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
                         >
-                          <X className="w-5 h-5" />
+                          <X className="w-3 h-3" />
                         </button>
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Part name (e.g., Front brake pads, Air filter)"
-                        value={request.partName}
-                        onChange={(e) => updateSparePartRequest(request.id, 'partName', e.target.value)}
-                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none mb-4"
-                      />
-                      <textarea
-                        placeholder="Why do you need this part? Any brand preferences or requirements?"
-                        value={request.reason}
-                        onChange={(e) => updateSparePartRequest(request.id, 'reason', e.target.value)}
-                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none resize-none h-24"
-                        rows={3}
-                      />
-                    </div>
-                  ))}
-                  
-                  {/* Add More Button */}
-                  <div 
-                    onClick={addSparePartRequest}
-                    className="cursor-pointer text-center py-6 bg-green-50 rounded-xl border-2 border-dashed border-green-200 hover:border-green-400 hover:bg-green-100 transition-all duration-200 group"
-                  >
-                    <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
-                      <span className="text-xl leading-none">+</span>
-                    </div>
-                    <p className="text-green-600 text-base font-semibold">
-                      Add another part
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Additional Notes */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <MessageSquare className="w-6 h-6 text-gray-700" />
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    Additional Information
+                  </h3>
+                </div>
+                <textarea
+                  placeholder="Any other details, preferences, or requirements the mechanic should know about..."
+                  value={additionalNotes}
+                  onChange={(e) => setAdditionalNotes(e.target.value)}
+                  className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none resize-none h-24"
+                  rows={3}
+                />
+              </div>
+
+              {/* Call Notice */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                <div className="flex items-start gap-4">
+                  <Phone className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
+                  <div>
+                    <h4 className="font-bold text-amber-900 mb-2 text-base">
+                      Mechanic Will Contact You
+                    </h4>
+                    <p className="text-amber-800 text-sm leading-relaxed">
+                      After submitting, {mechanic.name} will call you within 2
+                      hours to discuss your quote and schedule your appointment.
                     </p>
                   </div>
                 </div>
-              )}
-            </div>
-
-            {/* Photo Upload Section */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Camera className="w-5 h-5 text-gray-700" />
-                <h3 className="font-bold text-gray-900">Vehicle Photos (Optional)</h3>
-              </div>
-              <p className="text-sm text-gray-600">
-                Upload photos of any damage, issues, or specific areas you want the mechanic to examine.
-              </p>
-              
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handlePhotoUpload}
-                  className="hidden"
-                  id="photo-upload"
-                />
-                <label htmlFor="photo-upload" className="cursor-pointer">
-                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-sm font-medium text-gray-600 mb-1">
-                    Tap to upload photos
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    JPG, PNG up to 10MB each
-                  </p>
-                </label>
               </div>
 
-              {/* Uploaded Photos */}
-              {damagePhotos.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
-                  {damagePhotos.map((photo) => (
-                    <div key={photo.id} className="relative bg-gray-50 rounded-lg p-2">
-                      <Image
-                        src={photo.url}
-                        alt="Vehicle photo"
-                        className="w-full h-20 object-cover rounded-lg"
-                      />
-                      <button
-                        onClick={() => handleRemovePhoto(photo.id)}
-                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Additional Notes */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <MessageSquare className="w-6 h-6 text-gray-700" />
-                <h3 className="font-bold text-gray-900 text-lg">Additional Information</h3>
-              </div>
-              <textarea
-                placeholder="Any other details, preferences, or requirements the mechanic should know about..."
-                value={additionalNotes}
-                onChange={(e) => setAdditionalNotes(e.target.value)}
-                className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none resize-none h-24"
-                rows={3}
-              />
-            </div>
-
-            {/* Call Notice */}
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-              <div className="flex items-start gap-4">
-                <Phone className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
-                <div>
-                  <h4 className="font-bold text-amber-900 mb-2 text-base">
-                    Mechanic Will Contact You
-                  </h4>
-                  <p className="text-amber-800 text-sm leading-relaxed">
-                    After submitting, {mechanic.name} will call you within 2 hours to discuss your quote and schedule your appointment.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Button */}
-            <Button
-              onClick={handleRequestQuote}
-              className="w-full h-14 btn-brand hover:btn-brand-hover text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <FileText className="w-6 h-6 mr-3" />
-              Request Quote & Get Call
-            </Button>
+              {/* Action Button */}
+              <Button
+                onClick={handleRequestQuote}
+                className="w-full h-14 btn-brand hover:btn-brand-hover text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <FileText className="w-6 h-6 mr-3" />
+                Request Quote & Get Call
+              </Button>
             </div>
           </div>
         </DialogContent>
@@ -736,10 +824,16 @@ export default function MechanicDetail() {
                 <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
                   <div className="flex items-center gap-3 mb-2">
                     <Wrench className="w-5 h-5 text-blue-600" />
-                    <h3 className="font-bold text-blue-900">Service Requested</h3>
+                    <h3 className="font-bold text-blue-900">
+                      Service Requested
+                    </h3>
                   </div>
-                  <p className="font-semibold text-blue-900">{selectedService.name}</p>
-                  <p className="text-blue-800 text-sm mt-1">{selectedService.description}</p>
+                  <p className="font-semibold text-blue-900">
+                    {selectedService.name}
+                  </p>
+                  <p className="text-blue-800 text-sm mt-1">
+                    {selectedService.description}
+                  </p>
                   <div className="flex items-center gap-4 mt-3">
                     <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
                       Est. {selectedService.priceRange}
@@ -757,9 +851,12 @@ export default function MechanicDetail() {
                     <h3 className="font-bold text-gray-900">Your Vehicle</h3>
                   </div>
                   <p className="font-semibold text-gray-900">
-                    {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+                    {selectedVehicle.year} {selectedVehicle.make}{" "}
+                    {selectedVehicle.model}
                   </p>
-                  <p className="text-gray-600 text-sm">{selectedVehicle.licensePlate}</p>
+                  <p className="text-gray-600 text-sm">
+                    {selectedVehicle.licensePlate}
+                  </p>
                 </div>
 
                 {/* Photos Summary */}
@@ -767,13 +864,17 @@ export default function MechanicDetail() {
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <Camera className="w-5 h-5 text-gray-700" />
-                      <h3 className="font-bold text-gray-900">Vehicle Photos</h3>
+                      <h3 className="font-bold text-gray-900">
+                        Vehicle Photos
+                      </h3>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                        {damagePhotos.length} photo{damagePhotos.length > 1 ? 's' : ''} uploaded
+                        {damagePhotos.length} photo
+                        {damagePhotos.length > 1 ? "s" : ""} uploaded
                       </span>
                     </div>
                     <p className="text-sm text-gray-600">
-                      Photos have been included with your quote request for the mechanic to review.
+                      Photos have been included with your quote request for the
+                      mechanic to review.
                     </p>
                   </div>
                 )}
@@ -783,17 +884,27 @@ export default function MechanicDetail() {
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <AlertCircle className="w-5 h-5 text-gray-700" />
-                      <h3 className="font-bold text-gray-900">Specific Concerns</h3>
+                      <h3 className="font-bold text-gray-900">
+                        Specific Concerns
+                      </h3>
                       <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
-                        {serviceConcerns.length} issue{serviceConcerns.length > 1 ? 's' : ''} reported
+                        {serviceConcerns.length} issue
+                        {serviceConcerns.length > 1 ? "s" : ""} reported
                       </span>
                     </div>
                     <div className="space-y-2">
                       {serviceConcerns.map((concern, index) => (
-                        <div key={concern.id} className="bg-white p-3 rounded-lg border border-gray-200">
-                          <p className="font-semibold text-gray-900 text-sm">#{index + 1}: {concern.title}</p>
+                        <div
+                          key={concern.id}
+                          className="bg-white p-3 rounded-lg border border-gray-200"
+                        >
+                          <p className="font-semibold text-gray-900 text-sm">
+                            #{index + 1}: {concern.title}
+                          </p>
                           {concern.description && (
-                            <p className="text-gray-700 text-xs mt-1">{concern.description}</p>
+                            <p className="text-gray-700 text-xs mt-1">
+                              {concern.description}
+                            </p>
                           )}
                         </div>
                       ))}
@@ -806,17 +917,27 @@ export default function MechanicDetail() {
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <Wrench className="w-5 h-5 text-gray-700" />
-                      <h3 className="font-bold text-gray-900">Parts Requested</h3>
+                      <h3 className="font-bold text-gray-900">
+                        Parts Requested
+                      </h3>
                       <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                        {sparePartRequests.length} part{sparePartRequests.length > 1 ? 's' : ''} needed
+                        {sparePartRequests.length} part
+                        {sparePartRequests.length > 1 ? "s" : ""} needed
                       </span>
                     </div>
                     <div className="space-y-2">
                       {sparePartRequests.map((request, index) => (
-                        <div key={request.id} className="bg-white p-3 rounded-lg border border-gray-200">
-                          <p className="font-semibold text-gray-900 text-sm">#{index + 1}: {request.partName}</p>
+                        <div
+                          key={request.id}
+                          className="bg-white p-3 rounded-lg border border-gray-200"
+                        >
+                          <p className="font-semibold text-gray-900 text-sm">
+                            #{index + 1}: {request.partName}
+                          </p>
                           {request.reason && (
-                            <p className="text-gray-700 text-xs mt-1">{request.reason}</p>
+                            <p className="text-gray-700 text-xs mt-1">
+                              {request.reason}
+                            </p>
                           )}
                         </div>
                       ))}
@@ -829,9 +950,13 @@ export default function MechanicDetail() {
                   <div className="bg-gray-50 rounded-xl p-4">
                     <div className="flex items-center gap-3 mb-3">
                       <MessageSquare className="w-5 h-5 text-gray-700" />
-                      <h3 className="font-bold text-gray-900">Additional Information</h3>
+                      <h3 className="font-bold text-gray-900">
+                        Additional Information
+                      </h3>
                     </div>
-                    <p className="text-sm text-gray-700 italic">&quot;{additionalNotes}&quot;</p>
+                    <p className="text-sm text-gray-700 italic">
+                      &quot;{additionalNotes}&quot;
+                    </p>
                   </div>
                 )}
               </div>
@@ -841,37 +966,54 @@ export default function MechanicDetail() {
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
               <div className="text-center mb-4">
                 <Phone className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-                <h3 className="font-bold text-blue-900 mb-2">What Happens Next?</h3>
+                <h3 className="font-bold text-blue-900 mb-2">
+                  What Happens Next?
+                </h3>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     1
                   </div>
                   <div>
-                    <p className="font-semibold text-blue-900 text-sm">Mechanic Review</p>
-                    <p className="text-blue-800 text-xs">{mechanic.name} will review your vehicle details and photos</p>
+                    <p className="font-semibold text-blue-900 text-sm">
+                      Mechanic Review
+                    </p>
+                    <p className="text-blue-800 text-xs">
+                      {mechanic.name} will review your vehicle details and
+                      photos
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     2
                   </div>
                   <div>
-                    <p className="font-semibold text-blue-900 text-sm">Phone Call Within 2 Hours</p>
-                    <p className="text-blue-800 text-xs">Expect a call at {mechanic.phone} to discuss your quote and schedule</p>
+                    <p className="font-semibold text-blue-900 text-sm">
+                      Phone Call Within 2 Hours
+                    </p>
+                    <p className="text-blue-800 text-xs">
+                      Expect a call at {mechanic.phone} to discuss your quote
+                      and schedule
+                    </p>
                   </div>
                 </div>
-                
+
                 <div className="flex items-start gap-3">
                   <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
                     3
                   </div>
                   <div>
-                    <p className="font-semibold text-blue-900 text-sm">Detailed Quote & Booking</p>
-                    <p className="text-blue-800 text-xs">Receive final pricing and book your preferred appointment time</p>
+                    <p className="font-semibold text-blue-900 text-sm">
+                      Detailed Quote & Booking
+                    </p>
+                    <p className="text-blue-800 text-xs">
+                      Receive final pricing and book your preferred appointment
+                      time
+                    </p>
                   </div>
                 </div>
               </div>
@@ -886,7 +1028,9 @@ export default function MechanicDetail() {
                     Quote Reference: #{Date.now().toString().slice(-6)}
                   </h4>
                   <p className="text-amber-800 text-xs leading-relaxed">
-                    Save this reference number for your records. The mechanic will use it when calling you to discuss your service request.
+                    Save this reference number for your records. The mechanic
+                    will use it when calling you to discuss your service
+                    request.
                   </p>
                 </div>
               </div>
@@ -896,13 +1040,12 @@ export default function MechanicDetail() {
             <div className="space-y-3 pt-2">
               <Button
                 onClick={() => {
-                  setShowQuoteDialog(false);
-                  router.back();
+                  handleProceedToPayment();
                 }}
                 className="w-full h-12 btn-brand hover:btn-brand-hover text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
               >
                 <CheckCircle className="w-5 h-5 mr-2" />
-                Got It! Return to Search
+                Proceed to Payment
               </Button>
 
               <Button
