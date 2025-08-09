@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   Car,
   Calendar,
-  MapPin,
   Wrench,
   Shield,
   DollarSign,
@@ -15,7 +14,6 @@ import {
   CheckCircle,
   AlertTriangle,
   Phone,
-  MessageCircle,
   Navigation,
   CreditCard,
   FileText,
@@ -26,7 +24,7 @@ import {
   Info,
   XCircle,
 } from "lucide-react";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface PaymentDetails {
   totalAmount: number;
@@ -111,7 +109,6 @@ const mockBookingDetails: DetailedBooking = {
 
 export default function BookingDetails() {
   const router = useRouter();
-  const params = useParams();
   const [booking, setBooking] = useState<DetailedBooking>(mockBookingDetails);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showRefundDialog, setShowRefundDialog] = useState(false);

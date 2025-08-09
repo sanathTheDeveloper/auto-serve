@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -11,7 +12,6 @@ import {
   MapPin,
   Clock,
   Phone,
-  Shield,
   Wrench,
   DollarSign,
   CheckCircle,
@@ -167,7 +167,6 @@ export default function MechanicDetail() {
   const [serviceConcerns, setServiceConcerns] = useState<ServiceConcern[]>([]);
   const [sparePartRequests, setSparePartRequests] = useState<SparePartRequest[]>([]);
   const [additionalNotes, setAdditionalNotes] = useState('');
-  const [quoteRequested, setQuoteRequested] = useState(false);
   
   const mechanic = mockMechanicData[mechanicId];
 
@@ -257,57 +256,13 @@ export default function MechanicDetail() {
   };
 
   const handleRequestQuote = () => {
-    setQuoteRequested(true);
     setShowServiceSelector(false);
     setShowQuoteDialog(true);
   };
 
-  const handleBookService = () => {
-    // Create a temporary booking ID for the payment flow
-    const tempBookingId = `booking-${Date.now()}`;
+  // handleBookService function removed as it was unused
 
-    // In a real app, you would save the booking details to state/localStorage
-    // or make an API call to create a pending booking
-    const bookingData = {
-      id: tempBookingId,
-      service: selectedService?.name,
-      mechanic: mechanic.name,
-      address: mechanic.address,
-      estimatedTotal: selectedService ? calculateTotal(selectedService) : 0,
-      status: "pending_payment",
-    };
-
-    // Save booking data to localStorage for payment flow
-    localStorage.setItem(
-      `booking-${tempBookingId}`,
-      JSON.stringify(bookingData)
-    );
-
-    // Navigate to payment page
-    router.push(`/payment/${tempBookingId}`);
-  };
-
-  const calculateTotal = (service: Service) => {
-    const partsTotal = service.details.parts.reduce(
-      (sum, part) => sum + part.price,
-      0
-    );
-    const laborTotal = service.details.labor.price;
-    const feesTotal = service.details.fees.reduce(
-      (sum, fee) => sum + fee.price,
-      0
-    );
-    const subtotal = partsTotal + laborTotal + feesTotal;
-    const gst = subtotal * 0.1;
-    return {
-      partsTotal,
-      laborTotal,
-      feesTotal,
-      subtotal,
-      gst,
-      total: subtotal + gst,
-    };
-  };
+  // calculateTotal function removed as it was unused
 
   return (
     <div className="min-h-screen bg-app-brand">
@@ -689,7 +644,7 @@ export default function MechanicDetail() {
                 <div className="grid grid-cols-2 gap-3">
                   {damagePhotos.map((photo) => (
                     <div key={photo.id} className="relative bg-gray-50 rounded-lg p-2">
-                      <img
+                      <Image
                         src={photo.url}
                         alt="Vehicle photo"
                         className="w-full h-20 object-cover rounded-lg"
@@ -876,7 +831,7 @@ export default function MechanicDetail() {
                       <MessageSquare className="w-5 h-5 text-gray-700" />
                       <h3 className="font-bold text-gray-900">Additional Information</h3>
                     </div>
-                    <p className="text-sm text-gray-700 italic">"{additionalNotes}"</p>
+                    <p className="text-sm text-gray-700 italic">&quot;{additionalNotes}&quot;</p>
                   </div>
                 )}
               </div>
