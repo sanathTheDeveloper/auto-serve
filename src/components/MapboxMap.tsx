@@ -9,6 +9,8 @@ import {
   SlidersHorizontal,
   ChevronUp,
   ChevronDown,
+  X,
+  Search,
 } from "lucide-react";
 import MechanicCard from "@/components/MechanicCard";
 
@@ -21,6 +23,7 @@ interface MapboxMapProps {
   currentLocation: string;
   onToggleView: () => void;
   onFilterClick?: () => void;
+  hasActiveFilters?: boolean;
 }
 
 // Mapbox access token
@@ -34,6 +37,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
   onMechanicClick,
   onToggleView,
   onFilterClick,
+  hasActiveFilters = false,
 }) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
@@ -365,27 +369,32 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         }`}
       ></div>
 
-      {/* Refined Map Controls */}
+      {/* Modern Map Controls */}
       <div
-        className={`absolute top-28 right-6 z-20 transition-all duration-300 ${
-          isDrawerExpanded ? "opacity-40 scale-95" : "opacity-100 scale-100"
+        className={`absolute right-4 z-20 transition-all duration-300 ${
+          isDrawerExpanded ? "opacity-60 scale-95 top-36" : "opacity-100 scale-100 top-32"
         }`}
       >
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 p-2 flex flex-col gap-1.5">
+        <div 
+          className="bg-white/90 backdrop-blur-xl rounded-2xl border border-white/30 p-1.5 flex flex-col gap-1"
+          style={{
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)'
+          }}
+        >
           <button
-            className="w-10 h-10 flex items-center justify-center hover:bg-blue-50 transition-colors rounded-xl group"
+            className="group w-11 h-11 flex items-center justify-center hover:bg-blue-50 transition-all duration-200 rounded-xl hover:scale-105 active:scale-95"
             onClick={() => map.current?.zoomIn()}
           >
-            <span className="text-lg font-light text-gray-700 group-hover:text-blue-600">
+            <span className="text-xl font-light text-gray-700 group-hover:text-blue-600 transition-colors">
               +
             </span>
           </button>
-          <div className="w-6 h-px bg-gray-200 mx-auto"></div>
+          <div className="w-8 h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mx-auto"></div>
           <button
-            className="w-10 h-10 flex items-center justify-center hover:bg-blue-50 transition-colors rounded-xl group"
+            className="group w-11 h-11 flex items-center justify-center hover:bg-blue-50 transition-all duration-200 rounded-xl hover:scale-105 active:scale-95"
             onClick={() => map.current?.zoomOut()}
           >
-            <span className="text-lg font-light text-gray-700 group-hover:text-blue-600">
+            <span className="text-xl font-light text-gray-700 group-hover:text-blue-600 transition-colors">
               −
             </span>
           </button>
@@ -394,12 +403,15 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
 
       {/* Premium Location Button */}
       <div
-        className={`absolute right-6 z-20 transition-all duration-300 ${
-          isDrawerExpanded ? "bottom-[calc(70vh+32px)]" : "bottom-[180px]"
+        className={`absolute right-4 z-20 transition-all duration-300 ${
+          isDrawerExpanded ? "bottom-[calc(70vh+40px)]" : "bottom-[200px]"
         }`}
       >
         <button
-          className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-xl border border-white/20 flex items-center justify-center hover:from-blue-600 hover:to-blue-700 transition-all duration-200 active:scale-95 backdrop-blur-sm"
+          className="group w-14 h-14 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-2xl shadow-2xl border border-white/30 flex items-center justify-center hover:from-blue-600 hover:via-blue-700 hover:to-indigo-700 transition-all duration-300 active:scale-95 backdrop-blur-xl hover:scale-105"
+          style={{
+            boxShadow: '0 12px 40px rgba(59, 130, 246, 0.3), 0 4px 16px rgba(0, 0, 0, 0.1)'
+          }}
           onClick={() => {
             if (navigator.geolocation) {
               navigator.geolocation.getCurrentPosition((position) => {
@@ -416,7 +428,7 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
           }}
         >
           <svg
-            className="w-5 h-5 text-white"
+            className="w-6 h-6 text-white group-hover:scale-110 transition-transform duration-200"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -437,30 +449,59 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
         </button>
       </div>
 
-      {/* Elegant Search Bar */}
-      <div className="absolute top-6 left-6 right-6 z-20">
-        <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-white/20 px-4 py-3 flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <svg
-              className="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2.5}
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              />
-            </svg>
-          </div>
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Find mechanics near you..."
-              className="w-full bg-transparent text-sm text-gray-800 placeholder-gray-500 outline-none font-medium"
-            />
+      {/* Inline Top Controls */}
+      <div className="absolute top-8 left-4 right-4 z-20">
+        <div className="flex items-center gap-3">
+          {/* Close Button */}
+          <button
+            onClick={onToggleView}
+            className="group w-12 h-12 bg-white/90 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/30 hover:bg-white hover:shadow-3xl transition-all duration-300 flex items-center justify-center hover:scale-105 active:scale-95 flex-shrink-0"
+            style={{
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08)'
+            }}
+          >
+            <X className="w-5 h-5 text-gray-700 group-hover:text-gray-900 transition-colors" />
+          </button>
+
+          {/* Premium Search Bar */}
+          <div 
+            className="flex-1 bg-white/90 backdrop-blur-xl rounded-3xl border border-white/30 overflow-hidden transition-all duration-300 hover:shadow-3xl"
+            style={{
+              boxShadow: '0 12px 40px rgba(0, 0, 0, 0.15), 0 4px 16px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <div className="flex items-center px-4 py-3">
+              {/* Search Icon */}
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg mr-3 transition-all duration-300 hover:scale-105 flex-shrink-0">
+                <Search className="w-4 h-4 text-white" />
+              </div>
+              
+              {/* Search Input */}
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Find your service..."
+                  className="w-full bg-transparent text-base text-gray-800 placeholder-gray-400 outline-none font-medium pr-2 transition-all duration-200 focus:placeholder-gray-300"
+                />
+              </div>
+              
+              {/* Filter Button */}
+              <button
+                onClick={onFilterClick}
+                className={`group w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 relative shadow-lg hover:scale-105 active:scale-95 flex-shrink-0 ${
+                  hasActiveFilters
+                    ? "bg-gradient-to-br from-blue-500 via-blue-600 to-indigo-600 text-white shadow-blue-200"
+                    : "bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700"
+                }`}
+              >
+                <SlidersHorizontal className="w-4 h-4 transition-all duration-200" />
+                {hasActiveFilters && (
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-orange-400 to-red-500 rounded-full flex items-center justify-center shadow-lg animate-pulse">
+                    <div className="w-1 h-1 bg-white rounded-full"></div>
+                  </div>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -468,24 +509,24 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
       {/* Premium Mobile Drawer */}
       <div
         ref={drawerRef}
-        className={`absolute bottom-0 left-0 right-0 bg-white/98 backdrop-blur-md rounded-t-3xl shadow-2xl transition-all duration-500 ease-out z-30 ${
+        className={`absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-2xl rounded-t-3xl transition-all duration-500 ease-out z-30 ${
           isDrawerExpanded ? "h-[75vh]" : "h-[140px]"
         } ${isDragging ? "transition-none" : ""}`}
         style={{
-          boxShadow:
-            "0 -12px 40px -4px rgba(0, 0, 0, 0.12), 0 -8px 16px -4px rgba(0, 0, 0, 0.06)",
+          boxShadow: "0 -20px 60px rgba(0, 0, 0, 0.15), 0 -8px 25px rgba(0, 0, 0, 0.1), 0 -2px 10px rgba(0, 0, 0, 0.05)",
           transform: isDragging
             ? `translateY(${Math.min(
                 0,
                 Math.max(-150, dragCurrentY - dragStartY)
               )}px)`
             : "translateY(0)",
-          border: "1px solid rgba(255, 255, 255, 0.2)",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          background: "linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%)",
         }}
       >
-        {/* Premium Drawer Handle */}
+        {/* Modern Drawer Handle */}
         <div
-          className="w-full flex justify-center py-4 cursor-pointer"
+          className="w-full flex justify-center py-5 cursor-pointer group"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -493,62 +534,37 @@ const MapboxMap: React.FC<MapboxMapProps> = ({
           onClick={toggleDrawer}
         >
           <div
-            className={`w-12 h-1.5 bg-gradient-to-r from-gray-300 to-gray-400 rounded-full transition-all duration-200 ${
+            className={`w-12 h-1.5 rounded-full transition-all duration-300 ${
               isDragging
-                ? "from-blue-400 to-blue-500 w-16 h-2"
-                : "hover:from-gray-400 hover:to-gray-500"
+                ? "bg-gradient-to-r from-blue-400 to-indigo-500 w-16 h-2 shadow-lg"
+                : "bg-gradient-to-r from-gray-300 to-gray-400 group-hover:from-blue-300 group-hover:to-indigo-400 group-hover:w-14"
             }`}
           ></div>
         </div>
 
-        {/* Simplified Header */}
-        <div className="px-6 pb-4">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-gray-900 text-lg">
-              Nearby Mechanics ({mechanics.length})
-            </h3>
+        {/* Enhanced Header */}
+        <div className="px-6 pb-5">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h3 className="font-bold text-gray-900 text-xl mb-1">
+                Nearby Mechanics
+              </h3>
+              <p className="text-sm text-gray-500 font-medium">
+                {mechanics.length} results found
+              </p>
+            </div>
             <button
               onClick={toggleDrawer}
-              className="text-blue-600 text-sm font-semibold px-3 py-1.5 hover:bg-blue-50 rounded-full transition-colors flex items-center gap-1.5"
+              className="group bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 text-blue-600 text-sm font-semibold px-4 py-2.5 rounded-2xl transition-all duration-300 flex items-center gap-2 shadow-sm hover:shadow-md hover:scale-105"
             >
               {isDrawerExpanded ? "Collapse" : "View All"}
-              {isDrawerExpanded ? (
-                <ChevronDown className="w-4 h-4" />
-              ) : (
-                <ChevronUp className="w-4 h-4" />
-              )}
-            </button>
-          </div>
-
-          {/* Streamlined Toggle Buttons */}
-          <div className="flex bg-gray-50 rounded-xl p-1">
-            <button
-              onClick={() => handleViewModeChange("list")}
-              className={`flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                viewMode === "list"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600"
-              }`}
-            >
-              <List className="w-4 h-4 mr-1.5" />
-              List
-            </button>
-            <button
-              className={`flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg transition-all ${
-                viewMode === "map"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600"
-              }`}
-            >
-              <Map className="w-4 h-4 mr-1.5" />
-              Map
-            </button>
-            <button
-              onClick={onFilterClick}
-              className="flex-1 flex items-center justify-center px-3 py-2 text-sm font-medium text-gray-600 rounded-lg transition-all hover:bg-gray-100"
-            >
-              <SlidersHorizontal className="w-4 h-4 mr-1.5" />
-              Filter
+              <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center group-hover:bg-blue-600 transition-colors">
+                {isDrawerExpanded ? (
+                  <ChevronDown className="w-3 h-3 text-white" />
+                ) : (
+                  <ChevronUp className="w-3 h-3 text-white" />
+                )}
+              </div>
             </button>
           </div>
         </div>
