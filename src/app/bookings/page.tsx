@@ -111,7 +111,6 @@ const mockBookings: Booking[] = [
 export default function Bookings() {
   const router = useRouter();
   const [tabValue, setTabValue] = useState(0);
-  const [bookings] = useState<Booking[]>(mockBookings);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -191,7 +190,7 @@ export default function Bookings() {
   };
 
 
-  const filteredBookings = bookings.filter((booking) => {
+  const filteredBookings = mockBookings.filter((booking) => {
     if (tabValue === 0) return booking.status === "upcoming";
     if (tabValue === 1) return booking.status === "completed";
     return true;
@@ -377,36 +376,6 @@ export default function Bookings() {
                           </div>
                         )}
 
-                        {/* Action Buttons */}
-                        {booking.paymentStatus === "pending" && (
-                          <div className="pt-1">
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/payment/${booking.id}`);
-                              }}
-                              className="bg-blue-600 hover:bg-blue-700 text-white text-xs py-1 px-3 h-7"
-                            >
-                              Complete Payment
-                            </Button>
-                          </div>
-                        )}
-
-                        {booking.status === "completed" && (
-                          <div className="pt-1">
-                            <Button
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                router.push(`/reviews/${booking.id}/rate`);
-                              }}
-                              className="bg-yellow-600 hover:bg-yellow-700 text-white text-xs py-1 px-3 h-7"
-                            >
-                              Rate Service
-                            </Button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
