@@ -715,6 +715,7 @@ export default function Mechanics() {
               currentLocation={currentLocation}
               onToggleView={() => setViewMode("list")}
               onFilterClick={() => setShowFilterModal(true)}
+              hasActiveFilters={hasActiveFilters}
             />
           </div>
         ) : null}

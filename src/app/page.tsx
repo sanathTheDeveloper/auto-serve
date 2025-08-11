@@ -7,7 +7,6 @@ import {
   Car,
   Wrench,
   ChevronRight,
-  User,
   Bell,
   Calendar,
   TrendingUp,
@@ -92,15 +91,15 @@ export default function Home() {
 
         <div className="flex items-center gap-2">
           <div className="relative">
-            <div className="w-9 h-9 card-elevated rounded-full flex items-center justify-center">
+            <button
+              onClick={() => router.push("/notifications")}
+              className="w-9 h-9 card-elevated rounded-full flex items-center justify-center hover:bg-gray-100 transition-colors active:scale-95"
+            >
               <Bell className="w-4 h-4 text-slate-700" />
-            </div>
+            </button>
             <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-red-500 text-white text-xs">
               2
             </Badge>
-          </div>
-          <div className="w-9 h-9 card-elevated rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-slate-700" />
           </div>
         </div>
       </div>

@@ -5,7 +5,9 @@
       "Bash(npm run build:*)",
       "Bash(npm run lint)",
       "Bash(npx:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(grep:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

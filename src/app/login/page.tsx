@@ -208,7 +208,7 @@ function LoginContent() {
         </Card>
 
         {/* Terms */}
-        <p className="text-center text-sm text-white/80 mt-6 px-4">
+        <p className="text-center text-sm text-black mt-6 px-4">
           By continuing, you agree to our Terms of Service and Privacy Policy
         </p>
       </div>

@@ -291,7 +291,7 @@ export default function AddVehicle() {
               <Button
                 variant="link"
                 onClick={() => setShowManualForm(true)}
-                className="text-white/80 hover:text-white underline"
+                className="text-black hover:text-blue-600 underline"
               >
                 Or, add vehicle details manually
               </Button>

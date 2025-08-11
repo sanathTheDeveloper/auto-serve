@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -11,11 +12,17 @@ import {
   MapPin,
   Clock,
   Phone,
-  Shield,
   Wrench,
   DollarSign,
   CheckCircle,
   X,
+  Camera,
+  Upload,
+  Car,
+  FileText,
+  AlertCircle,
+  Info,
+  MessageSquare,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 
@@ -119,6 +126,33 @@ const mockMechanicData: Record<string, Mechanic> = {
   },
 };
 
+interface DamagePhoto {
+  id: string;
+  url: string;
+  description: string;
+}
+
+interface ServiceConcern {
+  id: string;
+  title: string;
+  description: string;
+}
+
+interface SparePartRequest {
+  id: string;
+  partName: string;
+  reason: string;
+}
+
+// Mock vehicle data - in real app this would come from URL params or context
+const selectedVehicle = {
+  id: "1",
+  make: "Toyota",
+  model: "Camry",
+  year: 2020,
+  licensePlate: "ABC 123",
+};
+
 export default function MechanicDetail() {
   const router = useRouter();
   const params = useParams();
@@ -126,7 +160,14 @@ export default function MechanicDetail() {
 
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [showQuoteDialog, setShowQuoteDialog] = useState(false);
-
+  const [showServiceSelector, setShowServiceSelector] = useState(false);
+  
+  // Streamlined state for service concerns and requests
+  const [damagePhotos, setDamagePhotos] = useState<DamagePhoto[]>([]);
+  const [serviceConcerns, setServiceConcerns] = useState<ServiceConcern[]>([]);
+  const [sparePartRequests, setSparePartRequests] = useState<SparePartRequest[]>([]);
+  const [additionalNotes, setAdditionalNotes] = useState('');
+  
   const mechanic = mockMechanicData[mechanicId];
 
   if (!mechanic) {
@@ -151,35 +192,77 @@ export default function MechanicDetail() {
 
   const handleServiceSelect = (service: Service) => {
     setSelectedService(service);
+    setShowServiceSelector(true);
+  };
+
+  const handlePhotoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files) {
+      Array.from(files).forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const newPhoto: DamagePhoto = {
+            id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+            url: e.target?.result as string,
+            description: '',
+          };
+          setDamagePhotos(prev => [...prev, newPhoto]);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+
+  const handleRemovePhoto = (photoId: string) => {
+    setDamagePhotos(prev => prev.filter(photo => photo.id !== photoId));
+  };
+
+  const addServiceConcern = () => {
+    const newConcern: ServiceConcern = {
+      id: Date.now().toString(),
+      title: '',
+      description: '',
+    };
+    setServiceConcerns(prev => [...prev, newConcern]);
+  };
+
+  const updateServiceConcern = (id: string, field: 'title' | 'description', value: string) => {
+    setServiceConcerns(prev => prev.map(concern => 
+      concern.id === id ? { ...concern, [field]: value } : concern
+    ));
+  };
+
+  const removeServiceConcern = (id: string) => {
+    setServiceConcerns(prev => prev.filter(concern => concern.id !== id));
+  };
+
+  const addSparePartRequest = () => {
+    const newRequest: SparePartRequest = {
+      id: Date.now().toString(),
+      partName: '',
+      reason: '',
+    };
+    setSparePartRequests(prev => [...prev, newRequest]);
+  };
+
+  const updateSparePartRequest = (id: string, field: 'partName' | 'reason', value: string) => {
+    setSparePartRequests(prev => prev.map(request => 
+      request.id === id ? { ...request, [field]: value } : request
+    ));
+  };
+
+  const removeSparePartRequest = (id: string) => {
+    setSparePartRequests(prev => prev.filter(request => request.id !== id));
+  };
+
+  const handleRequestQuote = () => {
+    setShowServiceSelector(false);
     setShowQuoteDialog(true);
   };
 
-  const handleBookService = () => {
-    // Navigate to bookings page
-    router.push("/bookings");
-  };
+  // handleBookService function removed as it was unused
 
-  const calculateTotal = (service: Service) => {
-    const partsTotal = service.details.parts.reduce(
-      (sum, part) => sum + part.price,
-      0
-    );
-    const laborTotal = service.details.labor.price;
-    const feesTotal = service.details.fees.reduce(
-      (sum, fee) => sum + fee.price,
-      0
-    );
-    const subtotal = partsTotal + laborTotal + feesTotal;
-    const gst = subtotal * 0.1;
-    return {
-      partsTotal,
-      laborTotal,
-      feesTotal,
-      subtotal,
-      gst,
-      total: subtotal + gst,
-    };
-  };
+  // calculateTotal function removed as it was unused
 
   return (
     <div className="min-h-screen bg-app-brand">
@@ -258,6 +341,18 @@ export default function MechanicDetail() {
                 </Badge>
               ))}
             </div>
+
+            {/* Quick Action: View Reviews */}
+            <div className="mt-5">
+              <Button
+                onClick={() => router.push(`/mechanics/${mechanicId}/reviews`)}
+                className="w-full btn-brand hover:btn-brand-hover text-white"
+                aria-label="View mechanic reviews"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                View Reviews
+              </Button>
+            </div>
           </CardContent>
         </Card>
 
@@ -304,21 +399,317 @@ export default function MechanicDetail() {
                     onClick={() => handleServiceSelect(service)}
                     className="w-full btn-brand hover:btn-brand-hover text-white"
                   >
-                    Get Quote
+                    Select Service & Get Quote
                   </Button>
                 </CardContent>
               </Card>
             ))}
           </div>
         </div>
+
+        {/* Reviews quick action is now on the title card; detailed reviews moved to separate page */}
       </div>
 
-      {/* Quote Dialog */}
+      {/* Service Selection Dialog */}
+      <Dialog open={showServiceSelector} onOpenChange={setShowServiceSelector}>
+        <DialogContent className="w-[95vw] max-w-md max-h-[90vh] p-0 gap-0 rounded-2xl border-0 shadow-2xl bg-white flex flex-col">
+          <DialogTitle className="sr-only">Service Request Details</DialogTitle>
+          
+          {/* Header - Fixed at top */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-6 rounded-t-2xl relative flex-shrink-0">
+            <button
+              onClick={() => setShowServiceSelector(false)}
+              className="absolute right-4 top-4 w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors z-20 border border-white/30"
+            >
+              <X className="w-6 h-6 text-white stroke-2" />
+            </button>
+            <div className="text-center pr-12">
+              <h2 className="text-white text-xl font-bold mb-2">
+                Service Request Details
+              </h2>
+              <p className="text-white/90 text-sm">
+                Share your concerns and requirements
+              </p>
+            </div>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="overflow-y-auto flex-1 min-h-0">
+            <div className="p-6 space-y-6">
+            {/* Selected Service - Top Priority */}
+            {selectedService && (
+              <div className="bg-blue-50 rounded-xl p-5 border border-blue-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <Wrench className="w-6 h-6 text-blue-600" />
+                  <h3 className="font-bold text-blue-900 text-lg">{selectedService.name}</h3>
+                </div>
+                <p className="text-blue-800 text-sm mb-4 leading-relaxed">{selectedService.description}</p>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded-full font-medium">
+                    {selectedService.priceRange}
+                  </span>
+                  <span className="text-sm text-blue-700 bg-blue-100 px-3 py-2 rounded-full font-medium">
+                    {selectedService.estimatedTime}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Your Vehicle */}
+            <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
+              <div className="flex items-center gap-3 mb-3">
+                <Car className="w-6 h-6 text-gray-700" />
+                <h3 className="font-bold text-gray-900 text-lg">Your Vehicle</h3>
+              </div>
+              <p className="font-bold text-gray-900 text-lg">
+                {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+              </p>
+              <p className="text-gray-600 text-base mt-1">{selectedVehicle.licensePlate}</p>
+            </div>
+
+            {/* Service Concerns Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <AlertCircle className="w-6 h-6 text-gray-700" />
+                <h3 className="font-bold text-gray-900 text-lg">Specific Concerns or Issues</h3>
+              </div>
+              
+              {serviceConcerns.length === 0 ? (
+                <div 
+                  onClick={addServiceConcern}
+                  className="cursor-pointer text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50 transition-all duration-200 group"
+                >
+                  <AlertCircle className="w-10 h-10 text-gray-400 group-hover:text-blue-500 mx-auto mb-3 transition-colors" />
+                  <p className="text-gray-600 group-hover:text-blue-600 text-base font-semibold transition-colors">
+                    Tap to add your first concern or issue
+                  </p>
+                  <p className="text-gray-500 group-hover:text-blue-400 text-sm mt-2 transition-colors">
+                    Describe specific problems or symptoms
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {serviceConcerns.map((concern, index) => (
+                    <div key={concern.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-bold text-gray-900 text-base flex items-center gap-3">
+                          <div className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+                          Issue #{index + 1}
+                        </h4>
+                        <button
+                          onClick={() => removeServiceConcern(concern.id)}
+                          className="w-9 h-9 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Brief description (e.g., Strange noise when braking)"
+                        value={concern.title}
+                        onChange={(e) => updateServiceConcern(concern.id, 'title', e.target.value)}
+                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none mb-4"
+                      />
+                      <textarea
+                        placeholder="When does it happen? How long has this been occurring? Any specific symptoms?"
+                        value={concern.description}
+                        onChange={(e) => updateServiceConcern(concern.id, 'description', e.target.value)}
+                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none resize-none h-24"
+                        rows={3}
+                      />
+                    </div>
+                  ))}
+                  
+                  {/* Add More Button */}
+                  <div 
+                    onClick={addServiceConcern}
+                    className="cursor-pointer text-center py-6 bg-blue-50 rounded-xl border-2 border-dashed border-blue-200 hover:border-blue-400 hover:bg-blue-100 transition-all duration-200 group"
+                  >
+                    <div className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-xl leading-none">+</span>
+                    </div>
+                    <p className="text-blue-600 text-base font-semibold">
+                      Add another issue
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Spare Parts Request Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Wrench className="w-6 h-6 text-gray-700" />
+                <h3 className="font-bold text-gray-900 text-lg">Spare Parts Needed</h3>
+              </div>
+              
+              {sparePartRequests.length === 0 ? (
+                <div 
+                  onClick={addSparePartRequest}
+                  className="cursor-pointer text-center py-8 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 hover:border-green-400 hover:bg-green-50 transition-all duration-200 group"
+                >
+                  <Wrench className="w-10 h-10 text-gray-400 group-hover:text-green-500 mx-auto mb-3 transition-colors" />
+                  <p className="text-gray-600 group-hover:text-green-600 text-base font-semibold transition-colors">
+                    Tap to request specific parts
+                  </p>
+                  <p className="text-gray-500 group-hover:text-green-400 text-sm mt-2 transition-colors">
+                    Add parts you need or prefer
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {sparePartRequests.map((request, index) => (
+                    <div key={request.id} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
+                      <div className="flex justify-between items-center mb-4">
+                        <h4 className="font-bold text-gray-900 text-base flex items-center gap-3">
+                          <div className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </div>
+                          Part #{index + 1}
+                        </h4>
+                        <button
+                          onClick={() => removeSparePartRequest(request.id)}
+                          className="w-9 h-9 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                      <input
+                        type="text"
+                        placeholder="Part name (e.g., Front brake pads, Air filter)"
+                        value={request.partName}
+                        onChange={(e) => updateSparePartRequest(request.id, 'partName', e.target.value)}
+                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none mb-4"
+                      />
+                      <textarea
+                        placeholder="Why do you need this part? Any brand preferences or requirements?"
+                        value={request.reason}
+                        onChange={(e) => updateSparePartRequest(request.id, 'reason', e.target.value)}
+                        className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-100 focus:outline-none resize-none h-24"
+                        rows={3}
+                      />
+                    </div>
+                  ))}
+                  
+                  {/* Add More Button */}
+                  <div 
+                    onClick={addSparePartRequest}
+                    className="cursor-pointer text-center py-6 bg-green-50 rounded-xl border-2 border-dashed border-green-200 hover:border-green-400 hover:bg-green-100 transition-all duration-200 group"
+                  >
+                    <div className="w-8 h-8 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto mb-2">
+                      <span className="text-xl leading-none">+</span>
+                    </div>
+                    <p className="text-green-600 text-base font-semibold">
+                      Add another part
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Photo Upload Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Camera className="w-5 h-5 text-gray-700" />
+                <h3 className="font-bold text-gray-900">Vehicle Photos (Optional)</h3>
+              </div>
+              <p className="text-sm text-gray-600">
+                Upload photos of any damage, issues, or specific areas you want the mechanic to examine.
+              </p>
+              
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                  id="photo-upload"
+                />
+                <label htmlFor="photo-upload" className="cursor-pointer">
+                  <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                  <p className="text-sm font-medium text-gray-600 mb-1">
+                    Tap to upload photos
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    JPG, PNG up to 10MB each
+                  </p>
+                </label>
+              </div>
+
+              {/* Uploaded Photos */}
+              {damagePhotos.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {damagePhotos.map((photo) => (
+                    <div key={photo.id} className="relative bg-gray-50 rounded-lg p-2">
+                      <Image
+                        src={photo.url}
+                        alt="Vehicle photo"
+                        className="w-full h-20 object-cover rounded-lg"
+                      />
+                      <button
+                        onClick={() => handleRemovePhoto(photo.id)}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Additional Notes */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <MessageSquare className="w-6 h-6 text-gray-700" />
+                <h3 className="font-bold text-gray-900 text-lg">Additional Information</h3>
+              </div>
+              <textarea
+                placeholder="Any other details, preferences, or requirements the mechanic should know about..."
+                value={additionalNotes}
+                onChange={(e) => setAdditionalNotes(e.target.value)}
+                className="w-full px-4 py-4 text-base border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 focus:outline-none resize-none h-24"
+                rows={3}
+              />
+            </div>
+
+            {/* Call Notice */}
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+              <div className="flex items-start gap-4">
+                <Phone className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
+                <div>
+                  <h4 className="font-bold text-amber-900 mb-2 text-base">
+                    Mechanic Will Contact You
+                  </h4>
+                  <p className="text-amber-800 text-sm leading-relaxed">
+                    After submitting, {mechanic.name} will call you within 2 hours to discuss your quote and schedule your appointment.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Button */}
+            <Button
+              onClick={handleRequestQuote}
+              className="w-full h-14 btn-brand hover:btn-brand-hover text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+            >
+              <FileText className="w-6 h-6 mr-3" />
+              Request Quote & Get Call
+            </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quote Response Dialog */}
       <Dialog open={showQuoteDialog} onOpenChange={setShowQuoteDialog}>
         <DialogContent className="w-[95vw] max-w-md max-h-[95vh] overflow-y-auto p-0 gap-0 rounded-2xl border-0 shadow-2xl">
           <DialogTitle className="sr-only">Your Estimated Quote</DialogTitle>
           {/* Custom Header with Gradient */}
-          <div className="bg-gradient-to-r from-[var(--brand-blue)] to-[var(--brand-indigo)] p-6 pb-4 rounded-t-2xl relative">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 p-6 pb-4 rounded-t-2xl relative">
             <button
               onClick={() => setShowQuoteDialog(false)}
               className="absolute right-4 top-4 w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-colors z-10"
@@ -326,178 +717,203 @@ export default function MechanicDetail() {
               <X className="w-4 h-4 text-white" />
             </button>
             <div className="text-center">
+              <CheckCircle className="w-12 h-12 text-white mx-auto mb-2" />
               <h2 className="text-white text-xl font-bold mb-1">
-                Your Estimated Quote
+                Quote Request Submitted!
               </h2>
-              <div className="w-12 h-1 bg-white/30 rounded-full mx-auto"></div>
+              <p className="text-white/80 text-sm">
+                {mechanic.name} will contact you soon
+              </p>
             </div>
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-6 space-y-6">
+            {/* Request Summary */}
             {selectedService && (
-              <div className="space-y-5">
-                {/* Service Header */}
-                <div className="text-center bg-gray-50 rounded-xl p-4">
-                  <h4 className="text-lg font-bold text-gray-900 mb-2">
-                    {selectedService.name}
-                  </h4>
-                  <p className="text-sm text-gray-600 leading-relaxed">
-                    {selectedService.description}
-                  </p>
+              <div className="space-y-4">
+                {/* Service Summary */}
+                <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Wrench className="w-5 h-5 text-blue-600" />
+                    <h3 className="font-bold text-blue-900">Service Requested</h3>
+                  </div>
+                  <p className="font-semibold text-blue-900">{selectedService.name}</p>
+                  <p className="text-blue-800 text-sm mt-1">{selectedService.description}</p>
+                  <div className="flex items-center gap-4 mt-3">
+                    <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+                      Est. {selectedService.priceRange}
+                    </span>
+                    <span className="text-xs text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+                      {selectedService.estimatedTime}
+                    </span>
+                  </div>
                 </div>
 
-                {(() => {
-                  const totals = calculateTotal(selectedService);
-                  return (
-                    <>
-                      {/* Parts Section */}
-                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                        <h5 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
-                          <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                          Parts
-                        </h5>
-                        <div className="space-y-3">
-                          {selectedService.details.parts.map((part, index) => (
-                            <div
-                              key={index}
-                              className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg border border-gray-100"
-                            >
-                              <span className="text-sm text-gray-700 font-medium">
-                                {part.name}
-                              </span>
-                              <span className="text-sm font-bold text-gray-900">
-                                ${part.price}
-                              </span>
-                            </div>
-                          ))}
-                          <div className="flex justify-between items-center py-2 px-3 bg-blue-50 rounded-lg border border-blue-100">
-                            <span className="text-sm font-semibold text-blue-900">
-                              Parts Subtotal
-                            </span>
-                            <span className="text-sm font-bold text-blue-900">
-                              ${totals.partsTotal}
-                            </span>
-                          </div>
+                {/* Vehicle Information */}
+                <div className="bg-gray-50 rounded-xl p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Car className="w-5 h-5 text-gray-700" />
+                    <h3 className="font-bold text-gray-900">Your Vehicle</h3>
+                  </div>
+                  <p className="font-semibold text-gray-900">
+                    {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
+                  </p>
+                  <p className="text-gray-600 text-sm">{selectedVehicle.licensePlate}</p>
+                </div>
+
+                {/* Photos Summary */}
+                {damagePhotos.length > 0 && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Camera className="w-5 h-5 text-gray-700" />
+                      <h3 className="font-bold text-gray-900">Vehicle Photos</h3>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        {damagePhotos.length} photo{damagePhotos.length > 1 ? 's' : ''} uploaded
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Photos have been included with your quote request for the mechanic to review.
+                    </p>
+                  </div>
+                )}
+
+                {/* Service Concerns */}
+                {serviceConcerns.length > 0 && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <AlertCircle className="w-5 h-5 text-gray-700" />
+                      <h3 className="font-bold text-gray-900">Specific Concerns</h3>
+                      <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+                        {serviceConcerns.length} issue{serviceConcerns.length > 1 ? 's' : ''} reported
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {serviceConcerns.map((concern, index) => (
+                        <div key={concern.id} className="bg-white p-3 rounded-lg border border-gray-200">
+                          <p className="font-semibold text-gray-900 text-sm">#{index + 1}: {concern.title}</p>
+                          {concern.description && (
+                            <p className="text-gray-700 text-xs mt-1">{concern.description}</p>
+                          )}
                         </div>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                      {/* Labor Section */}
-                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                        <h5 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
-                          <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                          Labor
-                        </h5>
-                        <div className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg border border-gray-100">
-                          <span className="text-sm text-gray-700 font-medium">
-                            {selectedService.details.labor.description}
-                          </span>
-                          <span className="text-sm font-bold text-gray-900">
-                            ${selectedService.details.labor.price}
-                          </span>
+                {/* Spare Parts Requests */}
+                {sparePartRequests.length > 0 && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <Wrench className="w-5 h-5 text-gray-700" />
+                      <h3 className="font-bold text-gray-900">Parts Requested</h3>
+                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                        {sparePartRequests.length} part{sparePartRequests.length > 1 ? 's' : ''} needed
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      {sparePartRequests.map((request, index) => (
+                        <div key={request.id} className="bg-white p-3 rounded-lg border border-gray-200">
+                          <p className="font-semibold text-gray-900 text-sm">#{index + 1}: {request.partName}</p>
+                          {request.reason && (
+                            <p className="text-gray-700 text-xs mt-1">{request.reason}</p>
+                          )}
                         </div>
-                      </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
-                      {/* Fees Section */}
-                      <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
-                        <h5 className="text-base font-semibold text-gray-900 mb-3 flex items-center">
-                          <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                          Miscellaneous Fees
-                        </h5>
-                        <div className="space-y-2">
-                          {selectedService.details.fees.map((fee, index) => (
-                            <div
-                              key={index}
-                              className="flex justify-between items-center py-2 px-3 bg-gray-50 rounded-lg border border-gray-100"
-                            >
-                              <span className="text-sm text-gray-700 font-medium">
-                                {fee.name}
-                              </span>
-                              <span className="text-sm font-bold text-gray-900">
-                                ${fee.price}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Totals */}
-                      <div className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-4 border border-gray-100 shadow-sm">
-                        <div className="space-y-3">
-                          <div className="flex justify-between items-center py-2">
-                            <span className="text-sm text-gray-600 font-medium">
-                              Subtotal
-                            </span>
-                            <span className="text-sm font-bold text-gray-900">
-                              ${totals.subtotal.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between items-center py-2">
-                            <span className="text-sm text-gray-600 font-medium">
-                              GST (10%)
-                            </span>
-                            <span className="text-sm font-bold text-gray-900">
-                              ${totals.gst.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="border-t border-gray-300 pt-3">
-                            <div className="flex justify-between items-center py-2 px-3 bg-green-500 rounded-lg text-white">
-                              <span className="font-bold">
-                                Total Estimated Cost
-                              </span>
-                              <span className="text-xl font-bold">
-                                ${totals.total.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Authorization Notice */}
-                      <div className="bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-100 rounded-xl p-4 shadow-sm">
-                        <div className="flex items-start gap-3">
-                          <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-                            <Shield className="w-4 h-4 text-amber-600" />
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-amber-900 mb-2">
-                              Authorization Notice
-                            </p>
-                            <p className="text-xs text-amber-800 leading-relaxed">
-                              I understand the mechanic must call me for
-                              approval before starting any work not included in
-                              this estimate.
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="space-y-3 pt-2">
-                        <Button
-                          onClick={() => {
-                            handleBookService();
-                            setShowQuoteDialog(false);
-                          }}
-                          className="w-full h-12 btn-brand hover:btn-brand-hover text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                        >
-                          <CheckCircle className="w-5 h-5 mr-2" />
-                          Accept Estimate & Book Service
-                        </Button>
-
-                        <Button
-                          variant="outline"
-                          onClick={() => setShowQuoteDialog(false)}
-                          className="w-full h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-base rounded-xl transition-all duration-200"
-                        >
-                          Decline
-                        </Button>
-                      </div>
-                    </>
-                  );
-                })()}
+                {/* Additional Notes */}
+                {additionalNotes && (
+                  <div className="bg-gray-50 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <MessageSquare className="w-5 h-5 text-gray-700" />
+                      <h3 className="font-bold text-gray-900">Additional Information</h3>
+                    </div>
+                    <p className="text-sm text-gray-700 italic">&quot;{additionalNotes}&quot;</p>
+                  </div>
+                )}
               </div>
             )}
+
+            {/* What Happens Next */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-5 border border-blue-100">
+              <div className="text-center mb-4">
+                <Phone className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                <h3 className="font-bold text-blue-900 mb-2">What Happens Next?</h3>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <p className="font-semibold text-blue-900 text-sm">Mechanic Review</p>
+                    <p className="text-blue-800 text-xs">{mechanic.name} will review your vehicle details and photos</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <p className="font-semibold text-blue-900 text-sm">Phone Call Within 2 Hours</p>
+                    <p className="text-blue-800 text-xs">Expect a call at {mechanic.phone} to discuss your quote and schedule</p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <p className="font-semibold text-blue-900 text-sm">Detailed Quote & Booking</p>
+                    <p className="text-blue-800 text-xs">Receive final pricing and book your preferred appointment time</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Important Notice */}
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <Info className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-semibold text-amber-900 mb-1 text-sm">
+                    Quote Reference: #{Date.now().toString().slice(-6)}
+                  </h4>
+                  <p className="text-amber-800 text-xs leading-relaxed">
+                    Save this reference number for your records. The mechanic will use it when calling you to discuss your service request.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3 pt-2">
+              <Button
+                onClick={() => {
+                  setShowQuoteDialog(false);
+                  router.back();
+                }}
+                className="w-full h-12 btn-brand hover:btn-brand-hover text-white font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <CheckCircle className="w-5 h-5 mr-2" />
+                Got It! Return to Search
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => window.open(`tel:${mechanic.phone}`)}
+                className="w-full h-12 border-2 border-gray-300 text-gray-700 hover:bg-gray-50 font-semibold text-base rounded-xl transition-all duration-200"
+              >
+                <Phone className="w-5 h-5 mr-2" />
+                Call {mechanic.name} Now
+              </Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
