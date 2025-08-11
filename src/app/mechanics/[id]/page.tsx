@@ -23,6 +23,7 @@ import {
   AlertCircle,
   Info,
   MessageSquare,
+  CreditCard,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 
@@ -258,6 +259,36 @@ export default function MechanicDetail() {
   const handleRequestQuote = () => {
     setShowServiceSelector(false);
     setShowQuoteDialog(true);
+  };
+
+  const handleBookAndPay = () => {
+    if (!selectedService) return;
+
+    // Create booking data to save to localStorage
+    const bookingData = {
+      service: selectedService.name,
+      serviceDescription: selectedService.description,
+      priceRange: selectedService.priceRange,
+      estimatedTime: selectedService.estimatedTime,
+      mechanic: mechanic.name,
+      mechanicPhone: mechanic.phone,
+      address: mechanic.address,
+      estimatedTotal: 280.00, // Default total - in real app this would be calculated
+      serviceConcerns: serviceConcerns.filter(concern => concern.title.trim() || concern.description.trim()),
+      sparePartRequests: sparePartRequests.filter(request => request.partName.trim() || request.reason.trim()),
+      damagePhotos: damagePhotos,
+      additionalNotes: additionalNotes.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    // Generate booking ID
+    const bookingId = Date.now().toString();
+    
+    // Save to localStorage for payment page to access
+    localStorage.setItem(`booking-${bookingId}`, JSON.stringify(bookingData));
+    
+    // Navigate to payment page
+    router.push(`/payment/${bookingId}`);
   };
 
   // handleBookService function removed as it was unused
@@ -691,14 +722,25 @@ export default function MechanicDetail() {
               </div>
             </div>
 
-            {/* Action Button */}
-            <Button
-              onClick={handleRequestQuote}
-              className="w-full h-14 btn-brand hover:btn-brand-hover text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <FileText className="w-6 h-6 mr-3" />
-              Request Quote & Get Call
-            </Button>
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <Button
+                onClick={handleBookAndPay}
+                className="w-full h-14 bg-green-600 hover:bg-green-700 text-white font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+              >
+                <CreditCard className="w-6 h-6 mr-3" />
+                Book & Pay Now
+              </Button>
+              
+              <Button
+                onClick={handleRequestQuote}
+                variant="outline"
+                className="w-full h-12 border-2 border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold text-base rounded-xl transition-all duration-200"
+              >
+                <FileText className="w-5 h-5 mr-2" />
+                Request Quote & Get Call
+              </Button>
+            </div>
             </div>
           </div>
         </DialogContent>

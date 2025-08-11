@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PaymentStatusBadge, EscrowStatusBadge } from "@/components/PaymentStatusBadge";
 import {
   Car,
   Calendar,
@@ -125,69 +126,7 @@ export default function Bookings() {
     }
   };
 
-  const getPaymentStatusDisplay = (booking: Booking) => {
-    switch (booking.paymentStatus) {
-      case "pending":
-        return {
-          text: "Payment Pending",
-          color: "bg-yellow-100 text-yellow-800",
-          icon: <Clock className="w-3 h-3" />,
-        };
-      case "deposit_paid":
-        return {
-          text: `Deposit Paid ($${booking.paymentDetails.paidAmount.toFixed(0)})`,
-          color: "bg-blue-100 text-blue-800",
-          icon: <DollarSign className="w-3 h-3" />,
-        };
-      case "fully_paid":
-        return {
-          text: "Paid in Full",
-          color: "bg-green-100 text-green-800",
-          icon: <CheckCircle className="w-3 h-3" />,
-        };
-      case "released":
-        return {
-          text: "Payment Released",
-          color: "bg-emerald-100 text-emerald-800",
-          icon: <CheckCircle className="w-3 h-3" />,
-        };
-      default:
-        return {
-          text: "Unknown",
-          color: "bg-gray-100 text-gray-800",
-          icon: <AlertTriangle className="w-3 h-3" />,
-        };
-    }
-  };
 
-  const getEscrowStatusDisplay = (escrowStatus: string) => {
-    switch (escrowStatus) {
-      case "holding":
-        return {
-          text: "Escrow Protected",
-          color: "text-blue-600",
-          icon: <Shield className="w-4 h-4 text-blue-600" />,
-        };
-      case "released":
-        return {
-          text: "Funds Released",
-          color: "text-green-600",
-          icon: <CheckCircle className="w-4 h-4 text-green-600" />,
-        };
-      case "refunded":
-        return {
-          text: "Refunded",
-          color: "text-purple-600",
-          icon: <Shield className="w-4 h-4 text-purple-600" />,
-        };
-      default:
-        return {
-          text: "No Protection",
-          color: "text-gray-500",
-          icon: <AlertTriangle className="w-4 h-4 text-gray-500" />,
-        };
-    }
-  };
 
 
   const filteredBookings = mockBookings.filter((booking) => {
@@ -350,32 +289,39 @@ export default function Bookings() {
                       <div className="mt-3 space-y-2">
                         {/* Payment Status Badge */}
                         <div className="flex items-center gap-2">
-                          {(() => {
-                            const paymentStatus = getPaymentStatusDisplay(booking);
-                            return (
-                              <div className={`inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full font-medium ${paymentStatus.color}`}>
-                                {paymentStatus.icon}
-                                {paymentStatus.text}
-                              </div>
-                            );
-                          })()}
+                          <PaymentStatusBadge
+                            paymentStatus={booking.paymentStatus}
+                            paymentDetails={booking.paymentDetails}
+                            size="sm"
+                            showAmount={true}
+                          />
                         </div>
 
                         {/* Escrow Protection */}
                         {booking.escrowProtection && (
                           <div className="flex items-center gap-2">
-                            {(() => {
-                              const escrowStatus = getEscrowStatusDisplay(booking.paymentDetails.escrowStatus);
-                              return (
-                                <div className={`flex items-center gap-1 text-xs ${escrowStatus.color}`}>
-                                  {escrowStatus.icon}
-                                  <span className="font-medium">{escrowStatus.text}</span>
-                                </div>
-                              );
-                            })()}
+                            <EscrowStatusBadge
+                              escrowStatus={booking.paymentDetails.escrowStatus}
+                              size="sm"
+                            />
                           </div>
                         )}
 
+                        {/* Payment Action Button */}
+                        {booking.paymentStatus === "pending" && (
+                          <div className="mt-3">
+                            <Button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(`/payment/${booking.id}`);
+                              }}
+                              className="w-full bg-green-600 hover:bg-green-700 text-white text-sm py-2 rounded-lg font-medium"
+                              size="sm"
+                            >
+                              Pay Now
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
