@@ -9,11 +9,6 @@ import {
   Calendar,
   MapPin,
   Wrench,
-  Shield,
-  DollarSign,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 

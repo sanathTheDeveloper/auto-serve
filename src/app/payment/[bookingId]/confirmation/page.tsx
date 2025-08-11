@@ -19,11 +19,14 @@ function PaymentConfirmationContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const bookingId = params.bookingId as string;
-  const paymentOption = searchParams.get("option") as "full" | "deposit";
+  const paymentOption = searchParams.get("option") as "full" | "deposit" | "complete";
+  const customAmount = searchParams.get("amount");
 
   const [paymentDetails] = useState({
     transactionId: "TXN-" + Date.now(),
-    amount: paymentOption === "deposit" ? 84.00 : 280.00,
+    amount: customAmount ? parseFloat(customAmount) : 
+            paymentOption === "deposit" ? 84.00 : 
+            paymentOption === "complete" ? 196.00 : 280.00,
     totalAmount: 280.00,
     paymentMethod: "•••• 3456",
     processedAt: new Date().toISOString(),
@@ -41,6 +44,7 @@ function PaymentConfirmationContent() {
   });
 
   const isDepositPayment = paymentOption === "deposit";
+  const isCompletionPayment = paymentOption === "complete";
   const remainingAmount = paymentDetails.totalAmount - paymentDetails.amount;
 
   useEffect(() => {
@@ -75,7 +79,7 @@ function PaymentConfirmationContent() {
                 ${paymentDetails.amount.toFixed(2)}
               </div>
               <div className="text-sm text-gray-500">
-                {isDepositPayment ? "Deposit Paid" : "Full Payment"}
+                {isDepositPayment ? "Deposit Paid" : isCompletionPayment ? "Remaining Payment Complete" : "Full Payment"}
               </div>
             </div>
 
@@ -102,6 +106,12 @@ function PaymentConfirmationContent() {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-500">Remaining Balance</span>
                   <span className="text-gray-700">${remainingAmount.toFixed(2)}</span>
+                </div>
+              )}
+              {isCompletionPayment && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-500">Total Paid</span>
+                  <span className="text-green-600 font-semibold">${paymentDetails.totalAmount.toFixed(2)}</span>
                 </div>
               )}
             </div>
@@ -173,6 +183,12 @@ function PaymentConfirmationContent() {
                       <span>Remaining balance due after service completion</span>
                     </div>
                   )}
+                  {isCompletionPayment && (
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full" />
+                      <span>Payment is now complete and ready for release after service</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -216,7 +232,7 @@ function PaymentConfirmationContent() {
                 <div>
                   <div className="font-medium text-slate-900">Service Completion</div>
                   <div className="text-sm text-gray-600">
-                    Confirm satisfaction and {isDepositPayment ? "pay remaining balance" : "payment will be released"}
+                    Confirm satisfaction and {isDepositPayment ? "pay remaining balance" : isCompletionPayment ? "full payment will be released" : "payment will be released"}
                   </div>
                 </div>
               </div>
