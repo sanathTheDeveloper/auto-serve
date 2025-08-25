@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Car, Check, X, Shield } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter, useSearchParams } from "next/navigation";
 
 interface VehicleData {
@@ -258,8 +259,8 @@ function ConfirmVehicleContent() {
         </div>
       </div>
 
-      {/* Bottom Safe Area for Navigation */}
-      <div className="h-32" />
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

@@ -5,7 +5,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft,
   Bell,
   BellRing,
   Car,
@@ -16,6 +15,7 @@ import {
   X,
   Star,
 } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 
 interface Notification {
@@ -191,8 +191,6 @@ export default function NotificationsPage() {
 
   return (
     <div className="min-h-screen bg-app-brand">
-      {/* Status Bar Space */}
-      <div className="h-11" />
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -200,10 +198,10 @@ export default function NotificationsPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          aria-label="Go back"
+          aria-label="Close notifications"
           className="w-10 h-10 rounded-lg card-elevated"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <X className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
@@ -400,6 +398,9 @@ export default function NotificationsPage() {
           </div>
         )}
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

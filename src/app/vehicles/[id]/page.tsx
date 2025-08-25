@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Car, Gauge, FileText, Calendar, Edit3, Trash2, X, MoreVertical } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter, useParams } from "next/navigation";
 import { calculateNextService } from "@/lib/service-logic";
 
@@ -251,8 +252,6 @@ export default function VehicleDetail() {
 
   return (
     <div className="min-h-screen bg-app-brand">
-      {/* Status Bar Space */}
-      <div className="h-11" />
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -672,6 +671,9 @@ export default function VehicleDetail() {
           onClick={() => setShowActionsMenu(false)}
         />
       )}
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

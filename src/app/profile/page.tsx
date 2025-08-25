@@ -15,6 +15,7 @@ import {
   History,
   Receipt,
 } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 
 interface MenuItem {
@@ -181,8 +182,8 @@ export default function Profile() {
             <User className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Profile</h1>
-          </div>
+          <h1 className="text-xl font-bold text-slate-900">Profile</h1>
+        </div>
         </div>
       </div>
 
@@ -228,8 +229,8 @@ export default function Profile() {
         {renderMenuSection("Settings", settingsItems)}
       </div>
 
-      {/* Bottom Safe Area */}
-      <div className="h-8" />
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

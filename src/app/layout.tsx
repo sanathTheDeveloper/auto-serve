@@ -1,5 +1,4 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import BottomNavigation from '@/components/BottomNavigation';
 import "./globals.css";
 
 const geistSans = Geist({
@@ -11,6 +10,15 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+
+export const metadata = {
+  title: 'Auto Serve - Vehicle Management',
+  description: 'Keep your vehicles in top condition with Auto Serve',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
+};
 
 export default function RootLayout({
   children,
@@ -25,15 +33,16 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Auto Serve" />
+        <link rel="icon" href="/logo.png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-background font-sans`}
       >
         <div className="min-h-screen flex flex-col">
-          <main className="flex-1 pb-16">
+          <main className="flex-1">
             {children}
           </main>
-          <BottomNavigation />
         </div>
       </body>
     </html>

@@ -10,6 +10,7 @@ import {
   MapPin,
   Wrench,
 } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 
 interface PaymentDetails {
@@ -327,8 +328,8 @@ export default function Bookings() {
         )}
       </div>
 
-      {/* Bottom Safe Area */}
-      <div className="h-8" />
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

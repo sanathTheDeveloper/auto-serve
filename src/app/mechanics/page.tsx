@@ -16,6 +16,7 @@ import {
   MapPin,
 } from "lucide-react";
 import MechanicCard from "@/components/MechanicCard";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Mechanic, Vehicle, Filters } from "@/types/mechanic";
@@ -450,16 +451,24 @@ export default function Mechanics() {
 
   return (
     <div className="min-h-screen bg-app-brand">
-      {/* Status Bar Space */}
-      <div className="h-11" />
 
-      {/* Header - Simplified */}
-      <div className="px-4 py-8">
+      {/* Header */}
+      <div className="flex items-center justify-center px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 tile-brand rounded-lg flex items-center justify-center">
+            <Search className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-900">Find Mechanics</h1>
+          </div>
+        </div>
+      </div>
+
+      {/* Hero Section */}
+      <div className="px-4 pb-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-slate-900 mb-3">
-            Find Auto Repair
-          </h1>
-          <p className="text-slate-700 text-base">
+
+          <p className="text-slate-600 text-base">
             Trusted automotive services near you
           </p>
         </div>
@@ -904,8 +913,8 @@ export default function Mechanics() {
         </div>
       )}
 
-      {/* Bottom Safe Area */}
-      <div className="h-8" />
+      {/* Bottom Navigation - Hidden in map view */}
+      {viewMode !== "map" && <BottomNavigation />}
     </div>
   );
 }

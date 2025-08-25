@@ -24,6 +24,7 @@ import {
   Info,
   XCircle,
 } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 
 interface PaymentDetails {
@@ -183,23 +184,25 @@ export default function BookingDetails() {
       <div className="h-11" />
 
       {/* Header */}
-      <div className="flex items-center gap-4 px-4 py-4">
+      <div className="flex items-center justify-between px-4 py-3">
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           onClick={() => router.back()}
-          className="w-10 h-10 p-0 hover:bg-white/20 rounded-xl flex items-center justify-center"
+          className="w-10 h-10 rounded-lg card-elevated"
+          aria-label="Go back"
         >
-          <ArrowLeft className="w-5 h-5 text-slate-900" />
+          <ArrowLeft className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 tile-brand rounded-xl flex items-center justify-center">
-            <FileText className="w-5 h-5" />
+          <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
+            <FileText className="w-4 h-4" />
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Booking Details</h1>
           </div>
         </div>
+        <div className="w-10" />
       </div>
 
       {/* Content */}
@@ -460,8 +463,8 @@ export default function BookingDetails() {
         </div>
       </div>
 
-      {/* Bottom Safe Area */}
-      <div className="h-8" />
+      {/* Bottom Navigation */}
+      <BottomNavigation />
 
       {/* Cancel Confirmation Dialog */}
       {showCancelDialog && (

@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ArrowLeft,
   Star,
   Car,
   Wrench,
@@ -16,6 +15,7 @@ import {
   CheckCircle,
   X,
 } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter, useParams } from "next/navigation";
 
 interface BookingInfo {
@@ -161,10 +161,10 @@ export default function RateMechanicPage() {
           variant="ghost"
           size="icon"
           onClick={() => router.back()}
-          aria-label="Go back"
+          aria-label="Close rating"
           className="w-10 h-10 rounded-lg card-elevated"
         >
-          <ArrowLeft className="w-5 h-5" />
+          <X className="w-5 h-5" />
         </Button>
         <div className="flex items-center gap-3">
           <div className="w-7 h-7 tile-brand rounded-lg flex items-center justify-center">
@@ -372,6 +372,9 @@ export default function RateMechanicPage() {
           </p>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

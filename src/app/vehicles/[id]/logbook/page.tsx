@@ -23,6 +23,7 @@ import {
   DollarSign,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
+import BottomNavigation from "@/components/BottomNavigation";
 
 interface ServiceItem {
   name: string;
@@ -1059,6 +1060,8 @@ export default function ServiceLogbook() {
         </div>
       )}
 
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

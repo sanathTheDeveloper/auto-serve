@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Car, Plus, CheckCircle } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 
 interface VehicleData {
@@ -474,8 +475,8 @@ export default function AddVehicle() {
         </div>
       )}
 
-      {/* Bottom Safe Area for Navigation */}
-      <div className="h-24" />
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

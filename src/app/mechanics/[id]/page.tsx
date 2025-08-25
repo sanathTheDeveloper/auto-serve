@@ -25,6 +25,7 @@ import {
   MessageSquare,
   CreditCard,
 } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter, useParams } from "next/navigation";
 
 interface Service {
@@ -297,8 +298,6 @@ export default function MechanicDetail() {
 
   return (
     <div className="min-h-screen bg-app-brand">
-      {/* Status Bar Space */}
-      <div className="h-11" />
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -959,6 +958,9 @@ export default function MechanicDetail() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import {
   Filter,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import BottomNavigation from "@/components/BottomNavigation";
 import { useRouter } from "next/navigation";
 import { Review, ReviewSummary, ReviewFilters } from "@/types/reviews";
 
@@ -194,8 +195,6 @@ export default function MechanicReviews() {
 
   return (
     <div className="min-h-screen bg-app-brand">
-      {/* Status Bar Space */}
-      <div className="h-11" />
 
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
@@ -470,6 +469,9 @@ export default function MechanicReviews() {
           </Button>
         </div>
       </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </div>
   );
 }
